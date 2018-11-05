@@ -1,0 +1,11 @@
+{
+	"ambient_illumination":"AMBIENT_ILLUMINATION_LEVEL5", 
+	"time_of_day":{
+		"seconds_since_midnight" : 12345
+	}, 
+	"atmospheric_pressure":102425.1, 
+	"temperature":300.00,          
+	"relative_humidity":89.1,    
+	"precipitation":"PRECIPITATION_VERY_LIGHT",        
+	"fog":"FOG_POOR_VISIBILITY"                  
+}

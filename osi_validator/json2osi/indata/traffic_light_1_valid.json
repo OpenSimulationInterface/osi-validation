@@ -1,0 +1,34 @@
+{
+    "id":{
+        "value":1
+    },
+
+    "base": {
+        "dimension":{
+            "width": 1.0,
+            "length": 2.0,
+            "height": 3.0
+        },
+        "position":{
+            "x": 4.0,
+            "y": 5.0,
+            "z": 6.0
+        },
+        "orientation":{
+            "roll": 7.0,
+            "pitch": 8.0,
+            "yaw": 9.0
+        }
+    },
+
+    "classification":{
+        "color":"COLOR_RED",
+        "icon":"ICON_NONE",
+        "mode":"MODE_CONSTANT",
+        "counter":3.14156,
+        "assigned_lane_id":[
+            {"value":1},
+            {"value":2}
+        ]
+    }
+}

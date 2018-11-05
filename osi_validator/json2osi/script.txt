@@ -1,0 +1,13 @@
+./json2osi.py stationary_object_0_empty.json stationary_object_0_empty.osibytes StationaryObject
+./json2osi.py stationary_object_0_empty.json stationary_object_1.osibytes StationaryObject
+
+./json2osi.py ./indata/moving_object_0_empty.json ./outdata/moving_object_0_empty.json MovingObject
+./json2osi.py ./indata/moving_object_1_id.json ./outdata/moving_object_1_id.json MovingObject
+
+./json2osi.py ./indata/lane_boundary_complete.json ./outdata/lane_boundary_complete.osibytes LaneBoundary
+
+./json2osi.py ./indata/traffic_light_1_valid.json ./outdata/traffic_light_1_valid.json TrafficLight
+
+./json2osi.py ./indata/occupant_1.json ./outdata/occupant_1.osibytes Occupant
+
+./json2osi.py ./indata/environmental_conditions_1.json ./outdata/environmental_conditions_1.osibytes EnvironmentalConditions
