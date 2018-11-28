@@ -33,9 +33,7 @@ def decode_data(encoded_data, data_class):
     - encoded_data - byte type data
     - osi class to be parsed 
     """
-    decoded_data = []
     for row in encoded_data:
         data_object = data_class()
         data_object.ParseFromString(row)
-        decoded_data.append(data_object)
-    yield decoded_data
+        yield data_object
