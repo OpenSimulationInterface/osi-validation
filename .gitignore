@@ -109,3 +109,4 @@ venv.bak/
 # Madeup extension for OSI byteencoded string
 *.osibytes
 *.sosibytes
+.DS_Store
