@@ -38,7 +38,7 @@ for i, msg in enumerate(decode_data(separator, data_class)):
     'n_lane_boundarys' : len(msg.global_ground_truth.lane_boundary),
     'n_lanes' : len(msg.global_ground_truth.lane),
     'n_occupants' : len(msg.global_ground_truth.occupant)}
-    msg.
+
     df = df.append(data, ignore_index=True)
 
 df = df.set_index('message_number')

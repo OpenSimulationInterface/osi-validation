@@ -95,7 +95,7 @@ def decode_data(encoded_data, data_class):
     return decoded_data
 
 def real_data_trial():
-    EXAMPLE_FILE = './Example_Data/CornerRoadObjects_mini/CornerRoadObjects_mini.txt' 
+    EXAMPLE_FILE = './Data/overtake_right_straight_SensorView.txt' 
     
     encoded_data = read_text_data(EXAMPLE_FILE)
     separated_data = separate_all_sections(encoded_data)
@@ -123,21 +123,6 @@ def validate_ground_truth(data):
     ggv.load_data(data)
     ggv.context = 'Ground Truth'
     ggv.validate()
-
-    # lane_boundary_validator = lane.LaneBoundaryValidator()
-    # lane_boundary_validator.load_data(data.lane_boundary[0])
-    # lane_boundary_validator.context = 'Ground Truth'
-    # lane_boundary_validator.validate()
-
-    # lane_validator = lane.LaneValidator()
-    # lane_validator.load_data(data.lane[0])
-    # lane_validator.context = 'Ground Truth'
-    # lane_validator.validate()
-    
-    # environmental_conditions_validator = EnvironmentalConditionsValidator()
-    # environmental_conditions_validator.load_data(data.environmental_conditions)
-    # environmental_conditions_validator.context = 'Ground Truth'
-    # environmental_conditions_validator.validate()
 
 def osi_version2string(version):
     """ String represntation of OSI version """
@@ -170,82 +155,6 @@ def command_line_arguments():
 
 def main():
     real_data_trial()
-
-    # ===== STATIONARY OBJECT ============
-    # TESTING_FILE = './json2osi/outdata/stationary_object_1.osibytes'
-    # #TESTING_FILE = 'json2osi/outdata/stationary_object.osibytes'
-    # data = read_text_data(TESTING_FILE)
-    # stationay_object_validator = StationaryObjectValidator(data)
-    # stationay_object_validator.validate()
-    # # ==== Moving object =============
-
-    # TESTING_FILE = './json2osi/outdata/moving_object_1_id.osibytes'
-    # data = read_text_data(TESTING_FILE)
-    # moving_object_validator = MovingObjectVaidator(data)
-    # moving_object_validator.validate()
-    
-    # # ==== Trafic Sign ===== 
-    # TESTING_FILE = './json2osi/outdata/traffic_sign_0_empty.osibytes'
-    # TESTING_FILE = './json2osi/outdata/traffic_sign_1_id_valid.osibytes'
-    # data = read_text_data(TESTING_FILE)
-    
-    # traffic_sign_validator = TrafficSignValidator()
-    # traffic_sign_validator.load_encoded_data(data)
-    # traffic_sign_validator.validate()
-
-    # # ==== Road Marking ====
-    # TESTING_FILE = './json2osi/outdata/road_marking.osibytes'
-    # data = read_text_data(TESTING_FILE)
-    
-    # road_marking_validator = RoadMarkingValidator()
-    # road_marking_validator.load_encoded_data(data)
-    # road_marking_validator.context = 'Ground Truth'
-    # road_marking_validator.validate()
-
-    # # ==== Traffic Light Validator ==== 
-    # TESTING_FILE = './json2osi/outdata/traffic_light_1_valid.osibytes'
-    # data = read_text_data(TESTING_FILE)
-    
-    # traffic_light_validator = TrafficLightValidator()
-    # traffic_light_validator.load_encoded_data(data)
-    # traffic_light_validator.context = 'Ground Truth'
-    # traffic_light_validator.validate()
-
-    # # ===== Occupant ==========
-    # TESTING_FILE = './json2osi/outdata/occupant_1.osibytes'
-    # data = read_text_data(TESTING_FILE)
-    
-    # occupant_validator = OccupantValidator()
-    # occupant_validator.load_encoded_data(data)
-    # occupant_validator.context = 'Ground Truth'
-    # occupant_validator.validate()
-
-#    # ==== Traffic Light Validator ==== 
-#     TESTING_FILE = './json2osi/outdata/environmental_conditions_1.osibytes'
-#     data = read_text_data(TESTING_FILE)
-    
-#     environmental_conditions_validator = EnvironmentalConditionsValidator()
-#     environmental_conditions_validator.load_encoded_data(data)
-#     environmental_conditions_validator.context = 'Ground Truth'
-#     environmental_conditions_validator.validate()
-
-    # # ==== Lane ====
-    # TESTING_FILE = './json2osi/outdata/lane_complete.osibytes'
-    # data = read_text_data(TESTING_FILE)
-
-    # lane_validator = lane.LaneValidator()
-    # lane_validator.load_encoded_data(data
-    # lane_validator.context = 'Ground Truth'
-    # lane_validator.validate()
-
-    # # ==== LaneBoundary ==========
-    # TESTING_FILE = './json2osi/outdata/lane_boundary_complete.osibytes'
-    # data = read_text_data(TESTING_FILE)
-
-    # lane_boundary_validator = lane.LaneBoundaryValidator()
-    # lane_boundary_validator.load_encoded_data(data)
-    # lane_boundary_validator.context = 'Ground Truth'
-    # lane_boundary_validator.validate()
 
 print('Script started')
 if __name__ == "__main__":

@@ -40,7 +40,7 @@ class OsiJsonCreator:
 
         
     def buildFromJSON(self, data):
-        """ Recursivley build osi data structure based on inlut JSON """
+        """ Recursivley build osi data structure based on input JSON """
         for field in data.keys():
             # Check if data field is present in object definition
             if field not in self._osi.getClassFieldList(self._object_type):
@@ -147,7 +147,7 @@ def main():
                 help='Name of the class passed in input file',
                 type=str)
 
-    # Handle comand line argiuments
+    # Handle comand line arguments
     args = parser.parse_args()
     input_json_file = args.input_json
     input_class_name = args.osi_class_name
