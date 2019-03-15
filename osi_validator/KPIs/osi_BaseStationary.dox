@@ -1,3 +1,4 @@
+/*!
 \class BaseStationary
 \brief The base attributes of a stationary object or entity.
 
@@ -43,4 +44,4 @@ General definitions:
 If the base_polygon field is used in GroundTruth context it is always a function of object's bounding box dimension,orientation and position. And is always four distinct elements.
 If the base_polygon is used in SensorData context it can be polygon of more then four elements but also less the four elements 0 element array if the object is not visible to the sensor at all. 
 The situation when visible part of the objects consists of two separate contours is not handled
- 
+*/

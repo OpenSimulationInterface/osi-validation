@@ -1,3 +1,4 @@
+/*!
 \class Dimension3d
 \brief The dimension of a 3D box, e.g. the size of a 3D bounding box or its uncertainties.
 
@@ -16,4 +17,4 @@ attribute | type      | unit   | requirements
 length   | double | [m]    | must be positive
 width    | double | [m]    | must be positive
 height   | double | [m]    | must be positive
-
+*/

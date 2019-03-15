@@ -1,3 +1,4 @@
+/*!
 \class Orientation3d
 \brief A 3D orientation, orientation rate or orientation acceleration (i.e. derivatives) or its uncertainties denoted in euler angles.
 
@@ -31,3 +32,4 @@ When Orientation3d as rate or accelaration no constrain exist on the numerical v
 
 \par References:
 - [1] DIN ISO 8855:2013-11
+*/

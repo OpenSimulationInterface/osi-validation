@@ -1,3 +1,4 @@
+/*!
 \class BaseMoving
 \brief The base attributes of an object that is moving.
 
@@ -31,3 +32,4 @@ objects (\c SensorData) are relative to the \c HostVehicle frame.
 
 \par base_polygon data field
 See the dicsussion in \c BaseStationay/
+*/

@@ -1,3 +1,4 @@
+/*!
 \class SensorView
 \brief The sensor view is derived from \c GroundTruth and used as
 input to sensor models.
@@ -163,3 +164,4 @@ Camera specific sensor view data.
 field              | type                                 | repeated | Requirements
 -------------------|--------------------------------------|----------|----------------------
 view_configuration | \c UltrasonicSensorViewConfiguration | No       | Must be set and valid
+*/

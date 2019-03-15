@@ -1,3 +1,4 @@
+/*!
 \class TrafficLight
 \brief A traffic light
 
@@ -93,3 +94,4 @@ Number | Type name           | Requirements
      2 |            MODE_OFF |  Traffic light is off. 
      3 |       MODE_CONSTANT |  Light is on and not flashing. 
      4 |       MODE_FLASHING |  Light is flashing. 
+*/

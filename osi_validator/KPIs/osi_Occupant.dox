@@ -1,3 +1,4 @@
+/*!
 \class Occupant
 \brief An occupant of a host vehicle, especially the driver of the vehicle.
 
@@ -62,3 +63,4 @@ Number  | Type name                   | Requirements
       5 |  STEERING_CONTROL_LEFT_HAND |  Only left hand is on the steering wheel. 
 
 \note Should we describe more scenarios, e.g. when a driver tryies to cheet having hands on steering wheel. Suboptimal hand position on a wheel.
+*/
