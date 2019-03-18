@@ -85,7 +85,7 @@ $(function() {
 <tr>
 <td align="center">base_polygon </td><td align="left"><a class="el" href="class_vector2d.html" title="A cartesian 2D vector for positions, velocities or accelerations or its uncertainties. ">Vector2d</a> </td><td align="center">Yes </td><td align="center">[m] </td><td align="left">See the note below </td></tr>
 </table>
-<dl class="section user"><dt>Difference between GroundTruth and SensorData</dt><dd>All coordinates and orientations from <code>GroundTruth</code> objects are relative to the global ground truth frame. All coordinates and orientations from detected objects (<code>SensorData</code>) are relative to the <code>HostVehicle</code> frame.</dd></dl>
+<dl class="section user"><dt>Difference between GroundTruth and SensorData</dt><dd>All coordinates and orientations from <code>GroundTruth</code> objects are relative to the global ground truth frame. All coordinates and orientations from detected objects (<code><a class="el" href="class_sensor_data.html" title="The sensor information derived from GroundTruth and processed by sensor-models. ">SensorData</a></code>) are relative to the <code>HostVehicle</code> frame.</dd></dl>
 <dl class="section user"><dt>base_polygon data field</dt><dd></dd></dl>
 <p>Usage as ground truth:</p>
 <p>The two dimensional (flat) contour of the object. This is an extension of the concept of a bounding box as defined by <a class="el" href="class_dimension3d.html" title="The dimension of a 3D box, e.g. the size of a 3D bounding box or its uncertainties. ">Dimension3d</a>. The contour is the projection of the object's outline onto the z-plane in the object frame (independent of its current position and orientation). The height is the same as the height of the bounding box.</p>
@@ -98,7 +98,7 @@ $(function() {
 <li>The polygon is defined counter-clockwise.</li>
 <li>The validity of base_polygon depend on context it is used</li>
 </ul>
-<p>If the base_polygon field is used in GroundTruth context it is always a function of object's bounding box dimension,orientation and position. And is always four distinct elements. If the base_polygon is used in SensorData context it can be polygon of more then four elements but also less the four elements 0 element array if the object is not visible to the sensor at all. The situation when visible part of the objects consists of two separate contours is not handled </p>
+<p>If the base_polygon field is used in GroundTruth context it is always a function of object's bounding box dimension,orientation and position. And is always four distinct elements. If the base_polygon is used in <a class="el" href="class_sensor_data.html" title="The sensor information derived from GroundTruth and processed by sensor-models. ">SensorData</a> context it can be polygon of more then four elements but also less the four elements 0 element array if the object is not visible to the sensor at all. The situation when visible part of the objects consists of two separate contours is not handled </p>
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
