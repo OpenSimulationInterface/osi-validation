@@ -38,6 +38,34 @@ lidar_sensor_view      | \c LidarSensorView      | Yes      | Must be set and va
 camera_sensor_view     | \c CameraSensorView     | Yes      | Must be set and valid
 ultrasonic_sensor_view | \c UltrasonicSensorView | Yes      | Must be set and valid
 
+\par Details on timestamp
+
+The timestamp of the sensor data. Zero time is arbitrary but must be
+identical for all messages. Zero time does not need to coincide with
+the unix epoch. Recommended is the starting time point of the
+simulation.
+
+\note This is the point in time that the sensor data message becomes
+available to the rest of the system (i.e. the driving functions), so
+it corresponds with the sending time and thus takes the latency of
+internal processing of the sensor into account. Latencies of bus
+communications, etc., that occur after the sensor output have to be
+applied on top of this, if needed.
+
+The time that the actual measurement was performed (which will usually
+correspond with the timestamp of the \c GroundTruth the sensor model
+processed to arrive at these results) can be found in the additional
+field \c SensorData::last_measurement_time.
+
+For an ideal zero latency sensor the two timestamps would be the same
+and would correspond with the timestamp from the current \c GroundTruth
+message.
+
+For a sensor model that does not know its own internal latencies (e.g.
+a dumb sensor with no internal time concept), the two timestamps might
+also be identical, but delayed from the \c GroundTruth timestamp.
+
+
 \par Details on mounting_position
 
 The physical mounting position of the sensor (origin and orientation
@@ -76,9 +104,9 @@ Generic sensor view data.
 
 \par Requirements
 
-field              | type                           | repeated | Requirements
--------------------|--------------------------------|----------|----------------------
-view_configuration | GenericSensorViewConfiguration | no       | Must be set and valid
+field              | type                              | repeated | Requirements
+-------------------|-----------------------------------|----------|----------------------
+view_configuration | \c GenericSensorViewConfiguration | no       | Must be set and valid
 
 ################################################################################
 
