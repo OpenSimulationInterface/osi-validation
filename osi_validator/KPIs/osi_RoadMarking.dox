@@ -1,3 +1,4 @@
+/*!
 \class RoadMarking
 \brief A road surface marking.
 
@@ -77,3 +78,4 @@ Number | Color name      | Requirements
 
 
 ################################################################################
+*/

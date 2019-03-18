@@ -1,3 +1,4 @@
+/*!
 \class MountingPosition
 \brief Specifies the mounting position of a sensor.
 
@@ -10,3 +11,4 @@ attribute   |  type         | Requirements
 :---------- | :-----------  | :---------------------------
 position    | Vector3d      | is valid offset position relative to the specified reference coordinate system.
 orientation | Orientation3d | is valid orientation offset relative to the specified reference coordinate system.
+*/

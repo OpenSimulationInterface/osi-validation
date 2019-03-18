@@ -1,3 +1,4 @@
+/*!
 \class TrafficSign
 \brief Additional value associated with a traffic sign or road marking and its unit.
 
@@ -273,8 +274,4 @@ Number   | Type name                   | Requirements
       22 |             TYPE_MOTORCYCLE |  Valid for motorcycles. 
       23 |     TYPE_MOTORCYCLE_ALLOWED |  Only motorcycles allowed. 
       24 |                    TYPE_CAR |  Valid for cars. 
-
-
-
-
-
+*/

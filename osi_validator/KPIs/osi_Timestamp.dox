@@ -1,3 +1,4 @@
+/*!
 \class Timestamp
 \brief A timestamp
 
@@ -13,4 +14,4 @@ nanos    | uint32  | [ns]            | must be positive must be in range [0, 999
 All fields must be initialized
 
 All fields must be positive
-
+*/

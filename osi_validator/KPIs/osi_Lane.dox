@@ -1,3 +1,4 @@
+/*!
 \class Lane
 \brief A lane in the road network.
 
@@ -146,3 +147,4 @@ surface_texture        | double       | [m]    | must be set
 	- [1] AYERS, M.W.; KARAMIHAS, S.M. Little Book of Profiling, University of Michigan Transportation Research Institute, 1998.
 	- [2] SAYERS, M.W.; KARAMIHAS, S.M. Little Book of Profiling, University of Michigan Transportation Research Institute, 1998.
 	- [3] SCHNEIDER, R.: Modellierung der Wellenausbreitung fuer ein bildgebendes Kfz-Radar, Dissertation, Universitaet Karlsruhe, 1998.
+*/

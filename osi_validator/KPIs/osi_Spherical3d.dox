@@ -1,3 +1,4 @@
+/*!
 \class Spherical3d
 \brief A spherical representation for a point or vector in 3D space.
 
@@ -20,3 +21,4 @@ attribute |  type  | units | Requirements
 distance  | double | [m]   | must be set and positive
 azimuth   | double | [rad] | must be set and in range of (-pi, pi]
 elevation | double | [rad] | must be set and in range of [-pi/2, pi/2]
+*/

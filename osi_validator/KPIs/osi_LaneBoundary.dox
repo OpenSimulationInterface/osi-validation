@@ -1,3 +1,4 @@
+/*!
 \class LaneBoundary
 \brief A lane boundary defining the border of a lane.
 
@@ -121,3 +122,4 @@ Number | Color name    | Remarks
 6      | COLOR_BLUE    | --
 7      | COLOR_GREEN   | --
 8      | COLOR_VIOLET  | --
+*/

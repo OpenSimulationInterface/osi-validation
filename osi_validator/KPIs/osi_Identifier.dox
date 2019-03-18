@@ -1,3 +1,4 @@
+/*!
 \class Identifier
 \brief A common identifier (ID), represented as an integer.
 
@@ -26,4 +27,4 @@ The reqirements for valid ID.value depend on the contex it is used:
 
 
 To indicate invalid ID or an error, value should be set to 18446744073709551615 (max value of uint64 ).
-
+*/
