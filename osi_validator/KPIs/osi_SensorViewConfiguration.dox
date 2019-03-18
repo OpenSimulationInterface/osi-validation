@@ -200,6 +200,7 @@ See on \c GenericSensorViewConfiguration
 ################################################################################
 
 \class RadarSensorViewConfiguration::AntennaDiagramEntry
+\brief The radar antenna diagram.
 
 \par Requirements
 
