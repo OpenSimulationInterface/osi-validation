@@ -59,7 +59,7 @@ not always be the preferred approach for reasons of IP protection.
 field                             | type                              | repeated | Requirements
 ----------------------------------|-----------------------------------|----------|----------------------------------------
 version                           | \c InterfaceVersion               | No       | Must be set and valid
-sensor_id                         | \c Identifier                     | No       | Must be global unique
+sensor_id                         | \c Identifier                     | No       | Must correspond to the id of a virtual sensor
 mounting_position                 | \c MountingPosition               | No       | Must be set and valid
 mounting_position_rmse            | \c MountingPosition               | No       | Must be set and valid
 field_of_view_horizontal          | \c double                         | No       | Must be set, positive, in radians [rad]
@@ -135,7 +135,7 @@ by the environment simulation.
 
 field                    | type                | repeated | Requirements
 -------------------------|---------------------|----------|----------------------------------------
-sensor_id                | \c Identifier       | No       | Must be global unique
+sensor_id                | \c Identifier       | No       | Must correspond to the id of a physical sensor
 mounting_position        | \c MountingPosition | No       | Must be set and valid
 mounting_position_rmse   | \c MountingPosition | No       | Must be set and valid
 field_of_view_horizontal | \c double           | No       | Must be set, positive, in radians [rad]
@@ -180,7 +180,7 @@ by the environment simulation.
 
 field                      | type                   | repeated | Requirements
 ---------------------------|------------------------|----------|----------------------------------------
-sensor_id                  | \c Identifier          | No       | Must be global unique
+sensor_id                  | \c Identifier          | No       | Must correspond to the id of a physical sensor
 mounting_position          | \c MountingPosition    | No       | Must be set and valid
 mounting_position_rmse     | \c MountingPosition    | No       | Must be set and valid
 field_of_view_horizontal   | \c double              | No       | Must be set, positive, in radians [rad]
@@ -220,7 +220,7 @@ by the environment simulation.
 
 field                      | type                | repeated | Requirements
 ---------------------------|---------------------|----------|----------------------------------------
-sensor_id                  | \c Identifier       | No       | Must be global unique
+sensor_id                  | \c Identifier       | No       | Must correspond to the id of a physical sensor
 mounting_position          | \c MountingPosition | No       | Must be set and valid
 mounting_position_rmse     | \c MountingPosition | No       | Must be set and valid
 field_of_view_horizontal   | \c double           | No       | Must be set, positive, in radians [rad]
@@ -247,7 +247,7 @@ by the environment simulation.
 
 field                     | type                | repeated | Requirements
 --------------------------|---------------------|----------|----------------------------------------
-sensor_id                 | \c Identifier       | No       | Must be global unique
+sensor_id                 | \c Identifier       | No       | Must correspond to the id of a physical sensor
 mounting_position         | \c MountingPosition | No       | Must be set and valid
 mounting_position_rmse    | \c MountingPosition | No       | Must be set and valid
 field_of_view_horizontal  | \c double           | No       | Must be set, positive, in radians [rad]
@@ -295,7 +295,7 @@ provided by the environment simulation.
 
 field                     | type                | repeated | Requirements
 --------------------------|---------------------|----------|----------------------------------------
-sensor_id                 | \c Identifier       | No       | Must be global unique
+sensor_id                 | \c Identifier       | No       | Must correspond to the id of a physical sensor
 mounting_position         | \c MountingPosition | No       | Must be set and valid
 mounting_position_rmse    | \c MountingPosition | No       | Must be set and valid
 field_of_view_horizontal  | \c double           | No       | Must be set, positive, in radians [rad]

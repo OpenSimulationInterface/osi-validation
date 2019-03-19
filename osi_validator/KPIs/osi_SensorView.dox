@@ -27,7 +27,7 @@ field                  | type                    | repeated | Requirements
 -----------------------|-------------------------|----------|------------------------------------------------
 version                | \c InterfaceVersion     | No       | Must be set and valid
 timestamp              | \c Timestamp            | No       | Must be set and valid
-sensor_id              | \c Identifier           | No       | Must be global unique
+sensor_id              | \c Identifier           | No       | Must correspond to the id of a virtual sensor
 mounting_position      | \c MountingPosition     | No       | Must be set and valid
 mounting_position_rmse | \c MountingPosition     | No       | Must be set and valid
 host_vehicle_data      | \c HostVehicleData      | No       | Must be set and valid
