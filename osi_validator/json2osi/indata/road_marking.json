@@ -1,0 +1,38 @@
+{
+	"id":{
+		"value":1
+	},
+	"base": {
+		"dimension":{
+			"width": 1.0,
+			"length": 2.0,
+			"height": 3.0
+		},
+		"position":{
+			"x": 4.0,
+			"y": 5.0,
+			"z": 6.0
+		},
+		"orientation":{
+			"roll": 7.0,
+			"pitch": 8.0,
+			"yaw": 9.0
+		},
+		"base_polygon":[
+			{"x":1, "y":2},
+			{"x":1, "y":2},
+			{"x":1, "y":2},
+			{"x":1, "y":3}
+		]
+	},
+	"classification":{
+		"value_text":"stop",
+		"monochrome_color":"COLOR_RED",
+		"value":{
+			"value":30,
+			"value_unit":"UNIT_KILOMETER_PER_HOUR"
+		},
+		"traffic_main_sign_type":"TYPE_OTHER",
+		"type":"TYPE_PAINTED_TRAFFIC_SIGN"
+	}
+}

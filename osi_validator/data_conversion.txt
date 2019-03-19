@@ -1,0 +1,13 @@
+./json2osi.py ./indata/stationary_object_0_empty.json ./outdata/stationary_object_0_empty.osibytes StationaryObject
+./json2osi.py ./indata/stationary_object.json ./outdata/stationary_object_1.osibytes StationaryObject
+
+./json2osi.py ./indata/moving_object_0_empty.json ./outdata/moving_object_0_empty.json MovingObject
+./json2osi.py ./indata/moving_object_1_id.json ./outdata/moving_object_1_id.osibytes MovingObject
+
+
+
+./json2osi.py ./indata/traffic_sign_0_empty.json ./outdata/traffic_sign_0_empty.osibytes TrafficSign
+./json2osi.py ./indata/traffic_sign_1_id_valid.json ./outdata/traffic_sign_1_id_valid.osibytes TrafficSign
+
+
+./json2osi.py ./indata/road_marking.json ./outdata/road_marking.osibytes RoadMarking

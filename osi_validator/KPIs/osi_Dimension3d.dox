@@ -1,0 +1,20 @@
+/*!
+\class Dimension3d
+\brief The dimension of a 3D box, e.g. the size of a 3D bounding box or its uncertainties.
+
+Dimension is defined in the specified reference coordinate frame along the x-axis (=length), y-axis (=width) and z-axis (=height).
+
+
+\par Requirements
+
+All fields must be initialized.
+
+All fields must be positive
+
+
+attribute | type      | unit   | requirements
+:------: | :-------: | :----: | :---------------:
+length   | double | [m]    | must be positive
+width    | double | [m]    | must be positive
+height   | double | [m]    | must be positive
+*/

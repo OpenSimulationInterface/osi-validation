@@ -102,3 +102,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Visual Studio Code
+.vscode
+
+# Madeup extension for OSI byteencoded string
+*.osibytes
+*.sosibytes
+.DS_Store

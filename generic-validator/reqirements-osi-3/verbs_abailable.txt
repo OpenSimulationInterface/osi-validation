@@ -1,0 +1,6 @@
+is-set      used for Enums 
+is-valid    used for fields which are composite type
+is-unique   used for Identifier check if 
+is-minimum  [VALUE] used for 
+is-maximum  [VALUE] used for 
+is-in-range [VALUE1] [VALUE2] used for checking if the numeric value is between the ranges (inclusive)
