@@ -6,7 +6,7 @@ As a scrum team, we would like to create a data validity KPI (requirements) for 
 
 The KPI should be followed to create a OSI 3 message to be considered as *valid*.
 
-These KPI requirements are avalaible here on a Doxygen documentation: http://opensimulationinterface.github.io/osi-validation/KPIs/
+These KPI requirements are available here on a Doxygen documentation: http://opensimulationinterface.github.io/osi-validation/KPIs/
 
 ## How to deploy the Doxygen documentation
 
