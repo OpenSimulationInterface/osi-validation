@@ -38,4 +38,4 @@ def decode_data(encoded_data, data_class):
         data_object = data_class()
         data_object.ParseFromString(row)
         decoded_data.append(data_object)
-    yield decoded_data
+    return decoded_data
