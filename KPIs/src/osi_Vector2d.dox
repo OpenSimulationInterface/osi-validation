@@ -1,0 +1,15 @@
+/*!
+\class Vector2d
+\brief A cartesian 2D vector for positions, velocities or accelerations or its uncertainties.
+
+Units are [m] for positions, [m/s] for velocities and [m/s<sup>2</sup>] for accelerations.
+
+\par Acceptence Criteria
+
+All fields must be initialized.
+
+atribute | type      | unit
+:------: | :-------: | :---------------------------:
+x        | \a double | [m], [m/s] or [m/s<sup>2</sup>]
+y        | \a double | [m], [m/s] or [m/s<sup>2</sup>]
+*/
