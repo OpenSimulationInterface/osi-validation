@@ -11,14 +11,10 @@ class OsiRuleChecker:
             format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # Rules implementation
-    def is_set(self, inheritance, rules, p):
-        if hasattr(inheritance[-1], 'DESCRIPTOR'):
-            return self.is_valid(inheritance, rules, p)
+    def is_set(self, inheritance, rules, params):
+        return self.is_valid(inheritance, rules, params)
 
-    def is_valid(self, inheritance, rules, p):
-        if not(hasattr(inheritance[-1], 'DESCRIPTOR')):
-            return self._check_repeated(self.is_valid, inheritance, rules, p)
-
+    def is_valid(self, inheritance, rules, params):
         field = inheritance[-1]
         logging.debug(f'Check the rule is_valid for {field.DESCRIPTOR.name}')
         containing_type = field.DESCRIPTOR.containing_type
@@ -72,13 +68,16 @@ class OsiRuleChecker:
     def check_message(self, inheritance, message_rules):
         # Add "is_valid" rule for each field that can be validated (default)
         message = inheritance[-1]
-        for desc, value in filter(lambda m: m[0].message_type is not None, message.ListFields()):
+        for desc, _ in filter(lambda m: m[0].message_type is not None, message.ListFields()):
             if desc.name not in message_rules:
                 message_rules[desc.name] = ['is_valid']
             elif not('is_valid' in message_rules[desc.name] or 'is_set' in message_rules[desc.name]):
                 message_rules[desc.name].append('is_valid')
 
-        for field, field_rules in message_rules.items():
+        proto_field_tuples = inheritance[-1].ListFields()
+        for field_name, field_rules in message_rules.items():
+            proto_field_tuple = next(
+                filter(lambda t: t[0].name == field_name, proto_field_tuples))
             for rule in field_rules:
                 if len(rule) == 1 and type(rule) is str:
                     logging.exception(
@@ -94,14 +93,20 @@ class OsiRuleChecker:
                 except AttributeError:
                     logging.error(f'Rule "{verb}" not implemented yet!')
                 else:
-                    if verb == "is_set" and message.HasField(field):
-                        logging.debug(f'{field} is set as expected')
+                    if verb == "is_set" and message.HasField(field_name):
+                        logging.debug(f'{field_name} is set as expected')
                     elif verb == "is_set":
-                        logging.error(f'{field} is not set!')
+                        logging.error(f'{field_name} is not set!')
                         continue
 
-                    child_inheritance = inheritance + [getattr(message, field)]
+                    child_inheritance = inheritance + \
+                        [getattr(message, field_name)]
                     logging.debug(
                         f'Check the rule {verb} for {list(map(type,child_inheritance))}')
-                    res = rule_checker(child_inheritance,
-                                       message_rules, params)
+
+                    if proto_field_tuple[0].label == 3:
+                        res = self._check_repeated(
+                            rule_checker, child_inheritance, message_rules, params)
+                    else:
+                        res = rule_checker(child_inheritance,
+                                           message_rules, params)
