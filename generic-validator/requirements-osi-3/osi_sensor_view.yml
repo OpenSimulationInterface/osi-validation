@@ -1,0 +1,7 @@
+SensorView:
+  version:
+    - is_set
+  timestamp:
+    - is_set
+  sensor_id:
+    - refers: ''

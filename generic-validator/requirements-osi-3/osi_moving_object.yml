@@ -1,0 +1,4 @@
+MovingObject:
+  id:
+    - is_set
+    - is_global_unique
