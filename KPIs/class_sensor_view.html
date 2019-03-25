@@ -63,13 +63,68 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>The sensor view is derived from <code>GroundTruth</code> and used as input to sensor models.  
+<p>The ground truth information from the simulation environment.  
  <a href="class_sensor_view.html#details">More...</a></p>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The sensor view is derived from <code>GroundTruth</code> and used as input to sensor models. </p>
+<div class="textblock"><p>The ground truth information from the simulation environment. </p>
+<p>The sensor view is derived from <code>GroundTruth</code> and used as input to sensor models.</p>
+<p>This ground truth information is supposed to describe the whole simulated environment around any simulated vehicle. For each simulated host vehicle (there may be one or multiple), define an area around the vehicle which is greater than the combined field of views (FOV) of all obstructed sensors in the vehicle. The ground truth data is supposed to describe the convex hull of all such areas w.r.t. a global simulation coordinate system.</p>
+<p>The simulation coordinate system may change during the simulation if and only if all coordinates w.r.t. this coordinate system are also changed.</p>
+<p>The data has to be sent at a rate defined by the receiving partner. When sending, values with default values might be left default in order to improve performance.</p>
+<p>To provide a complete interface, all fields of all contained messages must be properly set unless specifically stated in the field's definition that the field may remain unset.</p>
+<p>In enums (e.g. types) the unknown (first / default) value is not allowed to be used in the ground truth interface.</p>
+<table class="doxtable">
+<tr>
+<th>field </th><th>type </th><th>repeated </th><th>Requirements  </th></tr>
+<tr>
+<td>version </td><td><code>InterfaceVersion</code> </td><td>No </td><td>Must be set and valid </td></tr>
+<tr>
+<td>timestamp </td><td><code><a class="el" href="class_timestamp.html" title="A timestamp. ">Timestamp</a></code> </td><td>No </td><td>Must be set and valid </td></tr>
+<tr>
+<td>host_vehicle_id </td><td><code><a class="el" href="class_identifier.html" title="A common identifier (ID), represented as an integer. ">Identifier</a></code> </td><td>No </td><td>Must correspond to the host_vehicle_id </td></tr>
+<tr>
+<td>stationary_object </td><td><code><a class="el" href="class_stationary_object.html" title="A simulated object that is neither a moving object (vehicle or MovingObject e.g. pedestrian, animal, or vehicle) nor a traffic related object (TrafficLight, TrafficSign) ">StationaryObject</a></code> </td><td>Yes </td><td>If set must be valid </td></tr>
+<tr>
+<td>moving_object </td><td><code>MovingObject</code> </td><td>Yes </td><td>If set must be valid </td></tr>
+<tr>
+<td>traffic_sign </td><td><code><a class="el" href="class_traffic_sign.html" title="Additional value associated with a traffic sign or road marking and its unit. ">TrafficSign</a></code> </td><td>Yes </td><td>If set must be valid </td></tr>
+<tr>
+<td>traffic_light </td><td><code><a class="el" href="class_traffic_light.html" title="A traffic light. ">TrafficLight</a></code> </td><td>Yes </td><td>If set must be valid </td></tr>
+<tr>
+<td>road_marking </td><td><code><a class="el" href="class_road_marking.html" title="A road surface marking. ">RoadMarking</a></code> </td><td>Yes </td><td>If set must be valid </td></tr>
+<tr>
+<td>lane_boundary </td><td><code><a class="el" href="class_lane_boundary.html" title="A lane boundary defining the border of a lane. ">LaneBoundary</a></code> </td><td>Yes </td><td>If set must be valid </td></tr>
+<tr>
+<td>lane </td><td><code><a class="el" href="class_lane.html" title="A lane in the road network. ">Lane</a></code> </td><td>Yes </td><td>If set must be valid </td></tr>
+<tr>
+<td>occupant </td><td><code><a class="el" href="class_occupant.html" title="An occupant of a host vehicle, especially the driver of the vehicle. ">Occupant</a></code> </td><td>Yes </td><td>If set must be valid </td></tr>
+<tr>
+<td>environmental_conditions </td><td><code><a class="el" href="class_environmental_conditions.html" title="The conditions of the environment. ">EnvironmentalConditions</a></code> </td><td>No </td><td>Must be set and valid </td></tr>
+<tr>
+<td>country_code </td><td><code>uint32</code> </td><td>No </td><td>Must be set and correspond to a ISO-3166 country code </td></tr>
+<tr>
+<td>proj_string </td><td><code>string</code> </td><td>No </td><td>If set must be valid </td></tr>
+</table>
+<p>map_reference | <code>string</code> | No |</p>
+<dl class="section user"><dt>Details on timestamp</dt><dd></dd></dl>
+<p>The data timestamp of the simulation environment. The zero time point is arbitrary but must be identical for all messages. Recommendation: Zero time point for start point of the simulation.</p>
+<dl class="section note"><dt>Note</dt><dd>Zero time point does not need to coincide with the UNIX epoch.</dd>
+<dd>
+For ground truth data this timestamp coincides both with the notional simulation time the data applies to and the time it was sent (there is no inherent latency for ground truth data, as opposed to sensor data).</dd></dl>
+<dl class="section user"><dt>proj_string</dt><dd>The string follows the PROJ.4 project rules for projections [1].</dd></dl>
+<dl class="section user"><dt>References:</dt><dd><ul>
+<li>[1] <a href="https://proj4.org/usage/projections.html">Proj.4 Projections</a></li>
+</ul>
+</dd></dl>
+<dl class="section user"><dt>Details on map_reference</dt><dd>Opaque reference of a map.</dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Origin and orientation of the map have to coincide with the inertial coordinate frame of the ground truth.</dd>
+<dd>
+It is implementation-specific how map_reference is resolved.</dd>
+<dd>
+OSI uses singular instead of plural for repeated field names.</dd></dl>
 <p>The sensor view information is supposed to provide input to sensor models for simulation of actual real sensors. All information regarding the environment is given with respect to the virtual sensor coordinate system specified in <code>SensorView::mounting_position</code>, except for the individual physical technology-specific data, which is given with respect to the physical sensor coordinate system specified in the corresponding physical sensor's <code>#mounting_position</code>, and the <code>#global_ground_truth</code>, which is given in global coordinates.</p>
-<p>When simulating multiple distinct sensors, each sensor can consume an individual copy of the <code><a class="el" href="class_sensor_view.html" title="The sensor view is derived from GroundTruth and used as input to sensor models. ">SensorView</a></code> interface. This allows an independent treatment of the sensors.</p>
-<p>Alternatively combined sensor models can also consume one combined <code><a class="el" href="class_sensor_view.html" title="The sensor view is derived from GroundTruth and used as input to sensor models. ">SensorView</a></code>, with either combined or separate <code><a class="el" href="class_sensor_data.html" title="The sensor information derived from GroundTruth and processed by sensor-models. ">SensorData</a></code> outputs, depending on model architecture.</p>
+<p>When simulating multiple distinct sensors, each sensor can consume an individual copy of the <code><a class="el" href="class_sensor_view.html" title="The ground truth information from the simulation environment. ">SensorView</a></code> interface. This allows an independent treatment of the sensors.</p>
+<p>Alternatively combined sensor models can also consume one combined <code><a class="el" href="class_sensor_view.html" title="The ground truth information from the simulation environment. ">SensorView</a></code>, with either combined or separate <code><a class="el" href="class_sensor_data.html" title="The sensor information derived from GroundTruth and processed by sensor-models. ">SensorData</a></code> outputs, depending on model architecture.</p>
 <dl class="section user"><dt>Requirements</dt><dd></dd></dl>
 <table class="doxtable">
 <tr>
@@ -91,15 +146,15 @@ $(function() {
 <tr>
 <td>host_vehicle_id </td><td><code><a class="el" href="class_identifier.html" title="A common identifier (ID), represented as an integer. ">Identifier</a></code> </td><td>No </td><td>Must be set and correspond to a <code>MovingObject</code> </td></tr>
 <tr>
-<td>generic_sensor_view </td><td><code><a class="el" href="class_generic_sensor_view.html" title="Definition of the generic sensor view. ">GenericSensorView</a></code> </td><td>Yes </td><td>Must be set and valid </td></tr>
+<td>generic_sensor_view </td><td><code><a class="el" href="class_generic_sensor_view.html" title="Definition of the generic sensor view. ">GenericSensorView</a></code> </td><td>Yes </td><td>If set, must be valid </td></tr>
 <tr>
-<td>radar_sensor_view </td><td><code><a class="el" href="class_radar_sensor_view.html" title="Definition of the radar sensor view. ">RadarSensorView</a></code> </td><td>Yes </td><td>Must be set and valid </td></tr>
+<td>radar_sensor_view </td><td><code><a class="el" href="class_radar_sensor_view.html" title="Definition of the radar sensor view. ">RadarSensorView</a></code> </td><td>Yes </td><td>If set, must be valid </td></tr>
 <tr>
-<td>lidar_sensor_view </td><td><code><a class="el" href="class_lidar_sensor_view.html" title="Definition of the lidar sensor view. ">LidarSensorView</a></code> </td><td>Yes </td><td>Must be set and valid </td></tr>
+<td>lidar_sensor_view </td><td><code><a class="el" href="class_lidar_sensor_view.html" title="Definition of the lidar sensor view. ">LidarSensorView</a></code> </td><td>Yes </td><td>If set, must be valid </td></tr>
 <tr>
-<td>camera_sensor_view </td><td><code><a class="el" href="class_camera_sensor_view.html" title="Definition of the camera sensor view. ">CameraSensorView</a></code> </td><td>Yes </td><td>Must be set and valid </td></tr>
+<td>camera_sensor_view </td><td><code><a class="el" href="class_camera_sensor_view.html" title="Definition of the camera sensor view. ">CameraSensorView</a></code> </td><td>Yes </td><td>If set, must be valid </td></tr>
 <tr>
-<td>ultrasonic_sensor_view </td><td><code><a class="el" href="class_ultrasonic_sensor_view.html" title="Definition of the camera sensor view. ">UltrasonicSensorView</a></code> </td><td>Yes </td><td>Must be set and valid </td></tr>
+<td>ultrasonic_sensor_view </td><td><code><a class="el" href="class_ultrasonic_sensor_view.html" title="Definition of the camera sensor view. ">UltrasonicSensorView</a></code> </td><td>Yes </td><td>If set, must be valid </td></tr>
 </table>
 <dl class="section user"><dt>Details on timestamp</dt><dd></dd></dl>
 <p>The timestamp of the sensor data. Zero time is arbitrary but must be identical for all messages. Zero time does not need to coincide with the unix epoch. Recommended is the starting time point of the simulation.</p>
