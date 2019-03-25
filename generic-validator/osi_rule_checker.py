@@ -1,4 +1,5 @@
 import logging
+from iso3166 import countries
 
 
 class OsiRuleChecker:
@@ -7,16 +8,19 @@ class OsiRuleChecker:
         self._rules = dict()
         self._identifiers = dict()
         self._object_tree = dict()
+        self._references = dict()
         logging.basicConfig(
             format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # Rules implementation
-    def is_set(self, inheritance, rules, params):
-        return self.is_valid(inheritance, rules, params)
+    def is_set(self, inherit, rules, params):
+        if hasattr(inherit[-1][1], "DESCRIPTOR"):
+            return self.is_valid(inherit, rules, params)
+        else:
+            return True
 
-    def is_valid(self, inheritance, rules, params):
-        field = inheritance[-1]
-        logging.debug(f'Check the rule is_valid for {field.DESCRIPTOR.name}')
+    def is_valid(self, inherit, rules, params):
+        field = inherit[-1][1]
         containing_type = field.DESCRIPTOR.containing_type
         field_type = field.DESCRIPTOR.name
         contained_rules = {}
@@ -32,30 +36,41 @@ class OsiRuleChecker:
                 f'The message type \'{field_type}\' has no rule')
             return True
         else:
-            return self.check_message(inheritance, contained_rules)
+            return self.check_message(inherit, contained_rules)
 
-    def _check_repeated(self, rule_method, inheritance, rules, params):
+    def _check_repeated(self, rule_method, inherit, rules, params):
         logging.debug(
-            f'Check the rule {rule_method.__name__} for a list of {type(inheritance[-1][0])} in {type(inheritance[-2])}')
-        return all([rule_method(inheritance + [message], rules, params) for message in inheritance[-1]])
+            f'Check the rule {rule_method.__name__} for a repeated field')
+        return all([rule_method(inherit + [(None, m)], rules, params) for m in inherit[-1][1]])
 
-    def is_minimum(self, inheritance, rules, minimum):
-        return inheritance[-1] >= minimum
+    def is_minimum(self, inherit, rules, minimum):
+        logging.debug(f'Minimum: {minimum}')
+        return inherit[-1][1] >= minimum
 
-    def is_maximum(self, inheritance, rules, maximum):
-        return inheritance[-1] <= maximum
+    def is_maximum(self, inherit, rules, maximum):
+        logging.debug(f'Maximum: {maximum}')
+        return inherit[-1][1] <= maximum
 
-    def is_global_unique(self, inheritance, rules, params):
+    def in_range(self, inherit, rules, range):
+        if float(range[0]) <= inherit[-1][1] and float(inherit[-1][1]) <= range[1]:
+            logging.debug(f'{inherit[-1][1]} in range: {range[0], range[1]}')
+            return True
+        else:
+            logging.error(
+                f'{inherit[-1][1]} not in range: {range[0], range[1]}')
+            return False
+
+    def is_global_unique(self, inherit, rules, params):
         '''
         Must be set to an Identifier
         '''
-        object_of_id = inheritance[-2]
-        identifier = inheritance[-1].value
+        object_of_id = inherit[-2]
+        identifier = inherit[-1][1].value
         if identifier in self._identifiers:
             logging.warning(f'The id {identifier} is already used')
-            if type(inheritance) in map(type, self._identifiers):
+            if type(inherit) in map(type, self._identifiers):
                 logging.error(
-                    f'Two {type(object_of_id)} have the id ({identifier})')
+                    f'Several {type(object_of_id)} have the id ({identifier})')
             self._identifiers[identifier].append(object_of_id)
             return False
         else:
@@ -63,50 +78,89 @@ class OsiRuleChecker:
             self._identifiers[identifier] = [object_of_id]
             return True
 
+    def refers(self, inherit, rules, params):
+        if params.startswith("$"):
+            logging.debug('Check reference many to one')
+            return params not in self._references or inherit[-1][1].value in self._references[params]
+        if params.startswith("+"):
+            logging.debug('Check reference many to many')
+            try:
+                return inherit[-1][1].value in self._references[params]
+            except KeyError:
+                logging.error('Reference error')
+                return False
+
+    def is_iso_country_code(self, inherit, rules, params):
+        logging.debug(f'Checking ISO code for {inherit[-1][1]}')
+        try:
+            countries.get(inherit[-1][1])
+            return True
+        except KeyError:
+            return False
+
     # Check launcher
 
-    def check_message(self, inheritance, message_rules):
+    def check_message(self, inherit, rules):
+        final_res = True
         # Add "is_valid" rule for each field that can be validated (default)
-        message = inheritance[-1]
+        message = inherit[-1][1]
         for desc, _ in filter(lambda m: m[0].message_type is not None, message.ListFields()):
-            if desc.name not in message_rules:
-                message_rules[desc.name] = ['is_valid']
-            elif not('is_valid' in message_rules[desc.name] or 'is_set' in message_rules[desc.name]):
-                message_rules[desc.name].append('is_valid')
+            if desc.name not in rules:
+                rules[desc.name] = ['is_valid']
+            elif not('is_valid' in rules[desc.name] or 'is_set' in rules[desc.name]):
+                rules[desc.name].append('is_valid')
 
-        proto_field_tuples = inheritance[-1].ListFields()
-        for field_name, field_rules in message_rules.items():
-            proto_field_tuple = next(
-                filter(lambda t: t[0].name == field_name, proto_field_tuples))
+        proto_field_tuples = message.ListFields()
+        inherit_message_t = ".".join(map(lambda i: i[0].name, filter(
+            lambda i: hasattr(i[1], "DESCRIPTOR") and i[0] is not None, inherit)))
+        for field_name, field_rules in rules.items():
+            if "is_set" in field_rules and message.HasField(field_name):
+                logging.debug(
+                    f'{inherit_message_t}.{field_name} is set as expected')
+            elif "is_set" in field_rules:
+                logging.error(f'{inherit_message_t}.{field_name} is not set!')
+                continue
+
+            try:
+                proto_field_tuple = next(
+                    filter(lambda t: t[0].name == field_name, proto_field_tuples))
+            except StopIteration:
+                logging.error(
+                    f'Field {inherit_message_t}.{field_name} does not exist')
             for rule in field_rules:
                 if len(rule) == 1 and type(rule) is str:
                     logging.exception(
-                        f'Error in the rules file for {message.DESCRIPTOR.name}: each element of a list of rules for an attribut must be preceded by an hyphen "-"')
+                        f'''Error in the rules file for {message.DESCRIPTOR.name}:
+                        each element of a list of rules for an attribut must be preceded
+                        by an hyphen "-"''')
 
                 if type(rule) is dict:
                     verb, params = next(iter(rule.items()))
                 else:
-                    params = []
-                    verb = rule
+                    verb, params = rule, []
+
                 try:
                     rule_checker = getattr(self, verb)
                 except AttributeError:
                     logging.error(f'Rule "{verb}" not implemented yet!')
                 else:
-                    if verb == "is_set" and message.HasField(field_name):
-                        logging.debug(f'{field_name} is set as expected')
-                    elif verb == "is_set":
-                        logging.error(f'{field_name} is not set!')
-                        continue
+                    child_inherit = inherit + \
+                        [next(filter(lambda t: t[0].name ==
+                                     field_name, proto_field_tuples))]
 
-                    child_inheritance = inheritance + \
-                        [getattr(message, field_name)]
-                    logging.debug(
-                        f'Check the rule {verb} for {list(map(type,child_inheritance))}')
-
+                    # If the field is "REPEATED"
                     if proto_field_tuple[0].label == 3:
                         res = self._check_repeated(
-                            rule_checker, child_inheritance, message_rules, params)
+                            rule_checker, child_inherit, rules, params)
                     else:
-                        res = rule_checker(child_inheritance,
-                                           message_rules, params)
+                        res = rule_checker(child_inherit,
+                                           rules, params)
+
+                    if res:
+                        logging.debug(
+                            f'{verb} for {inherit_message_t}.{field_name} OK')
+                    else:
+                        logging.warning(
+                            f'{verb} for {inherit_message_t}.{field_name} Not OK')
+                        final_res = False
+        return final_res

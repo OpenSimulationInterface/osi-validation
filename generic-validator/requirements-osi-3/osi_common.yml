@@ -1,3 +1,8 @@
 Identifier:
   value:
     - is_minimum: 0
+Timestamp:
+  seconds:
+    - is_minimum: 0
+  nanos:
+    - in_range: [0, 999999999]

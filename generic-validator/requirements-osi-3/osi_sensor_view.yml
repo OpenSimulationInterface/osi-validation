@@ -4,7 +4,7 @@ SensorView:
   timestamp:
     - is_set
   sensor_id:
-    - refers: ''
+    - refers: '+virtual_sensors'
   mounting_position:
     - is_set
   mounting_position_rmse:
