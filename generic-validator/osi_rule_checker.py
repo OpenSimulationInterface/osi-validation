@@ -54,9 +54,10 @@ class OsiRuleChecker:
             logging.warning(f'The id {identifier} is already used')
             if type(parent) in map(type, self._identifiers):
                 logging.error(f'Two \'{parent}\' have the id {identifier}')
-            self._identifiers[identifier].append(field)
+            self._identifiers[identifier].append(parent)
             return False
         else:
+            self._identifiers[identifier] = [parent]
             return True
 
     # Check launcher
