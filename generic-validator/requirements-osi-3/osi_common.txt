@@ -1,0 +1,16 @@
+# This file descibes reqirements for messages defined in osi_common.proto
+
+# Vector3d
+Vector3d.x is-set
+Vector3d.y is-set
+Vector3d.z is-set
+
+# Vector2d
+Vector2d.x is-set
+Vector2d.y is-set
+Vector2d.z is-set
+
+# Timestamp
+Timestamp.seconds is-positive
+Timestamp.nanos is-in-range 0 999_999_999
+

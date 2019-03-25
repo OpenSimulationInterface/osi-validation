@@ -33,11 +33,11 @@ mounting_position_rmse | \c MountingPosition     | No       | Must be set and va
 host_vehicle_data      | \c HostVehicleData      | No       | Must be set and valid
 global_ground_truth    | \c GroundTruth          | No       | Must be set and valid
 host_vehicle_id        | \c Identifier           | No       | Must be set and correspond to a \c MovingObject
-generic_sensor_view    | \c GenericSensorView    | Yes      | Must be set and valid
-radar_sensor_view      | \c RadarSensorView      | Yes      | Must be set and valid
-lidar_sensor_view      | \c LidarSensorView      | Yes      | Must be set and valid
-camera_sensor_view     | \c CameraSensorView     | Yes      | Must be set and valid
-ultrasonic_sensor_view | \c UltrasonicSensorView | Yes      | Must be set and valid
+generic_sensor_view    | \c GenericSensorView    | Yes      | If set, must be valid
+radar_sensor_view      | \c RadarSensorView      | Yes      | If set, must be valid
+lidar_sensor_view      | \c LidarSensorView      | Yes      | If set, must be valid
+camera_sensor_view     | \c CameraSensorView     | Yes      | If set, must be valid
+ultrasonic_sensor_view | \c UltrasonicSensorView | Yes      | If set, must be valid
 
 \par Details on timestamp
 
