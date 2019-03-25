@@ -9,17 +9,19 @@ Definition of light, weather conditions and other environmental conditions.
 
 field                | type                                          | repeated | Requirements
 -------------------- | ---------------------                         | -------- | -----------
-ambient_illumination | EnvironmentalConditions::AmbientIllumination  | no       | must be set and valid      
-time_of_day          | EnvironmentalConditions::TimeOfDay            | no       | must be set and valid
+ambient_illumination | EnvironmentalConditions::AmbientIllumination  | no       | Must be set and valid      
+time_of_day          | EnvironmentalConditions::TimeOfDay            | no       | Must be set and valid
 atmospheric_pressure |                          double               | no       | Must be in Pascal [Pa]; must be set  
 temperature          |                          double               | no       | Mun be in Kelvin [K]; must be set 
-relative_humidity    |                          double               | no       | Must be in rane [0 - 100] [%];  must be set  
-precipitation        | EnvironmentalConditions::Precipitation        | no       | must be set and valid 
-fog                  | EnvironmentalConditions::Fog                  | no       | must be set and valid
+relative_humidity    |                          double               | no       | Must be in range [0 - 100] [%];  must be set  
+precipitation        | EnvironmentalConditions::Precipitation        | no       | Must be set and valid 
+fog                  | EnvironmentalConditions::Fog                  | no       | Must be set and valid
 
-\note tempereatue, atmospheric_pressure and relative_humidity refer to these values at z = 0.0 height 0m see level
+\note temperature, atmospheric_pressure and relative_humidity refer to these values at z = 0.0 height 0m see level
 
-\note atmospheric_pressure is essensialy [QNH](https://en.wikipedia.org/wiki/QNH)
+\note atmospheric_pressure is essensialy [QNH](https://en.wikipedia.org/wiki/QNH). Accepted extreme values are 800 hPa and 1200 hPa.
+
+\note temperature has accepted extreme values of 170\ K and 340\ K.
 
 \note Should we use more common units like. Celcius, hPa to avoid errors.
 
@@ -89,7 +91,7 @@ Number | Type name                | Requirements
 
 field                  | type    | repeated | Requirements
 --------------------   | ------- | -------- | -----------
-seconds_since_midnight |uint32   | no       | Must be in range [0 , 86400) 
+seconds_since_midnight |uint32   | no       | Must be in range [0 , 86400[
 
 The number of seconds [s] that have passed since midnight local time.
 Used for determining the current state of the circadian rhythm of a driver.
