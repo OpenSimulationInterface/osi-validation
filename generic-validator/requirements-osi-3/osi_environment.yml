@@ -18,4 +18,4 @@ EnvironmentalConditions:
     - is_set
   TimeOfDay:
     seconds_since_midnight:
-      - in_range: [0, 86400]
+      - in_range: [0, 86400, ro]

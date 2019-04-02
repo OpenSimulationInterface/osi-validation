@@ -1,6 +1,6 @@
 import logging
 from iso3166 import countries
-
+from protobuf_to_dict import protobuf_to_dict
 
 class OsiRuleChecker:
 
@@ -19,21 +19,23 @@ class OsiRuleChecker:
         else:
             return True
 
+    def is_set_if(self, inherit, rules, params):
+        return True
+
     def is_valid(self, inherit, rules, params):
         field = inherit[-1][1]
-        containing_type = field.DESCRIPTOR.containing_type
-        field_type = field.DESCRIPTOR.name
+        containing_type_desc = field.DESCRIPTOR.containing_type
+        field_type_desc = field.DESCRIPTOR
         contained_rules = {}
         try:
-            if containing_type is not None and field_type in rules[containing_type]:
-                contained_rules = rules[containing_type][field_type]
+            if containing_type_desc is not None:
+                contained_rules = rules[field_type_desc.name]
                 logging.debug(f'Contained type!')
             else:
-                contained_rules = self._rules[field.DESCRIPTOR.name]
-                logging.debug(f'Global type!')
+                contained_rules = self._rules[field_type_desc.name]
         except KeyError:
             logging.warning(
-                f'The message type \'{field_type}\' has no rule')
+                f'The message type \'{field_type_desc.name}\' has no rule')
             return True
         else:
             return self.check_message(inherit, contained_rules)
@@ -52,12 +54,22 @@ class OsiRuleChecker:
         return inherit[-1][1] <= maximum
 
     def in_range(self, inherit, rules, range):
-        if float(range[0]) <= inherit[-1][1] and float(inherit[-1][1]) <= range[1]:
-            logging.debug(f'{inherit[-1][1]} in range: {range[0], range[1]}')
-            return True
+        m = float(range[0])
+        M = float(range[1])
+        v = inherit[-1][1]
+        if m <= v and v <= M:
+            if len(range) >= 3 and str.find(range[2], 'lo') >= 0 and m == v:
+                logging.debug(f'{v} not in range: {m, M}')
+                return False
+            elif len(range) >= 3 and str.find(range[2], 'ro') >= 0 and M == v:
+                logging.debug(f'{v} not in range: {m, M}')
+                return False
+            else:
+                logging.debug(f'{v} in range: {m, M}')
+                return True
         else:
             logging.error(
-                f'{inherit[-1][1]} not in range: {range[0], range[1]}')
+                f'{v} not in range: {m, M}')
             return False
 
     def is_global_unique(self, inherit, rules, params):
@@ -74,7 +86,6 @@ class OsiRuleChecker:
             self._identifiers[identifier].append(object_of_id)
             return False
         else:
-            logging.debug(f'ID ok!')
             self._identifiers[identifier] = [object_of_id]
             return True
 
@@ -121,46 +132,66 @@ class OsiRuleChecker:
                 logging.error(f'{inherit_message_t}.{field_name} is not set!')
                 continue
 
+            is_set_if_rule = {"is_set_if": d['is_set_if'] for d in filter(
+                lambda d: type(d) == dict and 'is_set_if' in d, field_rules)}
+            if len(is_set_if_rule) >= 1:
+                cond = is_set_if_rule['is_set_if']
+                #logging.debug("is_set_if " + str(protobuf_to_dict(message)))
+                result = eval(cond, protobuf_to_dict(message))
+                try:
+                    field_is_set = message.HasField(field_name)
+                except ValueError:
+                    field_is_set = len(getattr(message, field_name)) >= 0
+                if result and field_is_set:
+                    logging.debug(f'{inherit_message_t} is set as expected: {cond}')
+                elif result and not field_is_set:
+                    logging.error(f'{inherit_message_t} is not set as expected: {cond}')
+
+            if field_name[0].isupper():
+                continue
+
             try:
                 proto_field_tuple = next(
                     filter(lambda t: t[0].name == field_name, proto_field_tuples))
             except StopIteration:
                 logging.error(
                     f'Field {inherit_message_t}.{field_name} does not exist')
-            for rule in field_rules:
-                if len(rule) == 1 and type(rule) is str:
-                    logging.exception(
-                        f'''Error in the rules file for {message.DESCRIPTOR.name}:
-                        each element of a list of rules for an attribut must be preceded
-                        by an hyphen "-"''')
+                logging.debug(list(map(lambda t: t[0].name, proto_field_tuples)))
+            else:
+                for rule in field_rules:
+                    if len(rule) == 1 and type(rule) is str:
+                        logging.exception(
+                            f'''Error in the rules file for {message.DESCRIPTOR.name}:
+                            each element of a list of rules for an attribute must be preceded
+                            by an hyphen "-"''')
 
-                if type(rule) is dict:
-                    verb, params = next(iter(rule.items()))
-                else:
-                    verb, params = rule, []
-
-                try:
-                    rule_checker = getattr(self, verb)
-                except AttributeError:
-                    logging.error(f'Rule "{verb}" not implemented yet!')
-                else:
-                    child_inherit = inherit + \
-                        [next(filter(lambda t: t[0].name ==
-                                     field_name, proto_field_tuples))]
-
-                    # If the field is "REPEATED"
-                    if proto_field_tuple[0].label == 3:
-                        res = self._check_repeated(
-                            rule_checker, child_inherit, rules, params)
+                    if type(rule) is dict:
+                        verb, params = next(iter(rule.items()))
                     else:
-                        res = rule_checker(child_inherit,
-                                           rules, params)
+                        verb, params = rule, []
 
-                    if res:
-                        logging.debug(
-                            f'{verb} for {inherit_message_t}.{field_name} OK')
+                    try:
+                        rule_checker = getattr(self, verb)
+                    except AttributeError:
+                        logging.error(f'Rule "{verb}" not implemented yet!')
                     else:
-                        logging.warning(
-                            f'{verb} for {inherit_message_t}.{field_name} Not OK')
-                        final_res = False
+                        child_inherit = inherit + \
+                            [next(filter(lambda t: t[0].name ==
+                                        field_name, proto_field_tuples))]
+
+                        # If the field is "REPEATED"
+                        if proto_field_tuple[0].label == 3:
+                            res = self._check_repeated(
+                                rule_checker, child_inherit, rules, params)
+                        else:
+                            res = rule_checker(child_inherit,
+                                            rules, params)
+
+                        if res:
+                            logging.debug(
+                                f'{verb} for {inherit_message_t}.{field_name} OK')
+                        else:
+                            logging.warning(
+                                f'{verb} for {inherit_message_t}.{field_name} Not OK')
+                            final_res = False
         return final_res
