@@ -1,4 +1,5 @@
 import logging
+import osi_validator_logger
 from iso3166 import countries
 from protobuf_to_dict import protobuf_to_dict
 
@@ -9,8 +10,11 @@ class OsiRuleChecker:
         self._identifiers = dict()
         self._object_tree = dict()
         self._references = dict()
-        logging.basicConfig(
-            format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+        logging.setLoggerClass(osi_validator_logger.OSIValidatorLogger)
+        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.WARNING)
+        self.logger = logging.getLogger('logger')
+        assert isinstance(self.logger, osi_validator_logger.OSIValidatorLogger)
 
     # Rules implementation
     def is_set(self, inherit, rules, params):
@@ -28,29 +32,39 @@ class OsiRuleChecker:
         field_type_desc = field.DESCRIPTOR
         contained_rules = {}
         try:
-            if containing_type_desc is not None:
-                contained_rules = rules[field_type_desc.name]
-                logging.debug(f'Contained type!')
-            else:
-                contained_rules = self._rules[field_type_desc.name]
+            message_t_inherit = []
+            while containing_type_desc is not None:
+                message_t_inherit.insert(0, containing_type_desc.name)
+                containing_type_desc = containing_type_desc.containing_type
+            contained_rules = self._rules
+            for i in message_t_inherit:
+                contained_rules = contained_rules[i]
+            del contained_rules[-1]
+            self.logger.debug(f'Contained type!')
         except KeyError:
-            logging.warning(
+            self.logger.warning(
                 f'The message type \'{field_type_desc.name}\' has no rule')
             return True
         else:
             return self.check_message(inherit, contained_rules)
 
     def _check_repeated(self, rule_method, inherit, rules, params):
-        logging.debug(
+        self.logger.debug(
             f'Check the rule {rule_method.__name__} for a repeated field')
-        return all([rule_method(inherit + [(None, m)], rules, params) for m in inherit[-1][1]])
+
+        if rule_method.__name__ == "each":
+            rules = params
+        if rule_method.__name__ in ['first_element', 'last_element']:
+            return rule_method(inherit, rules, params)
+        else:
+            return all([rule_method(inherit + [(None, m)], rules, params) for m in inherit[-1][1]])
 
     def is_minimum(self, inherit, rules, minimum):
-        logging.debug(f'Minimum: {minimum}')
+        self.logger.debug(f'Minimum: {minimum}')
         return inherit[-1][1] >= minimum
 
     def is_maximum(self, inherit, rules, maximum):
-        logging.debug(f'Maximum: {maximum}')
+        self.logger.debug(f'Maximum: {maximum}')
         return inherit[-1][1] <= maximum
 
     def in_range(self, inherit, rules, range):
@@ -59,16 +73,16 @@ class OsiRuleChecker:
         v = inherit[-1][1]
         if m <= v and v <= M:
             if len(range) >= 3 and str.find(range[2], 'lo') >= 0 and m == v:
-                logging.debug(f'{v} not in range: {m, M}')
+                self.logger.debug(f'{v} not in range: {m, M}')
                 return False
             elif len(range) >= 3 and str.find(range[2], 'ro') >= 0 and M == v:
-                logging.debug(f'{v} not in range: {m, M}')
+                self.logger.debug(f'{v} not in range: {m, M}')
                 return False
             else:
-                logging.debug(f'{v} in range: {m, M}')
+                self.logger.debug(f'{v} in range: {m, M}')
                 return True
         else:
-            logging.error(
+            self.logger.error(
                 f'{v} not in range: {m, M}')
             return False
 
@@ -79,9 +93,9 @@ class OsiRuleChecker:
         object_of_id = inherit[-2]
         identifier = inherit[-1][1].value
         if identifier in self._identifiers:
-            logging.warning(f'The id {identifier} is already used')
+            self.logger.warning(f'The id {identifier} is already used')
             if type(inherit) in map(type, self._identifiers):
-                logging.error(
+                self.logger.error(
                     f'Several {type(object_of_id)} have the id ({identifier})')
             self._identifiers[identifier].append(object_of_id)
             return False
@@ -91,23 +105,36 @@ class OsiRuleChecker:
 
     def refers(self, inherit, rules, params):
         if params.startswith("$"):
-            logging.debug('Check reference many to one')
+            self.logger.debug('Check reference many to one')
             return params not in self._references or inherit[-1][1].value in self._references[params]
         if params.startswith("+"):
-            logging.debug('Check reference many to many')
+            self.logger.debug('Check reference many to many')
             try:
                 return inherit[-1][1].value in self._references[params]
             except KeyError:
-                logging.error('Reference error')
+                self.logger.error(f'Reference error for {params}')
                 return False
 
     def is_iso_country_code(self, inherit, rules, params):
-        logging.debug(f'Checking ISO code for {inherit[-1][1]}')
+        self.logger.debug(f'Checking ISO code for {inherit[-1][1]}')
         try:
             countries.get(inherit[-1][1])
             return True
         except KeyError:
             return False
+
+    def first_element(self, inherit, rules, params):
+        r = self.check_message(inherit + [(None, inherit[-1][1][0])], params)
+        return r
+
+    def last_element(self, inherit, rules, params):
+        return self.check_message(inherit + [(None, inherit[-1][1][-1])], params)
+
+    def _has_attr(self, message, field_name):
+        try:
+            return message.HasField(field_name)
+        except ValueError:
+            return len(getattr(message, field_name)) > 0
 
     # Check launcher
 
@@ -116,6 +143,7 @@ class OsiRuleChecker:
         # Add "is_valid" rule for each field that can be validated (default)
         message = inherit[-1][1]
         for desc, _ in filter(lambda m: m[0].message_type is not None, message.ListFields()):
+            #print(rules)
             if desc.name not in rules:
                 rules[desc.name] = ['is_valid']
             elif not('is_valid' in rules[desc.name] or 'is_set' in rules[desc.name]):
@@ -125,27 +153,26 @@ class OsiRuleChecker:
         inherit_message_t = ".".join(map(lambda i: i[0].name, filter(
             lambda i: hasattr(i[1], "DESCRIPTOR") and i[0] is not None, inherit)))
         for field_name, field_rules in rules.items():
-            if "is_set" in field_rules and message.HasField(field_name):
-                logging.debug(
+            if field_rules is None:
+                continue
+            if "is_set" in field_rules and self._has_attr(message, field_name):
+                self.logger.debug(
                     f'{inherit_message_t}.{field_name} is set as expected')
             elif "is_set" in field_rules:
-                logging.error(f'{inherit_message_t}.{field_name} is not set!')
+                self.logger.error(f'{inherit_message_t}.{field_name} is not set!')
                 continue
 
             is_set_if_rule = {"is_set_if": d['is_set_if'] for d in filter(
                 lambda d: type(d) == dict and 'is_set_if' in d, field_rules)}
             if len(is_set_if_rule) >= 1:
                 cond = is_set_if_rule['is_set_if']
-                #logging.debug("is_set_if " + str(protobuf_to_dict(message)))
+                #self.logger.debug("is_set_if " + str(protobuf_to_dict(message)))
                 result = eval(cond, protobuf_to_dict(message))
-                try:
-                    field_is_set = message.HasField(field_name)
-                except ValueError:
-                    field_is_set = len(getattr(message, field_name)) >= 0
+                field_is_set = self._has_attr(message, field_name)
                 if result and field_is_set:
-                    logging.debug(f'{inherit_message_t} is set as expected: {cond}')
+                    self.logger.debug(f'{inherit_message_t} is set as expected: {cond}')
                 elif result and not field_is_set:
-                    logging.error(f'{inherit_message_t} is not set as expected: {cond}')
+                    self.logger.error(f'{inherit_message_t} is not set as expected: {cond}')
 
             if field_name[0].isupper():
                 continue
@@ -154,13 +181,13 @@ class OsiRuleChecker:
                 proto_field_tuple = next(
                     filter(lambda t: t[0].name == field_name, proto_field_tuples))
             except StopIteration:
-                logging.error(
+                self.logger.error(
                     f'Field {inherit_message_t}.{field_name} does not exist')
-                logging.debug(list(map(lambda t: t[0].name, proto_field_tuples)))
+                self.logger.debug(list(map(lambda t: t[0].name, proto_field_tuples)))
             else:
                 for rule in field_rules:
                     if len(rule) == 1 and type(rule) is str:
-                        logging.exception(
+                        self.logger.exception(
                             f'''Error in the rules file for {message.DESCRIPTOR.name}:
                             each element of a list of rules for an attribute must be preceded
                             by an hyphen "-"''')
@@ -173,7 +200,7 @@ class OsiRuleChecker:
                     try:
                         rule_checker = getattr(self, verb)
                     except AttributeError:
-                        logging.error(f'Rule "{verb}" not implemented yet!')
+                        self.logger.error(f'Rule "{verb}" not implemented yet!')
                     else:
                         child_inherit = inherit + \
                             [next(filter(lambda t: t[0].name ==
@@ -188,10 +215,10 @@ class OsiRuleChecker:
                                             rules, params)
 
                         if res:
-                            logging.debug(
+                            self.logger.debug(
                                 f'{verb} for {inherit_message_t}.{field_name} OK')
                         else:
-                            logging.warning(
+                            self.logger.warning(
                                 f'{verb} for {inherit_message_t}.{field_name} Not OK')
                             final_res = False
         return final_res
