@@ -3,6 +3,8 @@
 # Standard library Imports
 import argparse
 import sys
+from collections import namedtuple
+import logging
 
 # Local packages imports
 try:
@@ -12,8 +14,10 @@ except ModuleNotFoundError:
     print('The program encoutered problems while importing OSI. Check your system for required dependencies. ')
 
 # Private imports
-import data_reader
-import osi_validation_rules
+from osi_validation_rules import OsiValidationRules
+from osi_rule_checker import OsiRuleChecker
+from osi_validator_logger import OSIValidatorLogger
+from osi_id_manager import OSIIDManager
 
 # Classes
 # Free Functions
@@ -46,16 +50,45 @@ def main():
     # Handling of command line arguments
     arguments = command_line_arguments()
 
-    # Collect Validation Rules
-    validation_rules = osi_validation_rules.OsiValidationRules()
-    validation_rules.from_directory(arguments.rules)
+    # Instanciate Logger
+    print("Instanciate logger")
+    logging.setLoggerClass(OSIValidatorLogger)
+    logger = logging.getLogger(__name__)
+    logger.__init__(__name__)
+    assert isinstance(logger, OSIValidatorLogger)
+
+    # Instanciate ID Manager
+    id_manager = OSIIDManager(logger)
+
+    # Collect Validation Rules 
+    print("Collect validation rules")
+    ovr = OsiValidationRules(logger, id_manager)
+    ovr.from_yaml_directory(arguments.rules)
 
     # Read the data
+    print("Read the data")
+    from osi_data_container import OsiDataContainer
+    odc = OsiDataContainer()
+    odc.from_file(arguments.data)
+    sv = odc.data[0]
 
     # Pass the first timestamp for check
+    print("Pass the first timestamp for check")
+    fake_field_descriptor = namedtuple('fake_field_descriptor',['name']) 
+    fake_field_descriptor.name = "SensorView"
+    ovr.check_message([(fake_field_descriptor, sv)], ovr._rules['SensorView'])
+
+
+    # Resolve ID and references
+
+    id_manager.resolve_unicity()
+    id_manager.resolve_references()
 
     # Grab major OSI version
 
+
+    # Flush the log
+    logger.flush()
 
 if __name__ == "__main__":
     main()

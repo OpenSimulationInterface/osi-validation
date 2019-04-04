@@ -56,23 +56,23 @@ BaseStationary:
   base_polyhon:
     - is_set
 
-  BaseMoving:
-    dimension:
-      - is_set
-    position:
-      - is_set
-    orientation:
-      - is_set
-    velocity:
-      - is_set
-    acceleration:
-      - is_set
-    orientation_rate:
-      - is_set
-    orientation_acceleration:
-      - is_set
-    base_polygon:
-      - is_set
+BaseMoving:
+  dimension:
+    - is_set
+  position:
+    - is_set
+  orientation:
+    - is_set
+  velocity:
+    - is_set
+  acceleration:
+    - is_set
+  orientation_rate:
+    - is_set
+  orientation_acceleration:
+    - is_set
+  base_polygon:
+    - is_set
 
 Identifier:
   value:

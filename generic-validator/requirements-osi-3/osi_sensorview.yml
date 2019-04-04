@@ -4,7 +4,7 @@ SensorView:
   timestamp:
     - is_set
   sensor_id:
-    - refers: '+virtual_sensors'
+    - is_global_unique
   mounting_position:
     - is_set
   mounting_position_rmse:
@@ -15,4 +15,4 @@ SensorView:
     - is_set
   host_vehicle_id:
     - is_set
-    - refers: '$host_vehicle_id'
+    - refers: 'MovingObject'

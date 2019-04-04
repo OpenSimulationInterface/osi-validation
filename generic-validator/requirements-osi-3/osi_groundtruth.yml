@@ -4,7 +4,7 @@ GroundTruth:
   timestamp:
     - is_set
   host_vehicle_id:
-    - refers: $host_vehicle_id
+    - refers: MovingObject
   environmental_conditions:
     - is_set
   country_code:
