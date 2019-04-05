@@ -71,6 +71,6 @@ MovingObject:
       license_plate_illumination_rear:
         - is_set
       emergency_vehicle_illumination:
-        - is_set
+        #- is_set
       service_vehicle_illumination:
-        - is_set
+        #- is_set

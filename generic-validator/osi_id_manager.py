@@ -60,7 +60,7 @@ class OSIIDManager:
 
     def resolve_references(self):
         for reference in self._references:
-            referer, identifier, expected_type, condition = reference
+            _, identifier, expected_type, condition = reference
             try:
                 found_object = next(filter(lambda o: type(o).__name__ == expected_type, self._index[identifier]))
             except StopIteration:
@@ -72,3 +72,7 @@ class OSIIDManager:
                         self.logger.debug(f'Condition OK')
                     else:
                         self.logger.error(f'Condition not OK')
+    
+    def reset(self):
+        self._index = {}
+        self._references = []

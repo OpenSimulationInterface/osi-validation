@@ -31,7 +31,7 @@ RadarDetection:
   position:
     - is_set
   position_rmse:
-    - is_set
+    - is_set # ASK: uncertainties are negative or positive? Uncertainties: +/- [positive number] (https://opensimulationinterface.github.io/open-simulation-interface/structosi3_1_1Dimension3d.html)
   radial_velocity:
     - is_minimum: 0
   radial_velocity_rmse:

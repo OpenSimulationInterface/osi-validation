@@ -19,7 +19,7 @@ Dimension3d:
   width:
     - is_set
     - is_minimum: 0
-  heigth:
+  height:
     - is_set
     - is_minimum: 0
 
@@ -53,8 +53,8 @@ BaseStationary:
     - is_set
   orientation:
     - is_set
-  base_polyhon:
-    - is_set
+  base_polygon:
+    #- is_set
 
 BaseMoving:
   dimension:
@@ -70,9 +70,9 @@ BaseMoving:
   orientation_rate:
     - is_set
   orientation_acceleration:
-    - is_set
+    #- is_set
   base_polygon:
-    - is_set
+    #- is_set
 
 Identifier:
   value:
