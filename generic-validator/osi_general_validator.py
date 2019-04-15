@@ -3,6 +3,7 @@
 # Standard library Imports
 import argparse
 import sys
+import os
 from collections import namedtuple
 import logging
 
@@ -14,11 +15,10 @@ except ModuleNotFoundError:
     print('The program encountered problems while importing OSI. Check your system for required dependencies. ')
 
 # Private imports
-from osi_validation_rules import OsiValidationRules
-from osi_rule_checker import OsiRuleChecker
+from osi_validation_rules import OSIValidationRules
 from osi_validator_logger import OSIValidatorLogger
 from osi_id_manager import OSIIDManager
-from osi_data_container import OsiDataContainer
+from osi_data_container import OSIDataContainer
 
 # Free Functions
 def command_line_arguments():
@@ -58,11 +58,14 @@ def main():
 
     # Instanciate Logger
     print("Instanciate logger")
-    logger = OSIValidatorLogger(arguments.debug, arguments.output)
+    directory = arguments.output
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    logger = OSIValidatorLogger(arguments.debug, directory)
 
     # Read the data
     logger.info("Read the data")
-    odc = OsiDataContainer()
+    odc = OSIDataContainer()
     odc.from_file(arguments.data, arguments.type)
 
     # Instanciate ID Manager
@@ -70,28 +73,19 @@ def main():
 
     # Collect Validation Rules 
     logger.info("Collect validation rules")
-    ovr = OsiValidationRules(logger, id_manager)
+    ovr = OSIValidationRules(logger, id_manager)
     ovr.from_yaml_directory(arguments.rules)
 
-    # Pass the first timestep for check
-    logger.info("Pass the first timestamp for check")
-    sv = odc.data[0]
-    fake_field_descriptor = namedtuple('fake_field_descriptor',['name']) 
-    fake_field_descriptor.name = arguments.type
-    ovr.check_message([(fake_field_descriptor, sv)], ovr._rules[arguments.type])
-
-    # Resolve ID and references
-    id_manager.resolve_unicity()
-    id_manager.resolve_references()
-
-    # Pass the other timesteps
-    logger.info("Pass the other timestamps")
-    for i in range(1, len(odc.data)):
+    # Pass the timesteps
+    logger.info("Pass the timesteps")
+    for i in range(0, len(odc.data)):
         id_manager.reset()
         logger.info(f"Checking the timestep {i}")
         sv = odc.data[i]
         fake_field_descriptor = namedtuple('fake_field_descriptor',['name']) 
         fake_field_descriptor.name = arguments.type
+
+        # Check common rules
         ovr.check_message([(fake_field_descriptor, sv)], ovr._rules[arguments.type])
         
         # Resolve ID and references
@@ -99,10 +93,6 @@ def main():
         id_manager.resolve_references()
 
     # Grab major OSI version
-
-
-    # Flush the log
-    # logger.flush()
 
 if __name__ == "__main__":
     main()

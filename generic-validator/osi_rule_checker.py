@@ -4,7 +4,7 @@ from copy import deepcopy
 from importlib import reload
 
 
-class OsiRuleChecker:
+class OSIRuleChecker:
 
     def __init__(self, logger, id_manager):
         self._rules = dict()

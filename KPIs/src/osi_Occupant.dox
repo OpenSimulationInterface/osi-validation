@@ -62,5 +62,5 @@ Number  | Type name                   | Requirements
       4 | STEERING_CONTROL_BOTH_HANDS |  Both hands are on the steering wheel. 
       5 |  STEERING_CONTROL_LEFT_HAND |  Only left hand is on the steering wheel. 
 
-\note Should we describe more scenarios, e.g. when a driver tryies to cheet having hands on steering wheel. Suboptimal hand position on a wheel.
+\note Should we describe more scenarios, e.g. when a driver tries to cheat having hands on steering wheel. Suboptimal hand position on a wheel.
 */

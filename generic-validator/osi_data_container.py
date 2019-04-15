@@ -2,7 +2,7 @@ import osi3.osi_sensorview_pb2
 import osi3.osi_groundtruth_pb2
 import osi3.osi_sensordata_pb2
 
-class OsiDataContainer:
+class OSIDataContainer:
     def __init__(self):
         self.data = list()
         self._text_data = ""

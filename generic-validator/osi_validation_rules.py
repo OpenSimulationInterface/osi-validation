@@ -2,10 +2,10 @@ import os
 import copy
 import yaml
 
-from osi_rule_checker import OsiRuleChecker
+from osi_rule_checker import OSIRuleChecker
 
 
-class OsiValidationRules(OsiRuleChecker):
+class OSIValidationRules(OSIRuleChecker):
     """ This class collects validation rules """
 
     def from_yaml_directory(self, path):

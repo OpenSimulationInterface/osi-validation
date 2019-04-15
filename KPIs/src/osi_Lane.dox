@@ -27,7 +27,7 @@ after such a split point.
 
 Content of Lane object
 
-attribute       |  type                | Requirements
+attribute      |  type                | Requirements
 :--------------| :------------------- | :---------------------------
 id             | Identifier           | ID is global unique.
 classification | Lane::Classification | The classification of the lane is set and valid
@@ -39,7 +39,7 @@ classification | Lane::Classification | The classification of the lane is set an
 
 \par Requirements
 
-Attribute                        | Type                                | Repeated | Requirements
+Attribute                       | Type                                | Repeated | Requirements
 :------------------------------ | :---------------------------------- | :-----: | :------------
 type                            | Lane::Classification::Type          | No      | is set and valid TYPE_UNKNOWN is not allowed in Ground Truth context
 is_host_vehicle_lane            | bool                                | No      | is set
@@ -94,7 +94,7 @@ Defined and used for driving lanes.
 \brief Definition of available lane types.
 
 \par Requirements
-Number | Type name        | Requirements
+Number | Type name         | Requirements
 :----- | :---------------- | :---------
 0      | TPE_UNKNOWN       | Lane of unknown type (must not be used in ground truth).
 1      | TYPE_OTHER        | Any other type of lane.
@@ -134,7 +134,7 @@ Additional requirements these lanes have to satisfy.
 
 All values must be positive.
 
-Attribute               |  type        | unit   | Requirements
+Attribute              |  type        | unit   | Requirements
 :--------------------- | :----------  | :----- | :---------------------------
 surface_temperature    | double       | [K]    | The temperature of the roads surface in Kelvin.
 surface_water_film     | double       | [mm]   | The height of the water film on top of the surface in mm.
