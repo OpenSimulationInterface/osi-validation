@@ -109,10 +109,11 @@ Number | Type name         | Requirements
 \brief The lane ID pairings of antecessor and successor lanes.
 
 \par Requirements
-atribute           |  type      | repeted | Requirements
-:------------------| :--------- | :-----: | :---------------------------
-antecessor_lane_id | Identifier | No      | must be global unique and correspond to osi::Lane object
-successor_lane_id  | Identifier | No      | must be global unique and correspond to osi::Lane object
+
+Field              | Type       | Repeated | Requirements
+:------------------|------------|----------|---------------------------------------------------------
+antecessor_lane_id | Identifier | No       | Must be global unique and correspond to osi::Lane object
+successor_lane_id  | Identifier | No       | Must be global unique and correspond to osi::Lane object
 
 \par antecessor and successor rules
 Additional requirements these lanes have to satisfy.
@@ -134,14 +135,14 @@ Additional requirements these lanes have to satisfy.
 
 All values must be positive.
 
-Attribute              |  type        | unit   | Requirements
-:--------------------- | :----------  | :----- | :---------------------------
-surface_temperature    | double       | [K]    | The temperature of the roads surface in Kelvin.
-surface_water_film     | double       | [mm]   | The height of the water film on top of the surface in mm.
-surface_freezing_point | double       | [K]    | must be set 
-surface_ice            | double       | [mm]   | must be set 
-surface_roughness      | double       | [mm/m] | The temperature where the water on top of the surface would start to freeze or dew in Kelvin.
-surface_texture        | double       | [m]    | must be set 
+Field                  | Type   | Unit   | Requirements
+:----------------------|--------|--------|----------------------------------------------------------------------------------------------
+surface_temperature    | double | [K]    | The temperature of the roads surface in Kelvin.
+surface_water_film     | double | [mm]   | The height of the water film on top of the surface in mm.
+surface_freezing_point | double | [K]    | Must be set
+surface_ice            | double | [mm]   | Must be set
+surface_roughness      | double | [mm/m] | The temperature where the water on top of the surface would start to freeze or dew in Kelvin.
+surface_texture        | double | [m]    | Must be set
 
 \par References
 	- [1] AYERS, M.W.; KARAMIHAS, S.M. Little Book of Profiling, University of Michigan Transportation Research Institute, 1998.

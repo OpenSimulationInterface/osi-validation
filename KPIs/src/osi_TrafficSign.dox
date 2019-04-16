@@ -2,11 +2,10 @@
 \class TrafficSign
 \brief Additional value associated with a traffic sign or road marking and its unit.
 
-
 \par Requirements
 
-field              | type                           | repeated | Requirements
------------------- | ----------------------         | -------- | -----------
+Field              | Type                           | Repeated | Requirements
+-------------------|--------------------------------|----------|----------------------
 id                 | Identifier                     | no       | Must be set and valid
 main_sign          | TrafficSign::MainSign          | no       | Must be set and valid
 supplementary_sign | TrafficSign::SupplementarySign | yes      | Must be set and valid
@@ -16,15 +15,12 @@ supplementary_sign | TrafficSign::SupplementarySign | yes      | Must be set and
 \class TrafficSign::MainSign
 \brief Main sign of the traffic sign.
 
-
 \par Requirements
 
-field          | type                                  | repeated | Requirements
--------------- | ----------------------                | -------- | -----------
+Field          | Type                                  | Repeated | Requirements
+---------------|---------------------------------------|----------|----------------------
 base           | BaseStationary                        | no       | Must be set and valid
 classification | TrafficSign::MainSign::Classification | no       | Must be set and valid
-
-
 
 ################################################################################
 
@@ -33,14 +29,13 @@ classification | TrafficSign::MainSign::Classification | no       | Must be set 
 
 \par Requirements
 
-field              | type                                                  | repeated | Requirements
------------------- | ----------------------------------------------------- | -------- | -----------
-variability        | TrafficSign::Variability    | no       | Must be set and valid
-type               | TrafficSign::MainSign::Classification::Type           | no       | Must be set and valid
-value              | TrafficSignValue                                      | no       | Must be set and valid
-direction_scope    | TrafficSign::MainSign::Classification::DirectionScope | no       | Must be set and valid
-assigned_lane_id   | Identifier                                            | yes      | Must be set and valid
-
+Field            | Type                                                  | Repeated | Requirements
+-----------------|-------------------------------------------------------|----------|----------------------
+variability      | TrafficSign::Variability                              | no       | Must be set and valid
+type             | TrafficSign::MainSign::Classification::Type           | no       | Must be set and valid
+value            | TrafficSignValue                                      | no       | Must be set and valid
+direction_scope  | TrafficSign::MainSign::Classification::DirectionScope | no       | Must be set and valid
+assigned_lane_id | Identifier                                            | yes      | Must be set and valid
 
 ################################################################################
 
@@ -49,10 +44,10 @@ assigned_lane_id   | Identifier                                            | yes
 \par Requirements
 
 Number | Type name           | Requirements
-:----- | :------------------ | :---------
-     0 | VARIABILITY_UNKNOWN |  Variability type of sign is unknown (must not be used in ground truth). 
-     1 |   VARIABILITY_OTHER |  Other (unspecified but known) variability. 
-     2 |   VARIABILITY_FIXED |  Fixed sign, i.e. always present. 
+:------|---------------------|------------------------------------------------------------------------
+0      | VARIABILITY_UNKNOWN | Variability type of sign is unknown (must not be used in ground truth).
+1      | VARIABILITY_OTHER   | Other (unspecified but known) variability.
+2      | VARIABILITY_FIXED   | Fixed sign, i.e. always present.
 
 ################################################################################
 
@@ -180,7 +175,7 @@ Number   | Type name                    | Requirements
 
 \par Requirements
 
-field              | type                    | repeated | Requirements
+Field              | Type                    | Repeated | Requirements
 ------------------ | ----------------------- | -------- | -----------
 value              | double                  | no       | Additional value associated with a traffic sign or road marking, e.g. value of a speed limit.
 value_unit         | TrafficSignValue::Unit  | no       | Unit for additional value
@@ -190,7 +185,6 @@ value_unit         | TrafficSignValue::Unit  | no       | Unit for additional va
 
 \class TrafficSignValue::Unit
 \brief Unit for values on traffic sign
-
 
 \par Requirements
 
@@ -219,11 +213,10 @@ Number   | Type name               | Requirements
 
 \par Requirements
 
-field          | type                                           | repeated | Requirements
+Field          | Type                                           | Repeated | Requirements
 -------------- | ----------------------                         | -------- | -----------
 base           | BaseStationary                                 | no       | Must be set and valid
 classification | TrafficSign::SupplementarySign::Classification | no       | Must be set and valid
-
 
 ################################################################################
 
@@ -232,7 +225,7 @@ classification | TrafficSign::SupplementarySign::Classification | no       | Mus
 
 \par Requirements
 
-field              | type                                                  | repeated | Requirements
+Field              | Type                                                  | Repeated | Requirements
 ------------------ | ----------------------------------------------------- | -------- | -----------
 variability        | TrafficSign::Variability                              | no       | Must be set and valid
 type               | TrafficSign::SupplementarySign::Classification::Type  | no       | Must be set and valid
@@ -240,12 +233,10 @@ value              | TrafficSignValue                                      | yes
 assigned_lane_id   | Identifier                                            | yes      | Must be set and valid
 
 
-
 ################################################################################
 
 \class TrafficSign::SupplementarySign::Classification::Type
 \brief Definition of supplementary sign types.
-
 
 Number   | Type name                   | Requirements
 :-----   | :----------------           | :---------

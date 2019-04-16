@@ -6,12 +6,13 @@ Names and types of fields are chosen in accordance to google/protobuf/timestamp.
 
 \par Requirements 
 
-property | type    | phiscial unit   | Requirements   
-:------: | :-----: | :-------------: | :-------:
-seconds  | int64   | [s]             | must be positive
-nanos    | uint32  | [ns]            | must be positive must be in range [0, 999.999.999]
+Field   | Type   | Unit |                                       Requirements
+:-------|--------|------|--------------------------------------------------:
+seconds | int64  | [s]  |                                   must be positive
+nanos   | uint32 | [ns] | must be positive must be in range [0, 999.999.999]
 
-All fields must be initialized
+All fields must be initialized.
 
-All fields must be positive
+All fields must be positive.
+
 */

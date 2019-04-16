@@ -7,8 +7,8 @@ Details are specified in each instance where \c MountingPosition is used.
 \par Requirements
 
 
-attribute   |  type         | Requirements
-:---------- | :-----------  | :---------------------------
+Field       | Type          | Requirements
+:-----------|---------------|-----------------------------------------------------------------------------------
 position    | Vector3d      | is valid offset position relative to the specified reference coordinate system.
 orientation | Orientation3d | is valid orientation offset relative to the specified reference coordinate system.
 */

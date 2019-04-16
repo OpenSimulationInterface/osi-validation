@@ -11,12 +11,12 @@ General requirements:
 	- Meaningful data must be set for all the data fields
 
 
-attribute        |  type         | repeated | unit  | requirements 
-:------:         | :------------ | :-----:  | :---: | :---------------------------
-dimension        | Dimension3d   | No       | [m]   | Must be set, all components must be positive
-position         | Vector3d      | No       | [m]   | Must be set
-orientation      | Orientation3d | No       | [rad] | All values must me inside range (-pi,pi]
-base_polygon     | Vector2d      | Yes      | [m]   | See the note below
+Field        | Type          | Repeated | Unit  | Requirements
+:------------|---------------|----------|-------|---------------------------------------------
+dimension    | Dimension3d   | No       | [m]   | Must be set, all components must be positive
+position     | Vector3d      | No       | [m]   | Must be set
+orientation  | Orientation3d | No       | [rad] | All values must me inside range (-pi,pi]
+base_polygon | Vector2d      | Yes      | [m]   | See the note below
 
 
 \par Difference between GroundTruth and SensorData

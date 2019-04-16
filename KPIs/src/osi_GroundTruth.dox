@@ -24,7 +24,7 @@ field may remain unset.
 In enums (e.g. types) the unknown (first / default) value is not allowed to
 be used in the ground truth interface.
 
-field                    | type                       | repeated | Requirements
+Field                    | Type                       | Repeated | Requirements
 -------------------------|----------------------------|----------|---------------------------------------
 version                  | \c InterfaceVersion        | No       | Must be set and valid
 timestamp                | \c Timestamp               | No       | Must be set and valid

@@ -4,10 +4,10 @@
 
 \par Requirements
 
-field              | type                           | repeated | Requirements
------------------- | ----------------------         | -------- | -----------
-id                 | Identifier                     | no       | set and valid
-classification     | Occupant::Classification       | no       | set and valid
+field          | Type                     | Repeated | Requirements
+---------------|--------------------------|----------|----------------------
+id             | Identifier               | no       | Must be set and valid
+classification | Occupant::Classification | no       | Must be set and valid
 
 \note At the momment Open Simulation Interface allows only for description of the occupants in the ego vehicle. Is it desirable to also be informed about occupants of other road participants. 
 
@@ -19,11 +19,11 @@ classification     | Occupant::Classification       | no       | set and valid
 
 \par Requirements
 
-field              | type                                      | repeated | Requirements
------------------- | -----------                               | -------- | -----------
-is_driver          | bool                                      | no       | set and valid
-seat               | Occupant::Classification::Seat            | no       | Must be front seat. SEAT_FRONT_LEFT,SEAT_FRONT_RIGHT, SEAT_FRONT_MIDDLE
-steering_control   | Occupant::Classification::SteeringControl | no       | Must be set if is_driver is true, otherwise optional
+Field            | Type                                      | Repeated | Requirements
+-----------------|-------------------------------------------|----------|------------------------------------------------------------------------
+is_driver        | bool                                      | no       | Must set and valid
+seat             | Occupant::Classification::Seat            | no       | Must be front seat. SEAT_FRONT_LEFT,SEAT_FRONT_RIGHT, SEAT_FRONT_MIDDLE
+steering_control | Occupant::Classification::SteeringControl | no       | Must be set if is_driver is true, otherwise optional
 
 ################################################################################
 

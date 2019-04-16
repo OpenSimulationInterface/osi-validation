@@ -56,7 +56,7 @@ not always be the preferred approach for reasons of IP protection.
 
 \par Requirements
 
-field                             | type                              | repeated | Requirements
+Field                             | Type                              | Repeated | Requirements
 ----------------------------------|-----------------------------------|----------|----------------------------------------
 version                           | \c InterfaceVersion               | No       | Must be set and valid
 sensor_id                         | \c Identifier                     | No       | Must correspond to the id of a virtual sensor
@@ -133,13 +133,13 @@ by the environment simulation.
 
 \par Requirements
 
-field                    | type                | repeated | Requirements
--------------------------|---------------------|----------|----------------------------------------
-sensor_id                | \c Identifier       | No       | Must correspond to the id of a physical sensor
-mounting_position        | \c MountingPosition | No       | Must be set and valid
-mounting_position_rmse   | \c MountingPosition | No       | Must be set and valid
-field_of_view_horizontal | \c double           | No       | Must be set, positive, in radians [rad]
-field_of_view_vertical   | \c double           | No       | Must be set, positive, in radians [rad]
+Field                    | Type                | Unit  | Repeated | Requirements
+-------------------------|---------------------|-------|----------|-----------------------------------------------
+sensor_id                | \c Identifier       |       | No       | Must correspond to the id of a physical sensor
+mounting_position        | \c MountingPosition |       | No       | Must be set and valid
+mounting_position_rmse   | \c MountingPosition |       | No       | Must be set and valid
+field_of_view_horizontal | \c double           | [rad] | No       | Must be set, positive
+field_of_view_vertical   | \c double           | [rad] | No       | Must be set, positive
 
 \par Details on mounting_position
 
@@ -178,19 +178,19 @@ by the environment simulation.
 
 \par Requirements
 
-field                      | type                   | repeated | Requirements
----------------------------|------------------------|----------|----------------------------------------
-sensor_id                  | \c Identifier          | No       | Must correspond to the id of a physical sensor
-mounting_position          | \c MountingPosition    | No       | Must be set and valid
-mounting_position_rmse     | \c MountingPosition    | No       | Must be set and valid
-field_of_view_horizontal   | \c double              | No       | Must be set, positive, in radians [rad]
-field_of_view_vertical     | \c double              | No       | Must be set, positive, in radians [rad]
-number_of_rays_horizontal  | \c uint32              | No       | Must be set, positive integer
-number_of_rays_vertical    | \c uint32              | No       | Must be set, positive integer
-max_number_of_interactions | \c uint32              | No       | Must be set, positive integer
-emitter_frequency          | \c double              | No       | Must be set, positive, in hertz [Hz]
-tx_antenna_diagram         | \c AntennaDiagramEntry | Yes      | Must be set and valid
-rx_antenna_diagram         | \c AntennaDiagramEntry | Yes      | Must be set and valid
+Field                      | Type                   | Unit  | Repeated | Requirements
+---------------------------|------------------------|-------|----------|-----------------------------------------------
+sensor_id                  | \c Identifier          |       | No       | Must correspond to the id of a physical sensor
+mounting_position          | \c MountingPosition    |       | No       | Must be set and valid
+mounting_position_rmse     | \c MountingPosition    |       | No       | Must be set and valid
+field_of_view_horizontal   | \c double              | [Hz]  | No       | Must be set, positive
+field_of_view_vertical     | \c double              | [rad] | No       | Must be set, positive
+number_of_rays_horizontal  | \c uint32              | []    | No       | Must be set, positive integer
+number_of_rays_vertical    | \c uint32              | []    | No       | Must be set, positive integer
+max_number_of_interactions | \c uint32              | []    | No       | Must be set, positive integer
+emitter_frequency          | \c double              | [Hz]  | No       | Must be set, positive
+tx_antenna_diagram         | \c AntennaDiagramEntry |       | Yes      | Must be set and valid
+rx_antenna_diagram         | \c AntennaDiagramEntry |       | Yes      | Must be set and valid
 
 
 \par Details on mounting_position
@@ -204,11 +204,11 @@ See on \c GenericSensorViewConfiguration
 
 \par Requirements
 
-field            | type      | repeated | Requirements
------------------|-----------|----------|------------------------------
-horizontal_angle | \c double | No       | Must be set, in radians [rad]
-vertical_angle   | \c double | No       | Must be set, in radians [rad]
-response         | \c double | No       | Must be set, in decibels [dB]
+Field            | Type      | Unit  | Repeated | Requirements
+-----------------|-----------|-------|----------|-------------------------
+horizontal_angle | \c double | [rad] | No       | Must be set, in radians
+vertical_angle   | \c double | [rad] | No       | Must be set, in radians
+response         | \c double | [dB]  | No       | Must be set, in decibels
 
 ################################################################################
 
@@ -218,20 +218,20 @@ by the environment simulation.
 
 \par Requirements
 
-field                      | type                | repeated | Requirements
----------------------------|---------------------|----------|----------------------------------------
-sensor_id                  | \c Identifier       | No       | Must correspond to the id of a physical sensor
-mounting_position          | \c MountingPosition | No       | Must be set and valid
-mounting_position_rmse     | \c MountingPosition | No       | Must be set and valid
-field_of_view_horizontal   | \c double           | No       | Must be set, positive, in radians [rad]
-field_of_view_vertical     | \c double           | No       | Must be set, positive, in radians [rad]
-number_of_rays_horizontal  | \c uint32           | No       | Must be set, positive integer
-number_of_rays_vertical    | \c uint32           | No       | Must be set, positive integer
-max_number_of_interactions | \c uint32           | No       | Must be set, positive integer
-emitter_frequency          | \c double           | No       | Must be set, positive, in hertz [Hz]
-num_of_pixels              | \c uint32           | No       | Must be set, positive integer
-directions                 | \c Vector3d         | Yes      | Must be set and valid
-timings                    | \c uint32           | Yes      | Must be set and valid
+Field                      | Type                | Unit  | Repeated | Requirements
+---------------------------|---------------------|-------|----------|-----------------------------------------------
+sensor_id                  | \c Identifier       |       | No       | Must correspond to the id of a physical sensor
+mounting_position          | \c MountingPosition |       | No       | Must be set and valid
+mounting_position_rmse     | \c MountingPosition |       | No       | Must be set and valid
+field_of_view_horizontal   | \c double           | [rad] | No       | Must be set, positive, in radians [rad]
+field_of_view_vertical     | \c double           | [rad] | No       | Must be set, positive, in radians [rad]
+number_of_rays_horizontal  | \c uint32           | []    | No       | Must be set, positive integer
+number_of_rays_vertical    | \c uint32           | []    | No       | Must be set, positive integer
+max_number_of_interactions | \c uint32           | []    | No       | Must be set, positive integer
+emitter_frequency          | \c double           | [Hz]  | No       | Must be set, positive, in hertz [Hz]
+num_of_pixels              | \c uint32           | []    | No       | Must be set, positive integer
+directions                 | \c Vector3d         |       | Yes      | Must be set and valid
+timings                    | \c uint32           | []    | Yes      | Must be set and valid
 
 \par Details on mounting_position
 
@@ -245,16 +245,16 @@ by the environment simulation.
 
 \par Requirements
 
-field                     | type                | repeated | Requirements
---------------------------|---------------------|----------|----------------------------------------
-sensor_id                 | \c Identifier       | No       | Must correspond to the id of a physical sensor
-mounting_position         | \c MountingPosition | No       | Must be set and valid
-mounting_position_rmse    | \c MountingPosition | No       | Must be set and valid
-field_of_view_horizontal  | \c double           | No       | Must be set, positive, in radians [rad]
-field_of_view_vertical    | \c double           | No       | Must be set, positive, in radians [rad]
-number_of_rays_horizontal | \c uint32           | No       | Must be set, positive integer
-number_of_rays_vertical   | \c uint32           | No       | Must be set, positive integer
-channel_format            | \c ChannelFormat    | Yes      | Must be set and valid
+Field                     | Type                | Unit  | Repeated | Requirements
+--------------------------|---------------------|-------|----------|-----------------------------------------------
+sensor_id                 | \c Identifier       |       | No       | Must correspond to the id of a physical sensor
+mounting_position         | \c MountingPosition |       | No       | Must be set and valid
+mounting_position_rmse    | \c MountingPosition |       | No       | Must be set and valid
+field_of_view_horizontal  | \c double           | [rad] | No       | Must be set, positive
+field_of_view_vertical    | \c double           | [rad] | No       | Must be set, positive
+number_of_rays_horizontal | \c uint32           | []    | No       | Must be set, positive integer
+number_of_rays_vertical   | \c uint32           | []    | No       | Must be set, positive integer
+channel_format            | \c ChannelFormat    |       | Yes      | Must be set and valid
 
 \par Details on mounting_position
 
@@ -266,7 +266,7 @@ See on \c GenericSensorViewConfiguration
 
 Channel format.
 
-field | Channel format                    | Remarks
+Field | Channel format                    | Remarks
 ------|-----------------------------------|-----------------------------------------------------------------------------------------------------------------
 0     | CHANNEL_FORMAT_UNKNOWN            | Type of channel format is unknown (must not be used).
 1     | CHANNEL_FORMAT_OTHER              | Unspecified but known channel format. Consider proposing an additional format if using \c #CHANNEL_FORMAT_OTHER.
@@ -293,13 +293,13 @@ provided by the environment simulation.
 
 \par Requirements
 
-field                     | type                | repeated | Requirements
---------------------------|---------------------|----------|----------------------------------------
-sensor_id                 | \c Identifier       | No       | Must correspond to the id of a physical sensor
-mounting_position         | \c MountingPosition | No       | Must be set and valid
-mounting_position_rmse    | \c MountingPosition | No       | Must be set and valid
-field_of_view_horizontal  | \c double           | No       | Must be set, positive, in radians [rad]
-field_of_view_vertical    | \c double           | No       | Must be set, positive, in radians [rad]
+Field                    | Type                |       | Repeated | Requirements
+-------------------------|---------------------|-------|----------|-----------------------------------------------
+sensor_id                | \c Identifier       |       | No       | Must correspond to the id of a physical sensor
+mounting_position        | \c MountingPosition |       | No       | Must be set and valid
+mounting_position_rmse   | \c MountingPosition |       | No       | Must be set and valid
+field_of_view_horizontal | \c double           | [rad] | No       | Must be set, positive
+field_of_view_vertical   | \c double           | [rad] | No       | Must be set, positive
 
 \par Details on mounting_position
 

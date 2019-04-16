@@ -102,7 +102,6 @@ Used for determining the current state of the circadian rhythm of a driver.
 
 \note This field intent is to describe fitness of the driver to operate a vehicle. Maybe we should move this field to Occupant. Or have another field hours awake. 
 
-
 ###############################################################################
 
 \class EnvironmentalConditions::AmbientIllumination

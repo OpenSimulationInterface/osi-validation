@@ -130,7 +130,7 @@ reflection         | \c Reflection                   | Yes      | Must be set an
 
 \par Requirements
 
-field                   | type      | repeated | Requirements
+Field                   | Type      | Repeated | Requirements
 ------------------------|-----------|----------|--------------------------------------
 signal_strength         | \c double | No       | Must be set in decibels [dB]
 time_of_flight          | \c double | No       | Must be set, positive, in seconds [s]
@@ -147,7 +147,7 @@ Lidar specific sensor view data.
 
 \par Requirements
 
-field              | type                            | repeated | Requirements
+Field              | Type                            | Repeated | Requirements
 -------------------|---------------------------------|----------|----------------------
 view_configuration | \c LidarSensorViewConfiguration | No       | Must be set and valid
 reflection         | \c Reflection                   | Yes      | Must be set and valid
@@ -158,13 +158,14 @@ reflection         | \c Reflection                   | Yes      | Must be set an
 \brief Definition of the radar reflection.
 
 \par Requirements
-field                   | type          | repeated | Requirements
-------------------------|---------------|----------|-------------------------------------------------
-signal_strength         | \c double     | No       | Must be set in decibels [dB]
-time_of_flight          | \c double     | No       | Must be set, positive, in seconds [s]
-doppler_shift           | \c double     | No       | Must be set in hertz [Hz]
-source_horizontal_angle | \c Vector3d   | No       | Must be set and valid
-source_vertical_angle   | \c Identifier | No       | Must be set and correspond to an \c Object
+
+Field                   | Type          | Unit | Repeated | Requirements
+------------------------|---------------|------|----------|-------------------------------------------
+signal_strength         | \c double     | [dB] | No       | Must be set in decibels [dB]
+time_of_flight          | \c double     | [s]  | No       | Must be set, positive, in seconds [s]
+doppler_shift           | \c double     | [Hz] | No       | Must be set in hertz [Hz]
+source_horizontal_angle | \c Vector3d   |      | No       | Must be set and valid
+source_vertical_angle   | \c Identifier |      | No       | Must be set and correspond to an \c Object
 
 ################################################################################
 
@@ -175,10 +176,10 @@ Camera specific sensor view data.
 
 \par Requirements
 
-field              | type                             | repeated | Requirements
+Field              | Type                             | Repeated | Requirements
 -------------------|----------------------------------|----------|----------------------
 view_configuration | \c CameraSensorViewConfiguration | No       | Must be set and valid
-image_data         | \c bytes                         | No      | Must be set and valid
+image_data         | \c bytes                         | No       | Must be set and valid
 
 ################################################################################
 
@@ -189,7 +190,8 @@ Camera specific sensor view data.
 
 \par Requirements
 
-field              | type                                 | repeated | Requirements
+Field              | Type                                 | Repeated | Requirements
 -------------------|--------------------------------------|----------|----------------------
 view_configuration | \c UltrasonicSensorViewConfiguration | No       | Must be set and valid
+
 */

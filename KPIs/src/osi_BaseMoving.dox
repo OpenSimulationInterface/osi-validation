@@ -13,14 +13,14 @@ General requirements:
 
 
 
-attribute        |  type         | repeated | unit                | requirements 
-:------:         | :------------ | :-----:  | :-----------------: | :---------------------------
-dimension        | Dimension3d   | No       | [m]                 | must be set, all components must be positive
-position         | Vector3d      | No       | [m]                 | must be set
-orientation      | Orientation3d | No       | [rad]               | must be set, all values must me inside range (-pi,pi]
-velocity         | Vector3d      | No       | [m/s]               | must be set
-acceleration     | Vector3d      | No       | [m/s<sup>2</sup>]   | must be set
-orientation_rate | Orientation3d | No       | [rad/s<sup>2</sup>] | must be set
+Attribute        | Type          | Repeated | Unit                | Requirements
+:----------------|---------------|----------|---------------------|------------------------------------------------------
+dimension        | Dimension3d   | No       | [m]                 | Must be set, all components must be positive
+position         | Vector3d      | No       | [m]                 | Must be set
+orientation      | Orientation3d | No       | [rad]               | Must be set, all values must me inside range (-pi,pi]
+velocity         | Vector3d      | No       | [m/s]               | Must be set
+acceleration     | Vector3d      | No       | [m/s<sup>2</sup>]   | Must be set
+orientation_rate | Orientation3d | No       | [rad/s<sup>2</sup>] | Must be set
 base_polygon     | Vector2d      | Yes      | [m]                 | See the notes in \c BaseStationary
 
 

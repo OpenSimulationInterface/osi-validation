@@ -6,14 +6,13 @@ The coordinate system is defined as right-handed.
 
 Units are [m] for positions, [m/s] for velocities and [m/s<sup>2</sup>] for accelerations.
 
-
-\par Acceptence Criteria
+\par Requirements
 
 All fields must be initialized.
 
-atribute | type      | unit
-:------: | :-------: | :---------------------------:
-x        | \a double | [m], [m/s] or [m/s<sup>2</sup>]
-y        | \a double | [m], [m/s] or [m/s<sup>2</sup>]
-z        | \a double | [m], [m/s] or [m/s<sup>2</sup>]
+Field     | Type      |                            Unit
+:---------|-----------|-------------------------------:
+x         | \a double | [m], [m/s] or [m/s<sup>2</sup>]
+y         | \a double | [m], [m/s] or [m/s<sup>2</sup>]
+z         | \a double | [m], [m/s] or [m/s<sup>2</sup>]
 */

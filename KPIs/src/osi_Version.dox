@@ -25,7 +25,7 @@ The meaning of different InterfaceVersions is defined [1].
 
 \par Requirements
 
-field         | type      | repeated | Requirements
+Field         | Type      | Repeated | Requirements
 --------------|-----------|----------|----------------------
 version_major | \c uint32 | No       | Must be set and valid
 version_minor | \c uint32 | No       | Must be set and valid

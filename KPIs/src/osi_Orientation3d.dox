@@ -18,11 +18,11 @@ Roll/Pitch are 0 if the objects xy-plane is parallel to its parent's xy-plane. Y
 
 \par Requirements
 
- property | type    | phiscial unit                        | Requirements
- :------  | :-----: | :----------------------------------: | :--------------- 
- roll     | double  | [rad] [rad/s] or [rad/s<sup>2</sup>] | must be set
- pitch    | double  | [rad] [rad/s] or [rad/s<sup>2</sup>] | must be set
- yaw      | double  | [rad] [rad/s] or [rad/s<sup>2</sup>] | must be set
+Field    | Type   | Unit                                 | Requirements
+---------|--------|--------------------------------------|-------------
+roll     | double | [rad] [rad/s] or [rad/s<sup>2</sup>] | Must be set
+pitch    | double | [rad] [rad/s] or [rad/s<sup>2</sup>] | Must be set
+yaw      | double | [rad] [rad/s] or [rad/s<sup>2</sup>] | Must be set
 
 All fields must be initialized.
 

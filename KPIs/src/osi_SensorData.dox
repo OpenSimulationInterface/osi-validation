@@ -4,7 +4,7 @@
 
 \par Requirements
 
-field            | type             | repeated | Requirements
+Field            | Type             | Repeated | Requirements
 -----------------|------------------|----------|----------------------
 measurement_time | \c Timestamp     | No       | Must be set and valid
 cycle_counter    | \c uint64        | No       | Must be set and valid
@@ -62,7 +62,7 @@ or it can happen as part of a combined sensor/logical model, that consumes
 output.
 
 \par Requirements
-field                      | type                        | repeated | Requirements
+Field                      | Type                        | Repeated | Requirements
 ---------------------------|-----------------------------|----------|----------------------------------------------
 version                    | \c InterfaceVersion         | No       | Must be set and valid
 timestamp                  | \c Timestamp                | No       | Must be set and valid

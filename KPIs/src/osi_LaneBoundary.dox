@@ -79,13 +79,13 @@ This field must be set if the \c #type is set to
 \c #TYPE_STRUCTURE
 
 ################################################################################
+
 \class LaneBoundary::Classification::Type
 \brief The lane boundary type. 
 
 There is no special representation for double lines, e.g. solid / solid or
 dashed / solid. In such cases, each lane will define its own side of the lane boundary.
     
-
 Number | Color name       | Remarks
 :----- | :------------    | :---------
 0      | TYPE_UNKNOWN     | The type of lane boundary is unknown. Value must not be used in ground truth.
@@ -105,6 +105,7 @@ Number | Color name       | Remarks
 
 
 ################################################################################
+
 \class LaneBoundary::Classification::Color
 \brief The color of the lane boundary
 
@@ -112,7 +113,7 @@ The color of the lane boundary in case of a lane markings. Lane markings that
 alternate in color must be represented by individual \c LaneBoundary segments.
 
 Number | Color name    | Remarks
-:----- | :------------ | :---------
+:------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 0      | COLOR_UNKNOWN | Color of marking is unknown. Value must not be used in ground truth.
 1      | COLOR_OTHER   | Other (unspecified but known) color.
 2      | COLOR_NONE    | Marking without color. Used to represent logical boundaries without actual physical markings at the respective position. Value may be used in ground truth only.
@@ -122,4 +123,5 @@ Number | Color name    | Remarks
 6      | COLOR_BLUE    | --
 7      | COLOR_GREEN   | --
 8      | COLOR_VIOLET  | --
+
 */
