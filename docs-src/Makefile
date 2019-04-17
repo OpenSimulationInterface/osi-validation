@@ -15,6 +15,7 @@ gh-pages:
 	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(0)
 	rm -rf ../docs/*
 	cp -r "$(BUILDDIR)"/html/* ../docs
+	cp -r "$(BUILDDIR)"/html/.nojekyll ../docs
 	@echo "The HTML pages are in ../docs"
 	@echo "Compilation of the KPIs documentation"
 	@$(MAKE) -C ../KPIs >> /dev/null > /dev/null 2>&1

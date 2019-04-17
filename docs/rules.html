@@ -16,6 +16,7 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to OSI Validator’s documentation!" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -47,8 +48,10 @@ It is also the input method</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>inherit</strong> – a list representing the inheritance of the processed message in tuples</li>
-<li><strong>rules</strong> – the dictionary for the rules rooted at the type of the processed message</li>
+<li><strong>inherit</strong> – a list representing the inheritance of the processed 
+message in tuples</li>
+<li><strong>rules</strong> – the dictionary for the rules rooted at the type of the
+processed message</li>
 </ul>
 </td>
 </tr>
@@ -57,7 +60,8 @@ It is also the input method</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>inherit parameter must have this structure:
-<code class="docutils literal notranslate"><span class="pre">[(None,</span> <span class="pre">Root</span> <span class="pre">message),</span> <span class="pre">(Field</span> <span class="pre">descriptor,</span> <span class="pre">Child</span> <span class="pre">message),</span> <span class="pre">etc.]</span></code></p>
+<code class="docutils literal notranslate"><span class="pre">[(None,</span> <span class="pre">Root</span> <span class="pre">message),</span> <span class="pre">(Field</span> <span class="pre">descriptor,</span> <span class="pre">Child</span> <span class="pre">message),</span>
+<span class="pre">etc.]</span></code></p>
 <p class="last">The last tuple represent the processed message.</p>
 </div>
 </dd></dl>
@@ -84,8 +88,9 @@ It is also the input method</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>range</strong> – <p>must be a table. The first element is the minimum, the second element
-is the maximum. The first element, if present, is a parameter string:</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>range</strong> – <p>must be a table. The first element is the minimum, the
+second element is the maximum. The first element, if 
+present, is a parameter string:</p>
 <ul class="simple">
 <li>if it contains ‘lo’, the interval is left-open</li>
 <li>if it contains ‘ro’, the interval is right-open</li>
@@ -100,7 +105,8 @@ is the maximum. The first element, if present, is a parameter string:</p>
 <dl class="method">
 <dt id="osi_rule_checker.OSIRuleChecker.is_global_unique">
 <code class="descname">is_global_unique</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.is_global_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.is_global_unique" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register an ID in the OSI ID manager to later perform a ID consistency validation.</p>
+<dd><p>Register an ID in the OSI ID manager to later perform a ID 
+consistency validation.</p>
 <p>Must be set to an Identifier.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -157,8 +163,10 @@ is the maximum. The first element, if present, is a parameter string:</p>
 <dl class="method">
 <dt id="osi_rule_checker.OSIRuleChecker.is_set">
 <code class="descname">is_set</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.is_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.is_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check if a field is set. The Python function is actually a wrapper of is_valid.
-The setting of the field is checked during the exploration of the fields.</p>
+<dd><p>Check if a field is set. The Python function is actually a wrapper of
+is_valid.
+The setting of the field is checked during the exploration of the
+fields.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -202,7 +210,8 @@ message in the field are complying.</p>
 <dt id="osi_rule_checker.OSIRuleChecker.refers">
 <code class="descname">refers</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.refers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.refers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a reference to another message by ID.</p>
-<p>TODO: the conditional reference. Still no case of use in OSI let this pending.</p>
+<p>TODO: the conditional reference. Still no case of use in OSI let this
+pending.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -234,11 +243,16 @@ message in the field are complying.</p>
 
 
 <h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Available rules for the OSI validation</a></li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to OSI Validator’s documentation!</a></li>
   </ul></li>
 </ul>
 </div>
