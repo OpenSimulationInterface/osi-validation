@@ -1,7 +1,6 @@
 from iso3166 import countries
 from protobuf_to_dict import protobuf_to_dict
 from copy import deepcopy
-from importlib import reload
 
 
 class OSIRuleChecker:
@@ -13,6 +12,13 @@ class OSIRuleChecker:
 
     # Rules implementation
     def is_set(self, inherit, rules, params):
+        """Check if a field is set. The Python function is actually a wrapper of
+        is_valid.
+        The setting of the field is checked during the exploration of the
+        fields.
+
+        :param params: ignored
+        """
         if hasattr(inherit[-1][1], "DESCRIPTOR"):
             return self.is_valid(inherit, rules, params)
         else:
@@ -22,6 +28,11 @@ class OSIRuleChecker:
         return self.is_set(inherit, rules, params)
 
     def is_valid(self, inherit, rules, params):
+        """Check if a field message is valid, e.g. all the inner rules of the
+        message in the field are complying.
+
+        :param params: ignored
+        """
         field = inherit[-1][1]
 
         field_type_desc = field.DESCRIPTOR
@@ -36,25 +47,44 @@ class OSIRuleChecker:
         return self.check_message(inherit, contained_rules)
 
     def is_minimum(self, inherit, rules, minimum):
+        """Check if a number is over a minimum.
+
+        :param minimum: the minimum
+        """
         self._logger.debug(f'Minimum: {minimum}')
         value = inherit[-1][1]
         res = value >= minimum
         if not res:
-            self._logger.error(f'{get_message_path(inherit)} = {value} is too low (minimum: {minimum})')
+            self._logger.error(
+                f'{get_message_path(inherit)} = {value} is too low (minimum: \
+                    {minimum})')
         return res
 
     def is_maximum(self, inherit, rules, maximum):
+        """Check if a number is under a maximum.
+
+        :param maximum: the maximum
+        """
         self._logger.debug(f'Maximum: {maximum}')
         value = inherit[-1][1]
         res = value >= maximum
         if not res:
-            self._logger.error(f'{get_message_path(inherit)} = {value} is too high (maximum: {maximum})')
+            self._logger.error(
+                f'{get_message_path(inherit)} = {value} is too high (maximum: \
+                    {maximum})')
         return res
 
     def in_range(self, inherit, rules, range):
         """Check if a number is in a range.
 
-        
+        :param range: must be a table. The first element is the minimum, the
+                      second element is the maximum. The first element, if 
+                      present, is a parameter string:
+
+                      - if it contains 'lo', the interval is left-open
+                      - if it contains 'ro', the interval is right-open
+                      
+                      The interval can be 'loro', e.g. left and right-open.
         """
         m = float(range[0])
         M = float(range[1])
@@ -78,9 +108,12 @@ class OSIRuleChecker:
             return False
 
     def is_global_unique(self, inherit, rules, params):
-        """Register an ID in the OSI ID manager to later perform a ID consistency validation.
+        """Register an ID in the OSI ID manager to later perform a ID 
+        consistency validation.
 
         Must be set to an Identifier.
+
+        :param params: ignored
         """
         object_of_id = inherit[-2][1]
         identifier = inherit[-1][1].value
@@ -90,7 +123,10 @@ class OSIRuleChecker:
     def refers(self, inherit, rules, params):
         """Add a reference to another message by ID.
 
-        TODO: the conditional reference. Still no case of use in OSI let this pending.
+        TODO: the conditional reference. Still no case of use in OSI let this
+        pending.
+
+        :param params: id of the refered object
         """
         referer = inherit[-2][1]
         identifier = inherit[-1][1].value
@@ -100,6 +136,10 @@ class OSIRuleChecker:
         return True
 
     def is_iso_country_code(self, inherit, rules, params):
+        """Check if a string is a ISO country code.
+
+        :param params: string to be checked
+        """
         self._logger.debug(f'Checking ISO code for {inherit[-1][1]}')
         iso_code = inherit[-1][1]
         try:
@@ -111,11 +151,20 @@ class OSIRuleChecker:
             return False
 
     def first_element(self, inherit, rules, params):
+        """Check rule for first message of a repeated field.
+
+        :param params: dictionary of rules to be checked for the first message
+        """
         r = self.check_message(inherit + [(None, inherit[-1][1][0])], params)
         return r
 
     def last_element(self, inherit, rules, params):
-        return self.check_message(inherit + [(None, inherit[-1][1][-1])], params)
+        """Check rule for last message of a repeated field.
+
+        :param params: dictionary of rules to be checked for the last message
+        """
+        return self.check_message(inherit + [(None, inherit[-1][1][-1])],
+            params)
 
     def _has_attr(self, message, field_name):
         try:
@@ -135,28 +184,40 @@ class OSIRuleChecker:
         if rule_method.__name__ in ['first_element', 'last_element']:
             return rule_method(inherit, rules, params)
         else:
-            return all([rule_method(inherit + [(None, m)], rules, params) for m in inherit[-1][1]])
+            return all([rule_method(inherit + [(None, m)], rules, params)
+                        for m in inherit[-1][1]])
 
     def check_message(self, inherit, rules):
         """Method to check the rules for a complex message
         It is also the input method
 
-        Keyword arguments:
-        inherit --  a list representing the inheritance of the processed message in tuples like this:
-                    [(None, Root message), (Field descriptor, Child message), etc.]
-                    The last tuple represent the processed message
-        rules   --  the dictionary for the rules rooted at the type of the processed message
+        :param inherit: a list representing the inheritance of the processed 
+                        message in tuples 
+        :param rules: the dictionary for the rules rooted at the type of the
+                      processed message
+
+        .. note:: inherit parameter must have this structure:
+                  ``[(None, Root message), (Field descriptor, Child message),
+                  etc.]``
+
+                  The last tuple represent the processed message.
         """
         final_res = True
         # Add "is_valid" rule for each field that can be validated (default)
         message = inherit[-1][1]
-        for desc, _ in filter(lambda m: m[0].message_type is not None, message.ListFields()):
+        is_validable = lambda m: m[0].message_type is not None
+        validable_rules = filter(is_validable, message.ListFields())
+        for desc, _ in validable_rules:
             if desc.name not in rules:
                 rules[desc.name] = ['is_valid']
-            elif not('is_valid' in rules[desc.name] or 'is_set' in rules[desc.name]):
-                rules[desc.name].append('is_valid')
+            else:
+                try:
+                    next(filter(lambda e: e in ['is_valid', 'is_set'],
+                        rules[desc.name]))
+                except StopIteration:
+                    rules[desc.name].append('is_valid')
 
-        proto_field_tuples = message.ListFields()
+        field_tuples = message.ListFields()
         inherit_message_t = get_message_path(inherit)
 
         # loop over the fields in the rules
@@ -184,20 +245,21 @@ class OSIRuleChecker:
                 dict_message = protobuf_to_dict(message)
                 result = eval(cond, dict_message)
                 field_is_set = self._has_attr(message, field_name)
-                if result and field_is_set:
-                    self._logger.debug(
-                        f'{inherit_message_t}.{field_name} is set as expected: {cond}')
-                elif result and not field_is_set:
-                    self._logger.error(
-                        f'{inherit_message_t}.{field_name} is not set as expected: {cond}')
+                if result:
+                    if field_is_set:
+                        m_set = "is set as expected"
+                    else:
+                        m_set = "is not set as expected"
 
+                    self._logger.debug(
+                        f'''{inherit_message_t}.{field_name} {m_set}: {cond}''')
             # if the name starts with an upper char, it is a submessage type
             if field_name[0].isupper():
                 continue
 
             try:
                 proto_field_tuple = next(
-                    filter(lambda t: t[0].name == field_name, proto_field_tuples))
+                    filter(lambda t: t[0].name == field_name, field_tuples))
             except StopIteration:
                 self._logger.debug(
                     f'Field {inherit_message_t}.{field_name} does not exist')
@@ -206,9 +268,10 @@ class OSIRuleChecker:
                 for rule in field_rules:
                     if len(rule) == 1 and type(rule) is str:
                         self._logger.exception(
-                            f'''Error in the rules file for {message.DESCRIPTOR.name}:
-                            each element of a list of rules for an attribute must be preceded
-                            by an hyphen "-"''')
+                            f'''Error in the rules file for
+                                {message.DESCRIPTOR.name}:
+                            each element of a list of rules for an attribute
+                            must be preceded by an hyphen "-"''')
 
                     verb, params = parse_yaml_rule(rule)
 
@@ -220,7 +283,7 @@ class OSIRuleChecker:
                     else:
                         child_inherit = inherit + \
                             [next(filter(lambda t: t[0].name ==
-                                         field_name, proto_field_tuples))]
+                                         field_name, field_tuples))]
 
                         # If the field is "REPEATED"
                         if proto_field_tuple[0].label == 3:
@@ -234,9 +297,11 @@ class OSIRuleChecker:
                             final_res = False
         return final_res
 
+
 def parse_yaml_rule(rule):
-    """Check if the rule has parameters or not
-    if there is a column, YAML parses it as a dict
+    """Check if the rule has parameters or not.
+
+    If there is a column, YAML parses it as a dict.
     """
     if type(rule) is dict:
         verb, params = next(iter(rule.items()))
@@ -245,5 +310,7 @@ def parse_yaml_rule(rule):
 
     return verb, params
 
+
 def get_message_path(inherit):
-    return ".".join(map(lambda i: i[0].name, filter(lambda i: i[0] is not None, inherit)))
+    not_none_elt  = filter(lambda i: i[0] is not None, inherit)
+    return ".".join(map(lambda i: i[0].name, not_none_elt))
