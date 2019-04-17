@@ -1,0 +1,285 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Available rules for the OSI validation &#8212; OSI Validator  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-osi_rule_checker">
+<span id="available-rules-for-the-osi-validation"></span><h1>Available rules for the OSI validation<a class="headerlink" href="#module-osi_rule_checker" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="osi_rule_checker.OSIRuleChecker">
+<em class="property">class </em><code class="descclassname">osi_rule_checker.</code><code class="descname">OSIRuleChecker</code><span class="sig-paren">(</span><em>logger</em>, <em>id_manager</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.check_message">
+<code class="descname">check_message</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.check_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.check_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to check the rules for a complex message
+It is also the input method</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>inherit</strong> – a list representing the inheritance of the processed message in tuples</li>
+<li><strong>rules</strong> – the dictionary for the rules rooted at the type of the processed message</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>inherit parameter must have this structure:
+<code class="docutils literal notranslate"><span class="pre">[(None,</span> <span class="pre">Root</span> <span class="pre">message),</span> <span class="pre">(Field</span> <span class="pre">descriptor,</span> <span class="pre">Child</span> <span class="pre">message),</span> <span class="pre">etc.]</span></code></p>
+<p class="last">The last tuple represent the processed message.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.first_element">
+<code class="descname">first_element</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.first_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.first_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check rule for first message of a repeated field.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> – dictionary of rules to be checked for the first message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.in_range">
+<code class="descname">in_range</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>range</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.in_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.in_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a number is in a range.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>range</strong> – <p>must be a table. The first element is the minimum, the second element
+is the maximum. The first element, if present, is a parameter string:</p>
+<ul class="simple">
+<li>if it contains ‘lo’, the interval is left-open</li>
+<li>if it contains ‘ro’, the interval is right-open</li>
+</ul>
+<p>The interval can be ‘loro’, e.g. left and right-open.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.is_global_unique">
+<code class="descname">is_global_unique</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.is_global_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.is_global_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register an ID in the OSI ID manager to later perform a ID consistency validation.</p>
+<p>Must be set to an Identifier.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> – ignored</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.is_iso_country_code">
+<code class="descname">is_iso_country_code</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.is_iso_country_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.is_iso_country_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a string is a ISO country code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> – string to be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.is_maximum">
+<code class="descname">is_maximum</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>maximum</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.is_maximum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.is_maximum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a number is under a maximum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>maximum</strong> – the maximum</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.is_minimum">
+<code class="descname">is_minimum</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>minimum</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.is_minimum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.is_minimum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a number is over a minimum.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>minimum</strong> – the minimum</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.is_set">
+<code class="descname">is_set</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.is_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.is_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a field is set. The Python function is actually a wrapper of is_valid.
+The setting of the field is checked during the exploration of the fields.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> – ignored</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.is_valid">
+<code class="descname">is_valid</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a field message is valid, e.g. all the inner rules of the
+message in the field are complying.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> – ignored</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.last_element">
+<code class="descname">last_element</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.last_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.last_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check rule for last message of a repeated field.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> – dictionary of rules to be checked for the last message</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="osi_rule_checker.OSIRuleChecker.refers">
+<code class="descname">refers</code><span class="sig-paren">(</span><em>inherit</em>, <em>rules</em>, <em>params</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/osi_rule_checker.html#OSIRuleChecker.refers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#osi_rule_checker.OSIRuleChecker.refers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a reference to another message by ID.</p>
+<p>TODO: the conditional reference. Still no case of use in OSI let this pending.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>params</strong> – id of the refered object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">OSI Validator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Altran Germany.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/rules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
