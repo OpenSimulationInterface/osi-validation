@@ -52,6 +52,10 @@ class OSIRuleChecker:
         return res
 
     def in_range(self, inherit, rules, range):
+        """Check if a number is in a range.
+
+        
+        """
         m = float(range[0])
         M = float(range[1])
         v = inherit[-1][1]
@@ -74,8 +78,9 @@ class OSIRuleChecker:
             return False
 
     def is_global_unique(self, inherit, rules, params):
-        """
-        Must be set to an Identifier
+        """Register an ID in the OSI ID manager to later perform a ID consistency validation.
+
+        Must be set to an Identifier.
         """
         object_of_id = inherit[-2][1]
         identifier = inherit[-1][1].value
@@ -83,6 +88,10 @@ class OSIRuleChecker:
         return self._id_manager.register_message(identifier, object_of_id)
 
     def refers(self, inherit, rules, params):
+        """Add a reference to another message by ID.
+
+        TODO: the conditional reference. Still no case of use in OSI let this pending.
+        """
         referer = inherit[-2][1]
         identifier = inherit[-1][1].value
         expected_type = params
