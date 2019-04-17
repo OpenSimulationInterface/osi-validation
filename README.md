@@ -10,7 +10,7 @@ The full documentation on usage and customization of the rules is available
 
 ## Requirements
 
-The *OSI Validator* has been developped with **Python 3.7** in an Anaconda
+The *OSI Validator* has been developed with **Python 3.7** in an Anaconda
 environment. It is the only version of Python that is supported now. *OSI
 Validator* should only be used with **Python 3.7**.
 
