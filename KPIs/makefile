@@ -1,8 +1,11 @@
+KPISDOCDIR=../docs/KPIs
+
 .PHONY: clean
 
-doxy:
+doxy: clean
 	doxygen
+	mkdir -p $(KPISDOCDIR)
+	mv html $(KPISDOCDIR)
 
 clean:
-	rm -rf search
-	rm -f *.md5 *.png *.css *.html *.js
+	rm -rf $(KPISDOCDIR)
