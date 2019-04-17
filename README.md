@@ -32,7 +32,7 @@ the KPIs documentation at the same time.
 
 In the folder *docs-src*: `make gh-pages`
 
-## Deployment of the documentation of KPIs
+### Deployment of the documentation of KPIs
 
 In the folder KPIs: `make`
 
