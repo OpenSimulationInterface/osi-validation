@@ -81,7 +81,7 @@ def main():
 
     # Pass all timesteps
     logger.info("Pass all timesteps")
-    for i in range(0, len(odc.data)):
+    for i in range(0, 1):
         id_manager.reset()
         logger.info(f"Checking timestep {i}")
         sv = odc.data[i]
