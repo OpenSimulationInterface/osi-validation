@@ -13,17 +13,8 @@ personalized rules.
 The basic requirements for OSI 3 are gathered in the
 `KPIs documentation <./KPIs/index.html>`_.
 
-_
-
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
+   writing-rules
+   usage
    rules
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

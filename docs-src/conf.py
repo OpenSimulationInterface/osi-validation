@@ -21,8 +21,8 @@ from osi_rule_checker import OSIRuleChecker
 # -- Project information -----------------------------------------------------
 
 project = 'OSI Validator'
-copyright = '2019, Altran Germany'
-author = 'Altran Germany'
+copyright = '2019, Altran Germany / BMW'
+author = 'Altran Germany / BMW'
 
 # The short X.Y version
 version = ''
@@ -74,7 +74,7 @@ language = None
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
+pygments_style = 'sphinx'
 
 
 # -- Options for HTML output -------------------------------------------------

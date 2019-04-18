@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Welcome to OSI Validator’s documentation! &#8212; OSI Validator  documentation</title>
+    <title>Usage &#8212; OSI Validator  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -16,7 +16,8 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="How rules are written" href="writing-rules.html" />
+    <link rel="next" title="Available rules for the OSI validation" href="rules.html" />
+    <link rel="prev" title="How rules are written" href="writing-rules.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -33,27 +34,14 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-osi-validator-s-documentation">
-<h1>Welcome to OSI Validator’s documentation!<a class="headerlink" href="#welcome-to-osi-validator-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>The OSI Validator recursively checks the compliance of an OSI message of type
-<cite>SensorData</cite>, <cite>SensorView</cite> or <cite>GroundTruth</cite> according to predefined or
-personalized rules.</p>
-<p>The basic requirements for OSI 3 are gathered in the
-<a class="reference external" href="./KPIs/index.html">KPIs documentation</a>.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="writing-rules.html">How rules are written</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="writing-rules.html#folder-structure">Folder structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="writing-rules.html#file-structure">File structure</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="writing-rules.html#child-message-type">Child message type</a></li>
-<li class="toctree-l3"><a class="reference internal" href="writing-rules.html#rules">Rules</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="rules.html">Available rules for the OSI validation</a></li>
-</ul>
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>Using this command will check each time step of data independently for all the
+rules.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">osi_general_validator</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">rules</span> <span class="n">RULES</span><span class="p">]</span> <span class="o">--</span><span class="n">data</span> <span class="n">DATA</span>
+                                <span class="p">[</span><span class="o">--</span><span class="nb">type</span> <span class="p">{</span><span class="n">SensorView</span><span class="p">,</span><span class="n">GroundTruth</span><span class="p">,</span><span class="n">SensorData</span><span class="p">}]</span>
+                                <span class="p">[</span><span class="o">--</span><span class="n">output</span> <span class="n">OUTPUT</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">debug</span><span class="p">]</span>
+</pre></div>
 </div>
 </div>
 
@@ -64,7 +52,7 @@ personalized rules.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="#">OSI Validator</a></h1>
+<h1 class="logo"><a href="index.html">OSI Validator</a></h1>
 
 
 
@@ -74,17 +62,18 @@ personalized rules.</p>
 
 
 <h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="writing-rules.html">How rules are written</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rules.html">Available rules for the OSI validation</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
-  <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="writing-rules.html" title="next chapter">How rules are written</a></li>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="writing-rules.html" title="previous chapter">How rules are written</a></li>
+      <li>Next: <a href="rules.html" title="next chapter">Available rules for the OSI validation</a></li>
   </ul></li>
 </ul>
 </div>
@@ -120,7 +109,7 @@ personalized rules.</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="_sources/index.rst.txt"
+      <a href="_sources/usage.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

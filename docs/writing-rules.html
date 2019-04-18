@@ -1,0 +1,176 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>How rules are written &#8212; OSI Validator  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="Welcome to OSI Validator’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="how-rules-are-written">
+<h1>How rules are written<a class="headerlink" href="#how-rules-are-written" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="folder-structure">
+<h2>Folder structure<a class="headerlink" href="#folder-structure" title="Permalink to this headline">¶</a></h2>
+<p>The rules are contained into YAML files into one folder. The organization of
+the files in this folder follows the architecture of OSI for consistency.</p>
+</div>
+<div class="section" id="file-structure">
+<h2>File structure<a class="headerlink" href="#file-structure" title="Permalink to this headline">¶</a></h2>
+<p>We will take this example of the <cite>osi_detectedlane.yml</cite> file:</p>
+<div class="highlight-YAML notranslate"><div class="highlight"><pre><span></span><span class="nt">DetectedLane</span><span class="p">:</span>
+  <span class="nt">header</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">is_set</span>
+  <span class="nt">CandidateLane</span><span class="p">:</span>
+    <span class="nt">probability</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">in_range</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">,</span> <span class="nv">1</span><span class="p p-Indicator">]</span>
+    <span class="nt">classification</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">is_set</span>
+
+<span class="nt">DetectedLaneBoundary</span><span class="p">:</span>
+  <span class="nt">header</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">is_set</span>
+  <span class="nt">boundary_line</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">each</span><span class="p">:</span>
+        <span class="nt">position</span><span class="p">:</span>
+          <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">is_set</span>
+</pre></div>
+</div>
+<p>According to the Python module used, YAML <strong>version 1.1</strong> is used. In this
+document, we will try to make associations between the <cite>YAML</cite> vocabulary
+according to its specifications and the <cite>Protocol Buffers</cite> one.</p>
+<p>Each root (at the top level) <cite>scalar</cite> represent a root message type (ex:
+<code class="docutils literal notranslate"><span class="pre">DetectedLane</span></code>, <code class="docutils literal notranslate"><span class="pre">DetectedLaneBoundary</span></code>).</p>
+<p>The children <cite>scalars</cite> of each <cite>root scalar</cite> represent its fields if they are
+not camel-case (ex: <code class="docutils literal notranslate"><span class="pre">header</span></code> is a field of <code class="docutils literal notranslate"><span class="pre">DetectedLane</span></code> ; <code class="docutils literal notranslate"><span class="pre">header</span></code> and
+<code class="docutils literal notranslate"><span class="pre">boundary_line</span></code> are fields of <code class="docutils literal notranslate"><span class="pre">DetectedLaneBoundary</span></code>). See <a class="reference internal" href="#child-message-type">Child message
+type</a> for the camel-case scalars.</p>
+<p>Each field has a <cite>sequence</cite> (starting with an hyphen “-“) of scalar
+representing the <a class="reference internal" href="#rules">rules</a> that apply on.</p>
+<div class="section" id="child-message-type">
+<h3>Child message type<a class="headerlink" href="#child-message-type" title="Permalink to this headline">¶</a></h3>
+<p>A message type can have included message type. For example <code class="docutils literal notranslate"><span class="pre">DetectedLane</span></code> has
+a <code class="docutils literal notranslate"><span class="pre">CandidateLane</span></code> included message type. They first seem similar has field
+but they are not: they contain, exactly like top-level message type, fields
+with rules.</p>
+</div>
+<div class="section" id="rules">
+<h3>Rules<a class="headerlink" href="#rules" title="Permalink to this headline">¶</a></h3>
+<p>The rules can either be without any parameter (ex: <code class="docutils literal notranslate"><span class="pre">is_set</span></code>) or with
+parameter (ex: <code class="docutils literal notranslate"><span class="pre">in_range:</span> <span class="pre">[0,</span> <span class="pre">1]</span></code>).</p>
+<p>In the case a rule has a parameter, it is written as a <cite>mapping</cite> (a <cite>scalar</cite>
+followed by a column “:”). What comes after the column is totally free and
+depends on the rule used. For instance, the rule <code class="docutils literal notranslate"><span class="pre">in_range</span></code> accept a sequence
+of double ; the rule <code class="docutils literal notranslate"><span class="pre">each</span></code> ask for mappings. Other rules accept string,
+number, etc.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">OSI Validator</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How rules are written</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#folder-structure">Folder structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-structure">File structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#child-message-type">Child message type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rules">Rules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rules.html">Available rules for the OSI validation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to OSI Validator’s documentation!</a></li>
+      <li>Next: <a href="usage.html" title="next chapter">Usage</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Altran Germany / BMW.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/writing-rules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
