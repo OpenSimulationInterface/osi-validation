@@ -64,3 +64,5 @@ followed by a column ":"). What comes after the column is totally free and
 depends on the rule used. For instance, the rule ``in_range`` accept a sequence
 of double ; the rule ``each`` ask for mappings. Other rules accept string,
 number, etc.
+
+The available rule and their usage are explained here: :doc:`rules`.
