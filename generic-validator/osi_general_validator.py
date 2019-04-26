@@ -2,10 +2,8 @@
 
 # Standard library Imports
 import argparse
-import sys
 import os
 from collections import namedtuple
-import logging
 
 # Local packages imports
 try:
@@ -20,6 +18,7 @@ from osi_validation_rules import OSIValidationRules
 from osi_validator_logger import OSIValidatorLogger
 from osi_id_manager import OSIIDManager
 from osi_data_container import OSIDataContainer
+from osi_rule_checker import OSIRuleChecker
 
 # Free Functions
 
@@ -76,8 +75,11 @@ def main():
 
     # Collect Validation Rules
     logger.info("Collect validation rules")
-    ovr = OSIValidationRules(logger, id_manager)
+    ovr = OSIValidationRules()
     ovr.from_yaml_directory(arguments.rules)
+
+    # Instanciate rule checker
+    occ = OSIRuleChecker(ovr, logger, id_manager)
 
     # Pass all timesteps
     logger.info("Pass all timesteps")
@@ -89,8 +91,8 @@ def main():
         fake_field_descriptor.name = arguments.type
 
         # Check common rules
-        ovr.check_message([(fake_field_descriptor, sv)],
-                          ovr._rules[arguments.type])
+        occ.check_message([(fake_field_descriptor, sv)],
+                          occ._rules[arguments.type])
 
         # Resolve ID and references
         id_manager.resolve_unicity()

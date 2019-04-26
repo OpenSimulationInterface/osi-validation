@@ -2,11 +2,12 @@ import os
 import copy
 import yaml
 
-from osi_rule_checker import OSIRuleChecker
 
-
-class OSIValidationRules(OSIRuleChecker):
+class OSIValidationRules:
     """ This class collects validation rules """
+
+    def __init__(self):
+        self.rules = dict()
 
     def from_yaml_directory(self, path):
         """ Collect validation rules found in the directory. """
@@ -19,8 +20,12 @@ class OSIValidationRules(OSIRuleChecker):
             print('Error while reading files OSI-rules. Exiting!')
 
     def from_yaml_file(self, path):
+        """Import from a file
+        """
         rules_file = open(path)
-        self._rules.update(yaml.load(rules_file))
+        self.rules.update(yaml.load(rules_file))
 
     def get_rules(self):
-        return copy.deepcopy(self._rules)
+        """Return the rules
+        """
+        return copy.deepcopy(self.rules)

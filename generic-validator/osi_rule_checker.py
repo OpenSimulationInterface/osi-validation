@@ -9,8 +9,8 @@ class OSIRuleChecker:
     necessary methods to check their compliance.
     """
 
-    def __init__(self, logger, id_manager):
-        self._rules = dict()
+    def __init__(self, ovr, logger, id_manager):
+        self._rules = ovr.rules
         self._logger = logger
         self._id_manager = id_manager
 
@@ -35,7 +35,7 @@ class OSIRuleChecker:
         return self.is_set(severity, inherit, *args)
 
     def is_valid(self, severity, inherit, *_):
-        """Check if a field message is valid, e.g. all the inner rules of the
+        """Check if a field message is valid, that is all the inner rules of the
         message in the field are complying.
 
         :param params: ignored
@@ -91,7 +91,7 @@ class OSIRuleChecker:
                       - if it contains 'lo', the interval is left-open
                       - if it contains 'ro', the interval is right-open
 
-                      The interval can be 'loro', e.g. left and right-open.
+                      The interval can be 'loro', that is left and right-open.
         """
         mini = float(interval[0])
         maxi = float(interval[1])
