@@ -55,6 +55,7 @@ def command_line_arguments():
 
 
 def main():
+    """Main method"""
     # Handling of command line arguments
     arguments = command_line_arguments()
 
@@ -92,7 +93,7 @@ def main():
 
         # Check common rules
         occ.check_message([(fake_field_descriptor, sv)],
-                          occ._rules[arguments.type])
+                          occ._rules.nested_types[arguments.type])
 
         # Resolve ID and references
         id_manager.resolve_unicity()

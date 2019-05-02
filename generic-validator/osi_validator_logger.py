@@ -3,20 +3,23 @@ import sys
 import time
 import os
 
+from osi_validation_rules import Severity
 
 class WarningFilter(logging.Filter):
+    """Filter for the logger which take INFO and WARNING messages"""
     def filter(self, record):
         return record.levelno in [20, 30]
 
 
 class ErrorFilter(logging.Filter):
+    """Filter for the logger which take INFO and ERROR messages"""
     def filter(self, record):
         return record.levelno in [20, 40]
 
 
 class OSIValidatorLogger():
-
-    def __init__(self, debug=False, output_path="", *args):
+    """Wrapper for the Python logger"""
+    def __init__(self, debug=False, output_path=""):
         self.warning_messages = []
         self.debug_messages = []
         self.error_messages = []
@@ -56,21 +59,26 @@ class OSIValidatorLogger():
         self.logger.addHandler(handler_all)
 
     def debug(self, msg, *args, **kwargs):
+        """Wrapper for python debug logger"""
         self.debug_messages.append(msg)
         return self.logger.debug(msg, *args, **kwargs)
 
     def warning(self, msg, *args, **kwargs):
+        """Wrapper for python warning logger"""
         self.warning_messages.append(msg)
         return self.logger.warning(msg, *args, **kwargs)
 
     def error(self, msg, *args, **kwargs):
+        """Wrapper for python error logger"""
         self.error_messages.append(msg)
         return self.logger.error(msg, *args, **kwargs)
 
     def info(self, msg, *args, **kwargs):
+        """Wrapper for python info logger"""
         return self.logger.info(msg, *args, **kwargs)
 
     def flush(self):
+        """Flush the ouput"""
         print(f"Warnings ({len(self.warning_messages)})")
         for warning_message in self.warning_messages:
             print(warning_message)
@@ -82,3 +90,8 @@ class OSIValidatorLogger():
             print(error_message)
 
         self.error_messages = []
+
+SEVERITY = {
+    Severity.ERROR: 'error',
+    Severity.WARN: 'warning'
+}

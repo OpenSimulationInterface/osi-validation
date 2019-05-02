@@ -1,13 +1,14 @@
 import os
-import copy
+from copy import deepcopy
 import yaml
-
+from enum import Enum
 
 class OSIValidationRules:
     """ This class collects validation rules """
 
     def __init__(self):
         self.rules = dict()
+        self.t_rules = TypeContainer()
 
     def from_yaml_directory(self, path):
         """ Collect validation rules found in the directory. """
@@ -18,6 +19,8 @@ class OSIValidationRules:
 
         except FileNotFoundError:
             print('Error while reading files OSI-rules. Exiting!')
+        
+        translate_rules(self.rules, self.t_rules)
 
     def from_yaml_file(self, path):
         """Import from a file
@@ -28,4 +31,144 @@ class OSIValidationRules:
     def get_rules(self):
         """Return the rules
         """
-        return copy.deepcopy(self.rules)
+        return deepcopy(self.rules)
+
+class TypeContainer:
+    """This class defines either a MessageType or a list of MessageTypes"""
+    def __init__(self):
+        self.nested_types = dict()
+
+    def add_type(self, name, fields=None):
+        """Add a message type in the TypeContainer"""
+        new_message_t = MessageType(name, fields)
+        self.nested_types[name] = new_message_t
+        return new_message_t
+
+    def get_type(self, message_path):
+        """Get a MessageType by name or path"""
+        if isinstance(message_path, list):
+            message_t = self
+            for i in message_path:
+                message_t = message_t.nested_types[i]
+            return message_t
+        elif isinstance(message_path, str):
+            return self.nested_types[message_path]
+        else:
+            raise TypeError('parameter must be list or str')
+    
+    def __getitem__(self, name):
+        return self.nested_types[name]
+
+    def __repr__(self):
+        return f'TypeContainer({len(self.nested_types)}):\n' + \
+               '\n'.join(map(str, self.nested_types))
+
+
+class MessageType(TypeContainer):
+    """This class manages the fields of a Message Type"""
+
+    def __init__(self, name, fields):
+        self.fields = dict()
+        self.name = name
+        if fields is not None:
+            translate_rules(fields, self)
+        super().__init__()
+
+    def add_field(self, field_name, rules=None):
+        """Add a field with or without rules to a Message Type"""
+        self.fields[field_name] = Field(field_name, rules)
+    
+    def __getitem__(self, field_name):
+        return self.fields[field_name]
+
+    def __repr__(self):
+        return f'MessageType({len(self.fields)}): {self.fields}'
+
+class Field:
+    """This class manages the rules of a Message Type"""
+
+    def __init__(self, name, rules=None):
+        self.name = name
+        self.rules = dict()
+        self.must_be_set = False
+        self.must_be_set_if = None
+
+        if rules is not None:
+            for rule in rules:
+                self.add_rule(rule)
+
+    def add_rule(self, rule):
+        """Add a new rule to a field"""
+        if isinstance(rule, dict):
+            verb, params = next(iter(rule.items()))
+        else:
+            verb = rule
+            params = None
+
+        new_rule = Rule(verb, params)
+        self.rules[verb] = new_rule
+
+        if new_rule.verb == "is_set":
+            self.must_be_set = True
+        elif new_rule.verb == "is_set_if":
+            self.must_be_set_if = params
+
+    def __getitem__(self, rule_verb):
+        return self.rules[rule_verb]
+
+    def __repr__(self):
+        return f"Field({len(self.rules)}): {self.rules}"
+
+class Rule:
+    """This class manages one rule"""
+
+    def __init__(self, verb=None, params=None, severity=None):
+        if verb is not None:
+            self.construct(verb, params, severity)
+
+    def construct(self, verb, params, severity=None):
+        """Construct an empty rule"""
+        self.params = params
+
+        if verb[-1] == "!" or severity == Severity.ERROR:
+            self.severity = Severity.ERROR
+            verb = verb[:-1]
+        else:
+            self.severity = Severity.WARN
+
+        self.verb = verb
+
+    def __repr__(self):
+        return f'{self.verb}' + \
+               (f": {self.params}" if self.params is not None else "")
+
+class Severity(Enum):
+    """Descript the severity of the raised error if a rule does not comply."""
+    WARN = "warning"
+    ERROR = "error"
+
+def translate_rules(rules, t_rules):
+    """Translate dict rules into objects rules"""
+
+    for key, value in rules.items():
+        is_message_type = key[0].isupper()
+
+        if is_message_type and isinstance(value, dict):
+            new_message_t = t_rules.add_type(key)
+            translate_rules(value, new_message_t)
+        elif isinstance(value, list):
+            t_rules.add_field(key, value)
+        elif value is not None:
+            raise TypeError('only dict and list are accepted, parsing problem.')
+
+if __name__ == "__main__":
+    OVR = OSIValidationRules()
+    OVR.from_yaml_directory('requirements-osi-3')
+
+    # T_RULES = TypeContainer()
+    # translate_rules(OVR.rules, T_RULES)
+
+    print(OVR.t_rules)
+
+    print(OVR.t_rules.get_type(['LaneBoundary', 'BoundaryPoint']))
+    print(OVR.t_rules['LaneBoundary'])

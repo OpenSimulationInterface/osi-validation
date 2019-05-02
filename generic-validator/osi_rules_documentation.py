@@ -20,7 +20,7 @@ def scan_node(node, deepness):
         is_message_type = key[0].isupper()
         print(deepness, key, is_message_type)
 
-        if isinstance(value, dict):
+        if is_message_type and isinstance(value, dict):
             scan_node(value, deepness + 1)
         elif isinstance(value, list):
             scan_rules(value)

@@ -2,7 +2,8 @@ from copy import deepcopy
 from iso3166 import countries
 from protobuf_to_dict import protobuf_to_dict
 from asteval import Interpreter
-
+from osi_validation_rules import Severity, MessageType
+from osi_validator_logger import SEVERITY
 
 class OSIRuleChecker:
     """This class contains all the available rules to write OSI requirements and the
@@ -10,7 +11,7 @@ class OSIRuleChecker:
     """
 
     def __init__(self, ovr, logger, id_manager):
-        self._rules = ovr.rules
+        self._rules = ovr.t_rules
         self._logger = logger
         self._id_manager = id_manager
 
@@ -43,15 +44,13 @@ class OSIRuleChecker:
         field = inherit[-1][1]
 
         field_type_desc = field.DESCRIPTOR
-        contained_rules = deepcopy(self._rules)
         message_t_inherit = []
         while field_type_desc is not None:
             message_t_inherit.insert(0, field_type_desc.name)
             field_type_desc = field_type_desc.containing_type
-        for i in message_t_inherit:
-            contained_rules = contained_rules[i]
 
-        return self.check_message(inherit, contained_rules)
+        return self.check_message(inherit,
+                                  self._rules.get_type(message_t_inherit))
 
     def is_minimum(self, severity, inherit, _, minimum):
         """Check if a number is over a minimum.
@@ -62,9 +61,9 @@ class OSIRuleChecker:
         value = inherit[-1][1]
         res = value >= minimum
         if not res:
-            getattr(self._logger, severity)(
-                f'{get_message_path(inherit)} = {value} is too low (minimum: \
-                    {minimum})')
+            self._log(severity,
+                      f'{get_message_path(inherit)} = {value} is too low '+\
+                      f'(minimum: {minimum})')
         return res
 
     def is_maximum(self, severity, inherit, _, maximum):
@@ -76,9 +75,9 @@ class OSIRuleChecker:
         value = inherit[-1][1]
         res = value >= maximum
         if not res:
-            getattr(self._logger, severity)(
-                f'{get_message_path(inherit)} = {value} is too high (maximum: \
-                    {maximum})')
+            self._log(severity,
+                      f'{get_message_path(inherit)} = {value} is too high '+\
+                      f'(maximum: {maximum})')
         return res
 
     def in_range(self, severity, inherit, _, interval):
@@ -111,7 +110,7 @@ class OSIRuleChecker:
             f'{get_message_path(inherit)}= {value} {n_in}in range: {mini, maxi}'
 
         log_severity = "debug" if result else severity
-        getattr(self._logger, log_severity)(message_model)
+        self._log(log_severity, message_model)
         return result
 
     def is_global_unique(self, __, inherit, *_):
@@ -154,8 +153,7 @@ class OSIRuleChecker:
             self._logger.debug(f'ISO code {iso_code} is valid')
             return True
         except KeyError:
-            getattr(self._logger, severity)(
-                f'ISO code {iso_code} is not valid')
+            self._log(severity, f'ISO code {iso_code} is not valid')
             return False
 
     def first_element(self, __, inherit, _, params):
@@ -163,15 +161,18 @@ class OSIRuleChecker:
 
         :param params: dictionary of rules to be checked for the first message
         """
-        return self.check_message(inherit + [(None, inherit[-1][1][0])], params)
+        virtual_message = MessageType('', params)
+        return self.check_message(inherit + [(None, inherit[-1][1][0])],
+                                  virtual_message)
 
     def last_element(self, __, inherit, _, params):
         """Check rule for last message of a repeated field.
 
         :param params: dictionary of rules to be checked for the last message
         """
+        virtual_message = MessageType('', params)
         return self.check_message(inherit + [(None, inherit[-1][1][-1])],
-                                  params)
+                                  virtual_message)
 
     def _check_repeated(self, severity, rule_method, inherit, rules, params):
         self._logger.debug(
@@ -209,52 +210,32 @@ class OSIRuleChecker:
 
         # loop over the fields in the rules where field are set
         # if the name starts with an upper char, it is a submessage type
-        for field_name, field_rules \
-            in {name: f_r for name, f_r in rules.items()
-                if f_r is not None and name[0].islower()}.items():
+        for field_name, f_rules in rules.fields.items():
 
             inherit_message_t = get_message_path(inherit) + "." + field_name
 
             # check the rule "is_set"
-            if "is_set" in field_rules or "is_set!" in field_rules:
+            if f_rules.must_be_set:
                 if has_attr(message, field_name):
                     self._logger.debug(
                         f'{inherit_message_t} is set as expected')
                 else:
-                    log_severity = "error" if "is_set!" in field_rules \
-                        else "warning"
-                    getattr(self._logger, log_severity)(
-                        f'{inherit_message_t} is not set!')
+                    self._log(f_rules.rules['is_set'].severity,
+                                f"{inherit_message_t} is not set!")
                     continue
 
             # "is_set_if" is the conditional version of the rule "is_set"
             # check if the rule exists for an attribute
-            try:
-                try:
-                    cond = [
-                        d['is_set_if'] for d in filter(
-                            lambda d: isinstance(d, dict) and 'is_set_if' in d,
-                            field_rules
-                        )][0]
-                    log_severity = "warning"
-                except IndexError:
-                    cond = [
-                        d['is_set_if!'] for d in filter(
-                            lambda d: isinstance(
-                                d, dict) and 'is_set_if!' in d,
-                            field_rules
-                        )][0]
-                    log_severity = "error"
-            except IndexError:
-                pass
-            else:
+            if f_rules.must_be_set_if is not None:
+                cond = f_rules.must_be_set_if
                 if Interpreter(protobuf_to_dict(message))(cond):
                     if has_attr(message, field_name):
                         self._logger.debug(
                             f"{inherit_message_t} set as expected: {cond}")
                     else:
-                        getattr(self._logger, log_severity)(
-                            f"{inherit_message_t} not set as expected: {cond}")
+                        self._log(f_rules.rules['is_set_if'].severity,
+                                  f"{inherit_message_t} not set as expected: "+\
+                                  f"{cond}")
 
             try:
                 proto_field_tuple = next(
@@ -264,17 +245,20 @@ class OSIRuleChecker:
             except StopIteration:
                 self._logger.debug(
                     f'Field {inherit_message_t} does not exist')
-            else:
+            else: # if the field exists
                 # loop over the rules of one field
-                res = self._loop_over_rules(rules, field_rules, child_inherit)
+                res = self._loop_over_rules(rules, f_rules, child_inherit)
 
                 final_res = False if not res else final_res
         return final_res
 
     def _loop_over_rules(self, rules, field_rules, child_inherit):
         final_res = True
-        for rule in field_rules:
-            verb, params, severity = parse_yaml_rule(rule)
+        for rule, rule_obj in field_rules.rules.items():
+            verb = rule_obj.verb
+            params = rule_obj.params
+            severity = "error" if rule_obj.severity == Severity.ERROR \
+                else "warning"
 
             try:
                 rule_checker = getattr(self, verb)
@@ -290,28 +274,16 @@ class OSIRuleChecker:
 
                 final_res = False if not res else final_res
         return final_res
+    
+    def _log(self, severity, message):
+        if isinstance(severity, Severity):
+            severity_method = SEVERITY[severity]
+        elif isinstance(severity, str):
+            severity_method = severity
+        else:
+            raise TypeError('type not accepted: must be Severity enum or str')
 
-
-def parse_yaml_rule(rule):
-    """Check if the rule has parameters or not.
-
-    If there is a column, YAML parses it as a dict.
-
-    :return: Verb and list of param of the rule
-    """
-    if isinstance(rule, dict):
-        verb, params = next(iter(rule.items()))
-    else:
-        verb, params = rule, []
-
-    # Check severity
-    if verb[-1] == "!":
-        severity = "error"
-        verb = verb[:-1]
-    else:
-        severity = "warning"
-
-    return verb, params, severity
+        return getattr(self._logger, severity_method)(message)
 
 
 def get_message_path(inherit):
@@ -340,13 +312,9 @@ def add_default_valid_rules(message, rules):
     """
     def is_validable(message):
         return message[0].message_type is not None
-    validable_rules = filter(is_validable, message.ListFields())
-    for desc, _ in validable_rules:
-        if desc.name not in rules:
-            rules[desc.name] = ['is_valid']
-        else:
-            try:
-                next(filter(lambda e: e in ['is_valid', 'is_set'],
-                            rules[desc.name]))
-            except StopIteration:
-                rules[desc.name].append('is_valid')
+    for desc, _ in filter(is_validable, message.ListFields()):
+        if desc.name not in rules.fields:
+            rules.add_field(desc.name)
+            rules[desc.name].add_rule('is_valid')
+        elif not(rules.fields[desc.name].must_be_set):
+            rules[desc.name].add_rule('is_valid')
