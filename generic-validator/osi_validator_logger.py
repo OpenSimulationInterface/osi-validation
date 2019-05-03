@@ -31,51 +31,48 @@ class OSIValidatorLogger():
         self.debug_messages = dict()
         self.error_messages = dict()
         self.debug_mode = debug
-
-        _time = time.time()
-
-        error_file_path = os.path.join(output_path, f"error_{_time}.log")
-        warning_file_path = os.path.join(output_path, f"warning_{_time}.log")
+        self.logger = logging.getLogger(__name__)
 
         formatter = logging.Formatter("%(levelname)-7s -- %(message)s")
-
-        # Log errors in a file
-        handler_error = logging.FileHandler(
-            error_file_path, mode="a", encoding="utf-8")
-
-        # Log warnings in another file
-        handler_warning = logging.FileHandler(
-            warning_file_path, mode="a", encoding="utf-8")
-
-        handler_all = logging.StreamHandler(sys.stdout)
-
-        # Set formatters
-        handler_error.setFormatter(formatter)
-        handler_warning.setFormatter(formatter)
-        handler_all.setFormatter(formatter)
-
-        # Filter
-        handler_error.addFilter(ErrorFilter())
-        handler_warning.addFilter(WarningFilter())
-
-        # Set level to DEBUG
-        handler_error.setLevel(logging.DEBUG)
-        handler_warning.setLevel(logging.DEBUG)
-        handler_all.setLevel(logging.DEBUG)
-
-        self.logger = logging.getLogger(__name__)
 
         if debug:
             self.logger.setLevel(logging.DEBUG)
         else:
             self.logger.setLevel(logging.INFO)
 
+        _time = time.time()
         # Add handlers for files
         if to_files:
+            error_file_path = os.path.join(output_path, f"error_{_time}.log")
+            warning_file_path = os.path.join(output_path, f"warn_{_time}.log")
+
+            # Log errors in a file
+            handler_error = logging.FileHandler(
+                error_file_path, mode="a", encoding="utf-8")
+
+            # Log warnings in another file
+            handler_warning = logging.FileHandler(
+                warning_file_path, mode="a", encoding="utf-8")
+
+            # Set formatters
+            handler_error.setFormatter(formatter)
+            handler_warning.setFormatter(formatter)
+
+            # Filter
+            handler_error.addFilter(ErrorFilter())
+            handler_warning.addFilter(WarningFilter())
+
+            # Set level to DEBUG
+            handler_error.setLevel(logging.DEBUG)
+            handler_warning.setLevel(logging.DEBUG)
+
             self.logger.addHandler(handler_error)
             self.logger.addHandler(handler_warning)
 
         if verbose:
+            handler_all = logging.StreamHandler(sys.stdout)
+            handler_all.setFormatter(formatter)
+            handler_all.setLevel(logging.DEBUG)
             self.logger.addHandler(handler_all)
         else:
             # If verbose mode is OFF, only log INFOS

@@ -68,20 +68,19 @@ class OSIIDManager:
                     types_counter = Counter(list(types_list))
                     self.logger.error(
                         timestep,
-                        ", ".join(
-                            map(lambda t: str(types_counter[t]) + " \"" +\
-                                          t.__name__ + "\" have the ID " +\
-                                          str(identifier),
-                                filter(lambda t: types_counter[t] != 1,
-                                       types_counter))))
+                        ", ".join(map(lambda t, tc=types_counter, i=identifier:
+                                      f'{tc[t]} "{t.__name__}" have the ID {i}',
+                                      filter(lambda t, tc=types_counter:
+                                             tc[t] != 1,
+                                             types_counter))))
 
     def resolve_references(self, timestep):
         """Check if references are compliant"""
         for reference in self._references:
             _, identifier, expected_type, condition = reference
             try:
-                found_object = next(filter(lambda o: type(
-                    o).__name__ == expected_type, self._index[identifier]))
+                found_object = next(filter(lambda o, et=expected_type: type(
+                    o).__name__ == et, self._index[identifier]))
             except StopIteration:
                 self.logger.error(
                     timestep, f'Reference unresolved: {expected_type} '+\

@@ -5,7 +5,6 @@ import argparse
 import os
 from collections import namedtuple
 from multiprocessing import Pool
-from copy import deepcopy
 from time import time
 
 # Local packages imports
@@ -121,13 +120,13 @@ def process_timestep(timestep):
     ENV.logger.warning_messages[timestep] = []
     ENV.logger.error_messages[timestep] = []
     ENV.logger.debug_messages[timestep] = []
-    sv = ENV.odc.data[timestep]
+    sensor_view = ENV.odc.data[timestep]
     fake_field_descriptor = namedtuple('fake_field_descriptor', ['name'])
     fake_field_descriptor.name = ENV.arguments.type
 
     # Check common rules
-    ENV.orc.check_message(timestep, [(fake_field_descriptor, sv)],
-                          ENV.orc._rules.nested_types[ENV.arguments.type])
+    ENV.orc.check_message(timestep, [(fake_field_descriptor, sensor_view)],
+                          ENV.orc.rules.nested_types[ENV.arguments.type])
 
     # Resolve ID and references
     ENV.id_manager.resolve_unicity(timestep)
