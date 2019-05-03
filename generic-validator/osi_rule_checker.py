@@ -1,4 +1,3 @@
-from copy import deepcopy
 from iso3166 import countries
 from protobuf_to_dict import protobuf_to_dict
 from asteval import Interpreter
@@ -11,7 +10,7 @@ class OSIRuleChecker:
     """
 
     def __init__(self, ovr, logger, id_manager):
-        self._rules = ovr.t_rules
+        self.rules = ovr.t_rules
         self._logger = logger
         self._id_manager = id_manager
 
@@ -50,7 +49,7 @@ class OSIRuleChecker:
             field_type_desc = field_type_desc.containing_type
 
         return self.check_message(timestep, inherit,
-                                  self._rules.get_type(message_t_inherit))
+                                  self.rules.get_type(message_t_inherit))
 
     def is_minimum(self, timestep, severity, inherit, _, minimum):
         """Check if a number is over a minimum.
@@ -113,7 +112,7 @@ class OSIRuleChecker:
         self._log(timestep, log_severity, message_model)
         return result
 
-    def is_global_unique(self, timestep, _severity, inherit, *_):
+    def is_global_unique(self, _timestep, _severity, inherit, *_):
         """Register an ID in the OSI ID manager to later perform a ID
         consistency validation.
 
@@ -126,7 +125,7 @@ class OSIRuleChecker:
 
         return self._id_manager.register_message(identifier, object_of_id)
 
-    def refers(self, timestep, _severity, inherit, _, params):
+    def refers(self, _timestep, _severity, inherit, _, params):
         """Add a reference to another message by ID.
 
         TODO: the conditional reference. Still no case of use in OSI let this
@@ -137,7 +136,7 @@ class OSIRuleChecker:
         referer = inherit[-2][1]
         identifier = inherit[-1][1].value
         expected_type = params
-        condition = None # TODO
+        condition = None
         self._id_manager.refer(referer, identifier, expected_type, condition)
         return True
 
