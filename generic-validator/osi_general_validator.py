@@ -1,9 +1,12 @@
-#!/usr/bin/env python3
+#!/usr/bin/ENV python3
 
 # Standard library Imports
 import argparse
 import os
 from collections import namedtuple
+from multiprocessing import Pool
+from copy import deepcopy
+from time import time
 
 # Local packages imports
 try:
@@ -21,8 +24,6 @@ from osi_data_container import OSIDataContainer
 from osi_rule_checker import OSIRuleChecker
 
 # Free Functions
-
-
 def command_line_arguments():
     """ Define and handle command line interface """
     parser = argparse.ArgumentParser(
@@ -49,57 +50,90 @@ def command_line_arguments():
     parser.add_argument('--debug',
                         help='Set the debug mode to ON.',
                         action="store_true")
+    parser.add_argument('--verbose',
+                        help='Set the verbose mode to ON (display in console).',
+                        action="store_true")
 
     # Handle comand line arguments
     return parser.parse_args()
 
+class ValidatorEnvironment:
+    """Global objects of the general validator"""
+    def __init__(self):
+        self.id_manager = \
+        self.logger = \
+        self.odc = \
+        self.orc = \
+        self.arguments = None
+
+ENV = None
 
 def main():
     """Main method"""
+    global ENV
+
+    start_time = time()
+    ENV = ValidatorEnvironment()
     # Handling of command line arguments
-    arguments = command_line_arguments()
+    ENV.arguments = command_line_arguments()
 
     # Instanciate Logger
     print("Instanciate logger")
-    directory = arguments.output
+    directory = ENV.arguments.output
     if not os.path.exists(directory):
         os.makedirs(directory)
-    logger = OSIValidatorLogger(arguments.debug, directory)
+    ENV.logger = OSIValidatorLogger(ENV.arguments.debug, ENV.arguments.verbose,
+                                    directory)
 
     # Read data
-    logger.info("Read data")
-    odc = OSIDataContainer()
-    odc.from_file(arguments.data, arguments.type)
+    ENV.logger.info("Read data")
+    ENV.odc = OSIDataContainer()
+    ENV.odc.from_file(ENV.arguments.data, ENV.arguments.type)
 
     # Instanciate ID Manager
-    id_manager = OSIIDManager(logger)
+    ENV.id_manager = OSIIDManager(ENV.logger)
 
     # Collect Validation Rules
-    logger.info("Collect validation rules")
+    ENV.logger.info("Collect validation rules")
     ovr = OSIValidationRules()
-    ovr.from_yaml_directory(arguments.rules)
+    ovr.from_yaml_directory(ENV.arguments.rules)
 
     # Instanciate rule checker
-    occ = OSIRuleChecker(ovr, logger, id_manager)
+    ENV.orc = OSIRuleChecker(ovr, ENV.logger, ENV.id_manager)
 
     # Pass all timesteps
-    logger.info("Pass all timesteps")
-    for i in range(0, 1):
-        id_manager.reset()
-        logger.info(f"Checking timestep {i}")
-        sv = odc.data[i]
-        fake_field_descriptor = namedtuple('fake_field_descriptor', ['name'])
-        fake_field_descriptor.name = arguments.type
+    ENV.logger.info("Pass all timesteps")
 
-        # Check common rules
-        occ.check_message([(fake_field_descriptor, sv)],
-                          occ._rules.nested_types[arguments.type])
+    p = Pool(8)
+    p.map(process_timestep, range(0, len(ENV.odc.data)))
 
-        # Resolve ID and references
-        id_manager.resolve_unicity()
-        id_manager.resolve_references()
 
     # Grab major OSI version
+
+    # Elapsed time
+    elapsed_time = time() - start_time
+    ENV.logger.info(f"Elapsed time: {elapsed_time}")
+
+def process_timestep(timestep):
+    """Process one timestep"""
+    ENV.id_manager.reset()
+    ENV.logger.info(f"Checking timestep {timestep}")
+    ENV.logger.warning_messages[timestep] = []
+    ENV.logger.error_messages[timestep] = []
+    ENV.logger.debug_messages[timestep] = []
+    sv = ENV.odc.data[timestep]
+    fake_field_descriptor = namedtuple('fake_field_descriptor', ['name'])
+    fake_field_descriptor.name = ENV.arguments.type
+
+    # Check common rules
+    ENV.orc.check_message(timestep, [(fake_field_descriptor, sv)],
+                          ENV.orc._rules.nested_types[ENV.arguments.type])
+
+    # Resolve ID and references
+    ENV.id_manager.resolve_unicity(timestep)
+    ENV.id_manager.resolve_references(timestep)
+
+    ENV.logger.flush(timestep)
 
 
 if __name__ == "__main__":
