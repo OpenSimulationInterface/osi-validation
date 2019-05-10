@@ -1,28 +1,17 @@
-#!/usr/bin/ENV python3
-
-# Standard library Imports
 import argparse
 import os
 from collections import namedtuple
-from multiprocessing import Pool
+from multiprocessing import Pool, Manager
 from time import time
+import tracemalloc
 
-# Local packages imports
-try:
-    import osi3.osi_sensordata_pb2
-    import osi3.osi_sensorview_pb2
-except ModuleNotFoundError:
-    print('The program encountered problems while importing OSI. Check your \
-    system for required dependencies. ')
-
-# Private imports
 from osi_validation_rules import OSIValidationRules
 from osi_validator_logger import OSIValidatorLogger
 from osi_id_manager import OSIIDManager
 from osi_data_container import OSIDataContainer
-from osi_rule_checker import OSIRuleChecker
+from osi_rules_checker import OSIRulesChecker
 
-# Free Functions
+
 def command_line_arguments():
     """ Define and handle command line interface """
     parser = argparse.ArgumentParser(
@@ -46,6 +35,11 @@ def command_line_arguments():
                         default='output_logs',
                         type=str,
                         required=False)
+    parser.add_argument('--timesteps',
+                        help='Number of timesteps to analyze. If -1, all.',
+                        type=int,
+                        default=-1,
+                        required=False)
     parser.add_argument('--debug',
                         help='Set the debug mode to ON.',
                         action="store_true")
@@ -56,83 +50,120 @@ def command_line_arguments():
     # Handle comand line arguments
     return parser.parse_args()
 
-class ValidatorEnvironment:
-    """Global objects of the general validator"""
-    def __init__(self):
-        self.id_manager = \
-        self.logger = \
-        self.odc = \
-        self.orc = \
-        self.arguments = None
-
-ENV = None
+MANAGER = Manager()
+LOGS = MANAGER.list()
+BLAST_SIZE = 500
+MESSAGE_TYPE = MANAGER.Value("s", "")
+TIMESTAMP_ANALYZED = MANAGER.list([])
+LOGGER = OSIValidatorLogger()
+OVR = OSIValidationRules()
 
 def main():
     """Main method"""
-    global ENV
+
+    tracemalloc.start()
 
     start_time = time()
-    ENV = ValidatorEnvironment()
     # Handling of command line arguments
-    ENV.arguments = command_line_arguments()
+    arguments = command_line_arguments()
+
+    # Set message type
+    MESSAGE_TYPE.value = arguments.type
 
     # Instanciate Logger
     print("Instanciate logger")
-    directory = ENV.arguments.output
+    directory = arguments.output
     if not os.path.exists(directory):
         os.makedirs(directory)
-    ENV.logger = OSIValidatorLogger(ENV.arguments.debug, ENV.arguments.verbose,
-                                    directory)
+
+    LOGGER.init(arguments.debug, arguments.verbose, directory)
 
     # Read data
-    ENV.logger.info("Read data")
-    ENV.odc = OSIDataContainer()
-    ENV.odc.from_file(ENV.arguments.data, ENV.arguments.type)
-
-    # Instanciate ID Manager
-    ENV.id_manager = OSIIDManager(ENV.logger)
+    LOGGER.info("Read data")
+    odc = OSIDataContainer()
+    odc.from_file(arguments.data, arguments.type)
 
     # Collect Validation Rules
-    ENV.logger.info("Collect validation rules")
-    ovr = OSIValidationRules()
-    ovr.from_yaml_directory(ENV.arguments.rules)
+    LOGGER.info("Collect validation rules")
+    OVR.from_yaml_directory(arguments.rules)
 
-    # Instanciate rule checker
-    ENV.orc = OSIRuleChecker(ovr, ENV.logger, ENV.id_manager)
 
-    # Pass all timesteps
-    ENV.logger.info("Pass all timesteps")
+    # Pass all timesteps or the number specified
+    if arguments.timesteps != -1:
+        max_timestep = arguments.timesteps
+        LOGGER.info(f"Pass the {max_timestep} first timesteps")
+    else:
+        LOGGER.info("Pass all timesteps")
+        max_timestep = len(odc.data)
 
-    p = Pool(8)
-    p.map(process_timestep, range(0, len(ENV.odc.data)))
 
+    # Dividing in several blast to not overload the memory
+    max_timestep_blast = 0
+
+    while max_timestep_blast < max_timestep:
+        # Clear log queue
+        LOGS[:] = []
+
+        # Recreate the pool
+        pool = Pool()
+
+        # Increment the max-timestep to analyze
+        max_timestep_blast += BLAST_SIZE
+        LOGGER.info(f"Blast to {max_timestep_blast}")
+        first_of_blast = (max_timestep_blast-BLAST_SIZE)
+        last_of_blast = min(max_timestep_blast, max_timestep)
+
+        # Launch computation
+        pool.map(process_timestep, odc.data[first_of_blast:last_of_blast])
+
+        LOGGER.info("Flush the logs into database")
+        LOGGER.flush(LOGS)
+
+        LOGGER.info("Clean memory")
+        close_pool(pool)
 
     # Grab major OSI version
 
     # Elapsed time
     elapsed_time = time() - start_time
-    ENV.logger.info(f"Elapsed time: {elapsed_time}")
+    LOGGER.info(f"Elapsed time: {elapsed_time}")
 
-def process_timestep(timestep):
+
+def close_pool(pool):
+    """Cleanly close a pool to free the memory"""
+    pool.close()
+    pool.terminate()
+    pool.join()
+
+
+def process_timestep(message):
     """Process one timestep"""
-    ENV.id_manager.reset()
-    ENV.logger.info(f"Checking timestep {timestep}")
-    ENV.logger.warning_messages[timestep] = []
-    ENV.logger.error_messages[timestep] = []
-    ENV.logger.debug_messages[timestep] = []
-    sensor_view = ENV.odc.data[timestep]
+    # Instanciate ID manager
+    id_manager = OSIIDManager(LOGGER)
+
+    # Instanciate rules checker
+    orc = OSIRulesChecker(OVR, LOGGER, id_manager)
+
+    timestamp = orc.set_timestamp(message.timestamp)
+
+    LOGGER.info(f'Analyze message of timestamp {timestamp}')
+    LOGGER.log_messages[timestamp] = []
+    LOGGER.debug_messages[timestamp] = []
+
+    # Check if timestamp already exists
+    if timestamp in TIMESTAMP_ANALYZED:
+        LOGGER.error(timestamp, f"Timestamp already exists")
+    else:
+        TIMESTAMP_ANALYZED.append(timestamp)
+
     fake_field_descriptor = namedtuple('fake_field_descriptor', ['name'])
-    fake_field_descriptor.name = ENV.arguments.type
+    fake_field_descriptor.name = MESSAGE_TYPE.value
 
     # Check common rules
-    ENV.orc.check_message(timestep, [(fake_field_descriptor, sensor_view)],
-                          ENV.orc.rules.nested_types[ENV.arguments.type])
-
-    # Resolve ID and references
-    ENV.id_manager.resolve_unicity(timestep)
-    ENV.id_manager.resolve_references(timestep)
-
-    ENV.logger.flush(timestep)
+    orc.check_message([(fake_field_descriptor, message)],
+                      orc.rules.nested_types[MESSAGE_TYPE.value],
+                      id_manager=id_manager)
+    LOGS.extend(LOGGER.log_messages[timestamp])
 
 
 if __name__ == "__main__":

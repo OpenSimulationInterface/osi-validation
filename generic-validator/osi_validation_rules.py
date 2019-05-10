@@ -3,6 +3,7 @@ from copy import deepcopy
 from enum import Enum
 import yaml
 
+
 class OSIValidationRules:
     """ This class collects validation rules """
 
@@ -34,27 +35,32 @@ class OSIValidationRules:
         """
         return deepcopy(self.rules)
 
+
 class ProtoMessagePath:
     """Represents a path to a message object"""
-    def __init__(self, inheritance = None):
-        self.inheritance = inheritance if inheritance is not None else []
+
+    def __init__(self, inheritance=None):
+        self.inheritance = inheritance or []
 
     def __repr__(self):
         return ".".join(self.inheritance)
 
     def pretty_html(self):
+        """Return a pretty html version of the message path"""
         return ".".join(map(lambda l: "<b>"+l+"</b>", self.inheritance[:-1])) \
             + "." + self.inheritance[-1]
 
-
     def child_path(self, child_name):
+        """Return a new path for the child of the message named child_name"""
         new_path = deepcopy(self)
         new_path.inheritance.append(child_name)
 
         return new_path
 
+
 class OSIRuleNode:
     """Represents any node in the tree of OSI rules"""
+
     def __init__(self, name, message_path):
         self.name = name
         self.message_path = message_path
@@ -67,10 +73,12 @@ class OSIRuleNode:
         """Return the path of the node"""
         return self.message_path
 
+
 class TypeContainer(OSIRuleNode):
     """This class defines either a MessageType or a list of MessageTypes"""
+
     def __init__(self, name=None, path=None):
-        super().__init__(name, ProtoMessagePath() if path is None else path)
+        super().__init__(name, path or ProtoMessagePath())
         self.nested_types = dict()
 
     def add_type(self, name, fields=None):
@@ -87,10 +95,10 @@ class TypeContainer(OSIRuleNode):
             for i in message_path:
                 message_t = message_t.nested_types[i]
             return message_t
-        elif isinstance(message_path, str):
+        if isinstance(message_path, str):
             return self.nested_types[message_path]
-        else:
-            raise TypeError('parameter must be list or str')
+
+        raise TypeError('parameter must be list or str')
 
     def __getitem__(self, name):
         return self.nested_types[name]
@@ -111,13 +119,15 @@ class MessageType(TypeContainer):
 
     def add_field(self, field_name, rules=None):
         """Add a field with or without rules to a Message Type"""
-        self.fields[field_name] = Field(field_name, self.message_path.child_path(field_name), rules)
+        self.fields[field_name] = \
+            Field(field_name, self.message_path.child_path(field_name), rules)
 
     def __getitem__(self, field_name):
         return self.fields[field_name]
 
     def __repr__(self):
         return f'MessageType({len(self.fields)}): {self.fields}'
+
 
 class Field(OSIRuleNode):
     """This class manages the rules of a Message Type"""
@@ -132,7 +142,6 @@ class Field(OSIRuleNode):
             for rule in rules:
                 self.add_rule(rule)
 
-
     def add_rule(self, rule):
         """Add a new rule to a field"""
         if isinstance(rule, dict):
@@ -142,7 +151,7 @@ class Field(OSIRuleNode):
             params = None
 
         new_rule = Rule(verb, self.message_path.child_path(verb), params)
-        self.rules[verb] = new_rule
+        self.rules[new_rule.verb] = new_rule
 
         if new_rule.verb == "is_set":
             self.must_be_set = True
@@ -155,13 +164,13 @@ class Field(OSIRuleNode):
     def __repr__(self):
         return f"Field({len(self.rules)}):{[self.rules[r] for r in self.rules]}"
 
+
 class Rule(OSIRuleNode):
     """This class manages one rule"""
 
     def __init__(self, verb, path, params=None, severity=None):
         super().__init__(verb, path)
         self.construct(verb, params, severity)
-
 
     def construct(self, verb, params, severity=None):
         """Construct an empty rule"""
@@ -176,13 +185,14 @@ class Rule(OSIRuleNode):
         self.verb = verb
 
     def __repr__(self):
-        return f'{self.verb}' + \
-               (f"({self.params})" if self.params is not None else "")
+        return f'{self.verb}' + (f"({self.params})" or "")
+
 
 class Severity(Enum):
     """Descript the severity of the raised error if a rule does not comply."""
     WARN = "warning"
     ERROR = "error"
+
 
 def translate_rules(rules, t_rules):
     """Translate dict rules into objects rules"""
@@ -196,7 +206,9 @@ def translate_rules(rules, t_rules):
         elif isinstance(value, list):
             t_rules.add_field(key, value)
         elif value is not None:
-            raise TypeError('only dict and list are accepted, parsing problem.')
+            raise TypeError(
+                'only dict and list are accepted, parsing problem.')
+
 
 if __name__ == "__main__":
     OVR = OSIValidationRules()

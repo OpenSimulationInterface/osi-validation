@@ -1,8 +1,10 @@
 from collections import Counter
 
+
 class OSIIDManager:
     """Manage the ID of OSI Messages for verification of unicity and references
     """
+
     def __init__(self, logger):
         # id => [object1, object2...]
         # Each object (message) should have a different type
@@ -17,20 +19,14 @@ class OSIIDManager:
 
         self.logger = logger
 
-    def _message_t_filter(self, message, message_t):
-        if message_t is not None:
-            return type(message) is message_t
-        else:
-            return True
-
     def get_all_messages_by_id(self, message_id, message_t=None):
         """Retrieve all the message by giving an id"""
-        return list(filter(lambda m: self._message_t_filter(m, message_t),
+        return list(filter(lambda m: message_t_filter(m, message_t),
                            self._index[message_id]))
 
     def get_message_by_id(self, message_id, message_t=None):
         """Retrieve only one message by giving an id"""
-        return next(filter(lambda m: self._message_t_filter(m, message_t),
+        return next(filter(lambda m: message_t_filter(m, message_t),
                            self._index[message_id]))
 
     def register_message(self, message_id, message):
@@ -46,9 +42,10 @@ class OSIIDManager:
         Condition is a function that will be applied on the found object if the
         reference is resolved
         """
-        self._references.append((referer, identifier, expected_type, condition))
+        self._references.append(
+            (referer, identifier, expected_type, condition))
 
-    def resolve_unicity(self, timestep):
+    def resolve_unicity(self, timestamp):
         """Check for double ID"""
         for identifier, objects in self._index.items():
             types_counter = None
@@ -56,25 +53,25 @@ class OSIIDManager:
                 types_list = list(map(type, objects))
                 types_str_list = ", ".join(
                     map(lambda o: o.__name__, types_list))
-                self.logger.warning(timestep,
-                                    f"Several objects of type "+\
+                self.logger.warning(timestamp,
+                                    f"Several objects of type " +
                                     f"{types_str_list} have the ID {identifier}"
-                                   )
+                                    )
 
                 if len(objects) != len(set(types_list)):
-                    self.logger.error(timestep,
-                                      f"Several objects of the same type have"+\
+                    self.logger.error(timestamp,
+                                      f"Several objects of the same type have" +
                                       f" the ID {identifier}:")
                     types_counter = Counter(list(types_list))
                     self.logger.error(
-                        timestep,
+                        timestamp,
                         ", ".join(map(lambda t, tc=types_counter, i=identifier:
                                       f'{tc[t]} "{t.__name__}" have the ID {i}',
                                       filter(lambda t, tc=types_counter:
                                              tc[t] != 1,
                                              types_counter))))
 
-    def resolve_references(self, timestep):
+    def resolve_references(self, timestamp):
         """Check if references are compliant"""
         for reference in self._references:
             _, identifier, expected_type, condition = reference
@@ -83,19 +80,26 @@ class OSIIDManager:
                     o).__name__ == et, self._index[identifier]))
             except StopIteration:
                 self.logger.error(
-                    timestep, f'Reference unresolved: {expected_type} '+\
-                              f'(ID: {identifier})')
+                    timestamp, f'Reference unresolved: {expected_type} ' +
+                    f'(ID: {identifier})')
             else:
                 self.logger.debug(
-                    timestep, f'Reference resolved: {expected_type} '+\
-                              f'(ID: {identifier})')
+                    timestamp, f'Reference resolved: {expected_type} ' +
+                    f'(ID: {identifier})')
                 if condition is not None:
                     if condition(found_object):
-                        self.logger.debug(timestep, f'Condition OK')
+                        self.logger.debug(timestamp, f'Condition OK')
                     else:
-                        self.logger.error(timestep, f'Condition not OK')
+                        self.logger.error(timestamp, f'Condition not OK')
 
     def reset(self):
         """Erase all data in the ID manager"""
         self._index = {}
         self._references = []
+
+
+def message_t_filter(message, message_t):
+    """Check if a message is of type message_t"""
+    if message_t is not None:
+        return isinstance(message, message_t)
+    return True

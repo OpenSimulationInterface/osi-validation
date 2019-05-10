@@ -15,7 +15,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../generic-validator'))
-from osi_rule_checker import OSIRuleChecker
+from osi_rules_checker import OSIRulesChecker
 
 
 # -- Project information -----------------------------------------------------
