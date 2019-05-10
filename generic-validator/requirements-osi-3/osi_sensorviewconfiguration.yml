@@ -1,6 +1,6 @@
 SensorViewConfiguration:
   version:
-    - is_set
+    - is_set!
   sensor_id:
     - is_set
   mounting_position:

@@ -1,6 +1,6 @@
 GroundTruth:
   version:
-    - is_set
+    - is_set!
   timestamp:
     - is_set
   host_vehicle_id:

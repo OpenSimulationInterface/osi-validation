@@ -1,6 +1,6 @@
 FeatureData:
   version:
-    - is_set
+    - is_set!
 SensorDetectionHeader:
   measurement_time:
     - is_set
