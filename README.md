@@ -1,4 +1,4 @@
-# OSI validator
+# OSI Validator
 
 ## Presentation
 
@@ -17,9 +17,9 @@ Validator* should only be used with **Python 3.7**.
 - *Python 3.7*
 - make (for the deployment of the documentation)
 
-## Installation of the Python requirements
+## Installation
 
-In the directory *generic-validator*: `pip install -r requirements.txt`
+In the root directory: ``python setup.py install``
 
 ## Deployment of the documentation
 
