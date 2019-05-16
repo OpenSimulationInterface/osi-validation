@@ -1,8 +1,7 @@
 Available rules for the OSI validation
 ======================================
 
-.. module:: osi_rule_checker
+.. module:: osivalidator.osi_rules_checker
 
-.. autoclass:: OSIRuleChecker
+.. autoclass:: OSIRulesChecker
    :members:
-

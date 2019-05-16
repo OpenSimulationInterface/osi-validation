@@ -14,7 +14,7 @@ The basic requirements for OSI 3 are gathered in the
 `KPIs documentation <./KPIs/index.html>`_.
 
 .. toctree::
-   writing-rules
+   README
    usage
+   writing-rules
    rules
-
