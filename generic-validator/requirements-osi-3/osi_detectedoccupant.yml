@@ -1,8 +1,0 @@
-DetectedOccupant:
-  header:
-    - is_set
-  candidate:
-    - is_set
-  CandidateOccupant:
-    probability:
-      - in_range: [0, 1]

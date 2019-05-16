@@ -1,4 +1,3 @@
-
 # Open and Read text file 
 def read_text_data(file_name):
     """ Read data from file """
