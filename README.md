@@ -30,10 +30,10 @@ All documentation is generated under *docs* directory.
 *This will erase the formerly generated documentation.* This will also deploy
 the KPIs documentation at the same time.
 
-In the folder *docs-src*: `make gh-pages`
+In the folder *docs*: `make gh-pages`
 
 ### Deployment of the documentation of KPIs
 
-In the folder KPIs: `make`
+In the folder KPIs: `make "KPISDOCDIR=../docs/html/KPIs"`
 
-The newly generated KPIs are in the directory *docs/KPIs*.
+The newly generated KPIs are in the directory *docs/html/KPIs*.
