@@ -1,4 +1,0 @@
-Installation
-============
-
-.. include:: ../README.md
