@@ -32,6 +32,9 @@ the KPIs documentation at the same time.
 
 In the folder *docs*: `make gh-pages`
 
+To push the documentation on Git, run in root directory:
+```git push origin `git subtree split --prefix docs/html master`:gh-pages```
+
 ### Deployment of the documentation of KPIs
 
 In the folder KPIs: `make "KPISDOCDIR=../docs/html/KPIs"`
