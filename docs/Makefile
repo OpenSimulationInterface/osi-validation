@@ -17,6 +17,7 @@ gh-pages:
 	rm -rf $(DOCDIR)
 	mkdir $(DOCDIR)
 	cp -r $(BUILDDIR)/html/* $(DOCDIR)
+	touch $(DOCDIR)/.nojekyll
 	@echo "The HTML pages are in $(DOCDIR)"
 	@echo "Compilation of the KPIs documentation"
 	@$(MAKE) KPIDOCDIR="$(DOCDIR)/KPIs" doxy -C ../KPIs >> /dev/null > /dev/null 2>&1
