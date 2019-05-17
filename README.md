@@ -6,7 +6,7 @@ The *OSI Validator* checks the compliance of the OSI messages with the KPIs
 rules.
 
 The full documentation on usage and customization of the rules is available
-[here](https://ainar.github.io/osi-validation/).
+[here](https://ainar.github.io/osi-validation/html/).
 
 ## Requirements
 
