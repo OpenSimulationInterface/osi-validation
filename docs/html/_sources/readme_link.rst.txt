@@ -1,4 +1,0 @@
-Installation
-============
-
-.. mdinclude:: ../README.md
