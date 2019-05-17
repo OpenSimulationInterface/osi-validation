@@ -1,10 +1,10 @@
-KPISDOCDIR=../docs/KPIs
+KPISDOCDIR=${KPIDOCDIR}
 
 .PHONY: clean
 
 doxy: clean
-	doxygen
-	mv html $(KPISDOCDIR)
+	doxygen >> /dev/null > /dev/null 2>&1
+	mv html $${KPIDOCDIR:-here}
 
 clean:
-	rm -rf $(KPISDOCDIR)
+	rm -rf $${KPIDOCDIR:-here}/*
