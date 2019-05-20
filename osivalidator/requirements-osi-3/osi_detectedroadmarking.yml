@@ -1,0 +1,10 @@
+DetectedRoadMarking:
+  header:
+    - is_set
+  base:
+    - is_set
+  base_rsme:
+    - is_set
+  CandidateRoadMarking:
+    probability:
+      - in_range: [0, 1]
