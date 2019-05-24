@@ -1,0 +1,7 @@
+InterfaceVersion:
+  version_major:
+    - is_set!
+  version_minor:
+    - is_set!
+  version_patch:
+    - is_set!
