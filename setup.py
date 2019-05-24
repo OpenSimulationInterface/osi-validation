@@ -10,16 +10,16 @@ if __name__ == "__main__":
 
     setuptools.setup(
         name="osivalidator",
-        version="0.0.1",
+        version="0.1a",
         author=author,
         description="Validator for OSI messages",
         long_description=long_description,
         long_description_content_type="text/markdown",
-        url="https://github.com/ainar/osi-validation",
+        url="https://github.com/OpenSimulationInterface/osi-validation",
         packages=setuptools.find_packages(),
         classifiers=[
-            "Programming Language :: Python :: 3",
-            "License :: OSI Approved :: MIT License",
+            "Programming Language :: Python :: 3.7",
+            "License :: OSI Approved",
             "Operating System :: OS Independent",
         ],
         include_package_data=True,
