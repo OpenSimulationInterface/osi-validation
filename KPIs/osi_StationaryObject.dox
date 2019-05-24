@@ -1,6 +1,0 @@
-/*!
-\class StationaryObject 
-\brief A simulated object that is neither a moving object (vehicle or \c MovingObject e.g. pedestrian, animal, or vehicle) nor a traffic related object (\c TrafficLight, \c TrafficSign)
-
-\c StationaryObject excludes traffic lights, traffic signs and road marking
-*/
