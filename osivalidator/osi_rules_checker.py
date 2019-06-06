@@ -396,6 +396,6 @@ def add_default_valid_rules(message, rules):
     for desc, _ in filter(is_validable, message.ListFields()):
         if desc.name not in rules.fields:
             rules.add_field(desc.name)
-            rules[desc.name].add_rule('is_valid')
+            rules.get_field(desc.name).add_rule('is_valid')
         elif not rules.fields[desc.name].must_be_set:
-            rules[desc.name].add_rule('is_valid')
+            rules.get_field(desc.name).add_rule('is_valid')

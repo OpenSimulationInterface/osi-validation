@@ -93,6 +93,37 @@ class TypeContainer(OSIRuleNode):
         self.nested_types[name] = new_message_t
         return new_message_t
 
+
+    def add_type_from_path(self, path, fields=None):
+        """Add a message type in the TypeContainer by giving a path
+
+        The path must be a list and the last element of the list is the name of
+        the message type.
+
+        If the message type already exists, it is not added.
+        """
+
+        try:
+            return self.get_type(path)
+        except KeyError:
+            pass
+
+        name = path[-1]
+        new_message_t = MessageType(name, fields, ProtoMessagePath(path))
+
+        child = self
+        for node in path[:-1]:
+            try:
+                child = child.nested_types[node]
+            except KeyError:
+                child = child.add_type(node)
+
+        child.nested_types[path[-1]] = new_message_t
+
+
+        return new_message_t
+
+
     def get_type(self, message_path):
         """Get a MessageType by name or path"""
         if isinstance(message_path, list):
@@ -127,11 +158,14 @@ class MessageType(TypeContainer):
         self.fields[field_name] = \
             Field(field_name, self.message_path.child_path(field_name), rules)
 
-    def __getitem__(self, field_name):
+    def get_field(self, field_name):
         return self.fields[field_name]
 
     def __repr__(self):
-        return f'MessageType({len(self.fields)}): {self.fields}'
+        return f'MessageType({len(self.fields)}): {self.fields}\n' + \
+            f'Nested types ({len(self.nested_types)})' + \
+            (': ' + ', '.join(self.nested_types.keys()) if self.nested_types \
+                else '')
 
 
 class Field(OSIRuleNode):
@@ -143,7 +177,7 @@ class Field(OSIRuleNode):
         self.must_be_set = False
         self.must_be_set_if = None
 
-        if rules is not None:
+        if rules is not None and isinstance(rules, list):
             for rule in rules:
                 self.add_rule(rule)
 
