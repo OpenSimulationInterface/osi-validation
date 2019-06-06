@@ -6,7 +6,7 @@ DetectedEntityHeader:
   data_qualifier:
     - is_set
 
-Sensordata:
+SensorData:
   version:
     - is_set!
   timestamp:

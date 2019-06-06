@@ -1,4 +1,4 @@
-HostVehicledata:
+HostVehicleData:
   location:
     - is_set
   location_rmse:
