@@ -25,11 +25,12 @@ if __name__ == "__main__":
         include_package_data=True,
         install_requires=[
             'iso3166',
-            'pyyaml',
+            'ruamel.yaml',
             'asteval',
             'sphinx_rtd_theme',
             'recommonmark',
             'open-simulation-interface',
+            'doxygen-interface',
         ],
         dependency_links=[
             'git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@master#egg=open-simulation-interface',
