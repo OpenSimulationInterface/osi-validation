@@ -6,8 +6,10 @@ validation rules tree.
 import os
 from copy import deepcopy
 from enum import Enum
-import yaml
+import ruamel.yaml as yaml
 
+from doxygen import ConfigParser
+from doxygen import Generator
 
 class OSIValidationRules:
     """ This class collects validation rules """
@@ -22,18 +24,30 @@ class OSIValidationRules:
             for filename in os.listdir(path):
                 if filename.startswith('osi_') and filename.endswith(('.yml',
                                                                       '.yaml')):
-                    self.from_yaml_file(os.path.join(path, filename))
+                    self.from_yaml_file(os.path.join(path, filename), False)
 
         except FileNotFoundError:
             print('Error while reading files OSI-rules. Exiting!')
 
         translate_rules(self.rules, self.t_rules)
 
-    def from_yaml_file(self, path):
+    def from_yaml_file(self, path, only=True):
         """Import from a file
         """
         rules_file = open(path)
         self.rules.update(yaml.load(rules_file, Loader=yaml.SafeLoader))
+        rules_file.close()
+
+        if only:
+            translate_rules(self.rules, self.t_rules)
+
+    def from_yaml(self, yaml_content, only=True):
+        """Import from a string
+        """
+        self.rules.update(yaml.load(yaml_content, Loader=yaml.SafeLoader))
+
+        if only:
+            translate_rules(self.rules, self.t_rules)
 
     def get_rules(self):
         """Return the rules
@@ -177,17 +191,23 @@ class Field(OSIRuleNode):
         self.must_be_set = False
         self.must_be_set_if = None
 
-        if rules is not None and isinstance(rules, list):
-            for rule in rules:
-                self.add_rule(rule)
+        if rules is not None:
+            if isinstance(rules, list):
+                for rule in rules:
+                    self.add_rule(rule)
+            elif isinstance(rules, dict):
+                for verb, params in rules.items():
+                    self.add_rule(verb, params)
 
-    def add_rule(self, rule):
-        """Add a new rule to a field"""
+    def add_rule(self, rule, params=None):
+        """Add a new rule of verb rule to a field with the parameters params.
+        rule can also be a dictionary containing one key (the verb) with one
+        value (the parameters).
+        """
         if isinstance(rule, dict):
             verb, params = next(iter(rule.items()))
         else:
             verb = rule
-            params = None
 
         new_rule = Rule(verb, self.message_path.child_path(verb), params)
         self.rules[new_rule.verb] = new_rule
@@ -226,6 +246,10 @@ class Rule(OSIRuleNode):
     def __repr__(self):
         return f'{self.verb}' + (f"({self.params})" or "")
 
+    def __eq__(self, other):
+        return self.verb == other.verb and self.params == other.params \
+            and self.severity == other.severity
+
 
 class Severity(Enum):
     """Descript the severity of the raised error if a rule does not comply."""
@@ -242,20 +266,38 @@ def translate_rules(rules, t_rules):
         if is_message_type and isinstance(value, dict):
             new_message_t = t_rules.add_type(key)
             translate_rules(value, new_message_t)
-        elif isinstance(value, list):
+        elif isinstance(value, list) or isinstance(value, dict):
             t_rules.add_field(key, value)
         elif value is not None:
-            raise TypeError(
-                'only dict and list are accepted, parsing problem.')
+            raise TypeError(f'must be dict or list, got {type(rules).__name__}')
 
 
-if __name__ == "__main__":
-    OVR = OSIValidationRules()
-    OVR.from_yaml_directory('requirements-osi-3')
+def generate_doxygen_xml(proto2cpp_path, osi_path):
+    proto2cpp_path = "/home/aina/proto2cpp"
+    osi_path = "/home/aina/open-simulation-interface"
+    osi_doc_path = os.path.join(osi_path, 'doc')
+    proto2cpp_file_path = os.path.join(proto2cpp_path, "proto2cpp.py")
 
-    # T_RULES = TypeContainer()
-    # translate_rules(OVR.rules, T_RULES)
+    configuration = f'''INPUT                  = {osi_path}
+    OUTPUT_DIRECTORY       = {osi_doc_path}
+    EXTENSION_MAPPING      = proto=C++
+    FILE_PATTERNS          = *.proto
+    INPUT_FILTER           = "python {proto2cpp_file_path}"
+    GENERATE_XML           = YES
+    GENERATE_HTML          = NO
+    GENERATE_LATEX         = NO
+    XML_PROGRAMLISTING     = NO
+    ALIASES                = rules="<pre class=\"rules\">"
+    ALIASES               += endrules="</pre>"
+    '''
 
-    print(OVR.t_rules)
-    print(OVR.t_rules.get_type(['LaneBoundary', 'BoundaryPoint']))
-    print(OVR.t_rules['LaneBoundary'])
+    my_doxyfile_path = os.path.join(osi_path, 'Doxyfile_validation')
+    my_doxyfile = open(my_doxyfile_path, 'w')
+    my_doxyfile.write(configuration)
+    my_doxyfile.close()
+
+    config_parser = ConfigParser()
+    config_parser.load_configuration(my_doxyfile_path)
+
+    doxy_builder = Generator(my_doxyfile_path)
+    output_zip_archive = doxy_builder.build(clean=False, generate_zip=False)
