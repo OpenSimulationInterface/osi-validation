@@ -19,8 +19,13 @@ class OSIValidationRules:
         self.rules = dict()
         self.t_rules = TypeContainer()
 
-    def from_yaml_directory(self, path):
+    def from_yaml_directory(self, path=None):
         """ Collect validation rules found in the directory. """
+
+        if not path:
+            dir_path = dir_path = os.path.dirname(os.path.realpath(__file__))
+            path = os.path.join(dir_path, 'requirements-osi-3')
+
         try:
             for filename in os.listdir(path):
                 if filename.startswith('osi_') and filename.endswith(('.yml',

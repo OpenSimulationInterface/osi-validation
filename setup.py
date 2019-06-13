@@ -1,16 +1,15 @@
 import setuptools
+import glob
 
 author = 'Altran Germany / BMW'
-    
+
 if __name__ == "__main__":
     with open("README.md", "r") as fh:
         long_description = fh.read()
 
-
-
     setuptools.setup(
         name="osivalidator",
-        version="0.1a",
+        version="0.1a0",
         author=author,
         description="Validator for OSI messages",
         long_description=long_description,
@@ -21,6 +20,13 @@ if __name__ == "__main__":
             "Programming Language :: Python :: 3.7",
             "License :: OSI Approved",
             "Operating System :: OS Independent",
+        ],
+        data_files=[
+            ('open-simulation-interface',
+             glob.glob('open-simulation-interface/*.proto')),
+            ('proto2cpp', ['proto2cpp/proto2cpp.py']),
+            ('osivalidator/requirements-osi-3',
+             glob.glob('osivalidator/requirements-osi-3/*.yml'))
         ],
         include_package_data=True,
         install_requires=[
@@ -35,7 +41,7 @@ if __name__ == "__main__":
         dependency_links=[
             'git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@master#egg=open-simulation-interface',
         ],
-        entry_points = {
+        entry_points={
             'console_scripts': ['osivalidator=osivalidator.osi_general_validator:main'],
         }
     )
