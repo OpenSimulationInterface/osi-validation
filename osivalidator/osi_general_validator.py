@@ -27,14 +27,13 @@ def command_line_arguments():
     parser = argparse.ArgumentParser(
         description='Validate data defined at the input',
         prog='osivalidator')
+    parser.add_argument('data',
+                        help='Path to the file with OSI-serialized data.',
+                        type=str)
     parser.add_argument('--rules', '-r',
                         help='Directory with text files containig rules. ',
-                        default=os.path.join(dir_path,'requirements-osi-3'),
+                        default=os.path.join(dir_path, 'requirements-osi-3'),
                         type=str)
-    parser.add_argument('--data', '-d',
-                        help='Path to the file with OSI-serialized data.',
-                        type=str,
-                        required=True)
     parser.add_argument('--type', '-t',
                         help='Name of the message type used to serialize data.',
                         choices=['SensorView', 'GroundTruth', 'SensorData'],
@@ -61,6 +60,7 @@ def command_line_arguments():
     # Handle comand line arguments
     return parser.parse_args()
 
+
 MANAGER = Manager()
 LOGS = MANAGER.list()
 BLAST_SIZE = 500
@@ -71,6 +71,7 @@ VALIDATION_RULES = OSIValidationRules()
 LANES_HASHES = MANAGER.list()
 BAR_SUFFIX = '%(index)d/%(max)d [%(elapsed_td)s]'
 BAR = Bar('', suffix=BAR_SUFFIX)
+
 
 def main():
     """Main method"""
@@ -101,7 +102,6 @@ def main():
     LOGGER.info(None, "Collect validation rules")
     VALIDATION_RULES.from_yaml_directory(arguments.rules)
 
-
     # Pass all timesteps or the number specified
     if arguments.timesteps != -1:
         max_timestep = arguments.timesteps
@@ -109,7 +109,6 @@ def main():
     else:
         LOGGER.info(None, "Pass all timesteps")
         max_timestep = len(data_container.data)
-
 
     # Dividing in several blast to not overload the memory
     max_timestep_blast = 0
@@ -130,12 +129,12 @@ def main():
         # LOGGER.info(None, f"Blast to {last_of_blast}")
 
         # Launch computation
-        
+
         pool.map(
             process_timestep,
             data_container.data[first_of_blast:last_of_blast]
         )
-        
+
         # for i in range(first_of_blast, last_of_blast):
         #     process_timestep(data_container.data[i])
         # print()
@@ -164,19 +163,17 @@ def close_pool(pool):
 def process_timestep(message):
     """Process one timestep"""
     # Instanciate rules checker
-    current_ground_truth_dict = \
-        MessageToDict(
-            message.global_ground_truth,
-            preserving_proto_field_name=True,
-            use_integers_for_enums=True)
+    current_ground_truth_dict = MessageToDict(
+        message.global_ground_truth,
+        preserving_proto_field_name=True,
+        use_integers_for_enums=True)
 
-    lane_hash = \
-        hash(current_ground_truth_dict['lane_boundary'].__repr__())
+    lane_hash = hash(current_ground_truth_dict['lane_boundary'].__repr__())
 
     ignore_lanes = lane_hash in LANES_HASHES
     id_manager = OSIIDManager(LOGGER)
     rule_checker = OSIRulesChecker(
-        VALIDATION_RULES,LOGGER, id_manager, ignore_lanes)
+        VALIDATION_RULES, LOGGER, id_manager, ignore_lanes)
     timestamp = rule_checker.set_timestamp(message.timestamp)
     LOGGER.log_messages[timestamp] = []
     LOGGER.debug_messages[timestamp] = []
@@ -185,7 +182,6 @@ def process_timestep(message):
         LOGGER.info(timestamp, f'Ignoring lanes (Hash: {lane_hash})', False)
     else:
         LOGGER.info(timestamp, f'Checking lanes (Hash: {lane_hash})', False)
-
 
     # Check if timestamp already exists
     if timestamp in TIMESTAMP_ANALYZED:

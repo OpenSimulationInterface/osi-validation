@@ -5,6 +5,7 @@ and unicity according to the OSI KPIs.
 
 from collections import Counter
 
+
 class OSIIDManager:
     """Manage the ID of OSI Messages for verification of unicity and references
     """

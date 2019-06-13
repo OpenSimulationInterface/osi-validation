@@ -6,8 +6,10 @@ import osi3.osi_sensorview_pb2
 import osi3.osi_groundtruth_pb2
 import osi3.osi_sensordata_pb2
 
+
 class OSIDataContainer:
     """This class wrap OSI data. It can import and decode OSI scenarios."""
+
     def __init__(self):
         self.data = list()
         self._text_data = ""

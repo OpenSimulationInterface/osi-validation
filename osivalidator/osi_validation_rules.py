@@ -11,6 +11,7 @@ import ruamel.yaml as yaml
 from doxygen import ConfigParser
 from doxygen import Generator
 
+
 class OSIValidationRules:
     """ This class collects validation rules """
 
@@ -107,7 +108,6 @@ class TypeContainer(OSIRuleNode):
         self.nested_types[name] = new_message_t
         return new_message_t
 
-
     def add_type_from_path(self, path, fields=None):
         """Add a message type in the TypeContainer by giving a path
 
@@ -134,9 +134,7 @@ class TypeContainer(OSIRuleNode):
 
         child.nested_types[path[-1]] = new_message_t
 
-
         return new_message_t
-
 
     def get_type(self, message_path):
         """Get a MessageType by name or path"""
@@ -178,7 +176,7 @@ class MessageType(TypeContainer):
     def __repr__(self):
         return f'MessageType({len(self.fields)}): {self.fields}\n' + \
             f'Nested types ({len(self.nested_types)})' + \
-            (': ' + ', '.join(self.nested_types.keys()) if self.nested_types \
+            (': ' + ', '.join(self.nested_types.keys()) if self.nested_types
                 else '')
 
 
@@ -269,7 +267,8 @@ def translate_rules(rules, t_rules):
         elif isinstance(value, list) or isinstance(value, dict):
             t_rules.add_field(key, value)
         elif value is not None:
-            raise TypeError(f'must be dict or list, got {type(rules).__name__}')
+            raise TypeError(
+                f'must be dict or list, got {type(rules).__name__}')
 
 
 def generate_doxygen_xml(proto2cpp_path, osi_path):
@@ -300,4 +299,4 @@ def generate_doxygen_xml(proto2cpp_path, osi_path):
     config_parser.load_configuration(my_doxyfile_path)
 
     doxy_builder = Generator(my_doxyfile_path)
-    output_zip_archive = doxy_builder.build(clean=False, generate_zip=False)
+    doxy_builder.build(clean=False, generate_zip=False)

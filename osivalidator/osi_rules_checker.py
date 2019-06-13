@@ -337,8 +337,8 @@ class OSIRulesChecker:
                 # If the field is "REPEATED"
                 if child_inherit[-1][0].label == 3:
                     if self.ignore_lanes \
-                        and child_inherit[-1][0].name == 'lane_boundary' \
-                        and isinstance(child_inherit[-2][1], GroundTruth):
+                            and child_inherit[-1][0].name == 'lane_boundary' \
+                            and isinstance(child_inherit[-2][1], GroundTruth):
                         continue
                     res = self._check_repeated(
                         severity=severity,
