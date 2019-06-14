@@ -37,11 +37,13 @@ if __name__ == "__main__":
             'recommonmark',
             'open-simulation-interface',
             'doxygen-interface',
+            'defusedxml',
         ],
         dependency_links=[
             'git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@master#egg=open-simulation-interface',
         ],
         entry_points={
-            'console_scripts': ['osivalidator=osivalidator.osi_general_validator:main'],
+            'console_scripts':
+                ['osivalidator=osivalidator.osi_general_validator:main'],
         }
     )
