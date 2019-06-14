@@ -6,13 +6,13 @@ validation rules tree.
 import os
 from copy import deepcopy
 from enum import Enum
+
 import ruamel.yaml as yaml
 
-from doxygen import ConfigParser
-from doxygen import Generator
+from .osi_doxygen_xml import OSIDoxygenXML
 
 
-class OSIValidationRules:
+class OSIRules:
     """ This class collects validation rules """
 
     def __init__(self):
@@ -26,10 +26,10 @@ class OSIValidationRules:
             dir_path = dir_path = os.path.dirname(os.path.realpath(__file__))
             path = os.path.join(dir_path, 'requirements-osi-3')
 
+        exts = ('.yml', '.yaml')
         try:
             for filename in os.listdir(path):
-                if filename.startswith('osi_') and filename.endswith(('.yml',
-                                                                      '.yaml')):
+                if filename.startswith('osi_') and filename.endswith(exts):
                     self.from_yaml_file(os.path.join(path, filename), False)
 
         except FileNotFoundError:
@@ -54,6 +54,22 @@ class OSIValidationRules:
 
         if only:
             translate_rules(self.rules, self.t_rules)
+
+    def from_xml_doxygen(self):
+        """Parse the Doxygen XML documentation to get the rules
+        """
+        dox_xml = OSIDoxygenXML()
+        dox_xml.generate()
+        rules = dox_xml.parse_rules()
+
+        for field_rules_tuple in rules:
+            message_t_path = field_rules_tuple[0][:-1]
+            field_name = field_rules_tuple[0][-1]
+            field_rules = field_rules_tuple[1]
+
+            message_t = self.t_rules.add_type_from_path(message_t_path)
+            for field_rule in field_rules:
+                message_t.add_field(field_name, field_rules)
 
     def get_rules(self):
         """Return the rules
@@ -224,7 +240,8 @@ class Field(OSIRuleNode):
         return self.rules[rule_verb]
 
     def __repr__(self):
-        return f"Field({len(self.rules)}):{[self.rules[r] for r in self.rules]}"
+        nested_rules = [self.rules[r] for r in self.rules]
+        return f"Field({len(self.rules)}):{nested_rules}"
 
 
 class Rule(OSIRuleNode):
@@ -274,34 +291,3 @@ def translate_rules(rules, t_rules):
         elif value is not None:
             raise TypeError(
                 f'must be dict or list, got {type(rules).__name__}')
-
-
-def generate_doxygen_xml(proto2cpp_path, osi_path):
-    proto2cpp_path = "/home/aina/proto2cpp"
-    osi_path = "/home/aina/open-simulation-interface"
-    osi_doc_path = os.path.join(osi_path, 'doc')
-    proto2cpp_file_path = os.path.join(proto2cpp_path, "proto2cpp.py")
-
-    configuration = f'''INPUT                  = {osi_path}
-    OUTPUT_DIRECTORY       = {osi_doc_path}
-    EXTENSION_MAPPING      = proto=C++
-    FILE_PATTERNS          = *.proto
-    INPUT_FILTER           = "python {proto2cpp_file_path}"
-    GENERATE_XML           = YES
-    GENERATE_HTML          = NO
-    GENERATE_LATEX         = NO
-    XML_PROGRAMLISTING     = NO
-    ALIASES                = rules="<pre class=\"rules\">"
-    ALIASES               += endrules="</pre>"
-    '''
-
-    my_doxyfile_path = os.path.join(osi_path, 'Doxyfile_validation')
-    my_doxyfile = open(my_doxyfile_path, 'w')
-    my_doxyfile.write(configuration)
-    my_doxyfile.close()
-
-    config_parser = ConfigParser()
-    config_parser.load_configuration(my_doxyfile_path)
-
-    doxy_builder = Generator(my_doxyfile_path)
-    doxy_builder.build(clean=False, generate_zip=False)

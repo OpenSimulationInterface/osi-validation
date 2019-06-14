@@ -12,7 +12,7 @@ import tracemalloc
 from progress.bar import Bar
 from google.protobuf.json_format import MessageToDict
 
-from .osi_validation_rules import OSIValidationRules
+from .osi_rules import OSIRules
 from .osi_validator_logger import OSIValidatorLogger
 from .osi_id_manager import OSIIDManager
 from .osi_data_container import OSIDataContainer
@@ -35,7 +35,7 @@ def command_line_arguments():
                         default=os.path.join(dir_path, 'requirements-osi-3'),
                         type=str)
     parser.add_argument('--type', '-t',
-                        help='Name of the message type used to serialize data.',
+                        help='Name of the type used to serialize data.',
                         choices=['SensorView', 'GroundTruth', 'SensorData'],
                         default='SensorView',
                         type=str,
@@ -54,7 +54,7 @@ def command_line_arguments():
                         help='Set the debug mode to ON.',
                         action="store_true")
     parser.add_argument('--verbose',
-                        help='Set the verbose mode to ON (display in console).',
+                        help='Set the verbose mode to ON.',
                         action="store_true")
 
     # Handle comand line arguments
@@ -67,7 +67,7 @@ BLAST_SIZE = 500
 MESSAGE_TYPE = MANAGER.Value("s", "")
 TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
-VALIDATION_RULES = OSIValidationRules()
+VALIDATION_RULES = OSIRules()
 LANES_HASHES = MANAGER.list()
 BAR_SUFFIX = '%(index)d/%(max)d [%(elapsed_td)s]'
 BAR = Bar('', suffix=BAR_SUFFIX)

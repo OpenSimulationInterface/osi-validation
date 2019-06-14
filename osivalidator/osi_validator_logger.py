@@ -9,7 +9,7 @@ import time
 import os
 import sqlite3
 
-from .osi_validation_rules import Severity
+from .osi_rules import Severity
 
 
 class WarningFilter(logging.Filter):

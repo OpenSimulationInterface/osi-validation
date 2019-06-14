@@ -8,7 +8,7 @@ from asteval import Interpreter
 from google.protobuf.json_format import MessageToDict
 from osi3.osi_groundtruth_pb2 import GroundTruth
 
-from .osi_validation_rules import Severity, MessageType
+from .osi_rules import Severity, MessageType
 from .osi_validator_logger import SEVERITY
 
 
@@ -129,19 +129,19 @@ class OSIRulesChecker:
 
         mini = float(interval[0])
         maxi = float(interval[1])
-        value = inherit[-1][1]
+        val = inherit[-1][1]
 
         is_equal_to_bound = len(interval) >= 3 and (
-            str.find(interval[2], 'lo') >= 0 and mini == value or
-            str.find(interval[2], 'ro') >= 0 and maxi == value
+            str.find(interval[2], 'lo') >= 0 and mini == val or
+            str.find(interval[2], 'ro') >= 0 and maxi == val
         )
 
-        result = mini <= value <= maxi and not is_equal_to_bound
+        result = mini <= val <= maxi and not is_equal_to_bound
 
         n_in = "not " if not result else ""
 
         message_model = \
-            f'{get_message_path(inherit)}= {value} {n_in}in range: {mini, maxi}'
+            f'{get_message_path(inherit)}= {val} {n_in}in range: {mini, maxi}'
 
         log_severity = "debug" if result else severity
         self._log(log_severity, message_model)
@@ -167,8 +167,8 @@ class OSIRulesChecker:
 
         Add a reference to another message by ID.
 
-        **TODO**: the conditional reference. Still no case of use in OSI let this
-        pending.
+        **TODO**: the conditional reference. Still no case of use in OSI let
+        this pending.
 
         :param params: id of the refered object
         """
@@ -232,13 +232,14 @@ class OSIRulesChecker:
         rule_method = kwargs.get('rule_method', None)
         rules = kwargs.get('rules', None)
         params = kwargs.get('params', None)
+        verb = rule_method.__name__
 
         self._log('debug',
-                  f'Check the rule {rule_method.__name__} for a repeated field')
+                  f'Check the rule {verb} for a repeated field')
 
-        if rule_method.__name__ == "each":
+        if verb == "each":
             rules = params
-        if rule_method.__name__ in ['first_element', 'last_element']:
+        if verb in ['first_element', 'last_element']:
             return rule_method(
                 severity=severity,
                 inherit=inherit,
