@@ -149,7 +149,7 @@ class OSIValidatorLogger():
         if pass_to_logger:
             return self.logger.info(msg, *args, **kwargs)
 
-    def flush(self, log_queue=None, timestamp=None):
+    def flush(self, log_queue=None, timestamp=None, from_id=None):
         """Flush the ouput to the database"""
 
         # Open a new cursor
@@ -159,6 +159,10 @@ class OSIValidatorLogger():
             log_tuples = self.log_messages[timestamp]
         elif log_queue is not None:
             log_tuples = log_queue
+
+        if from_id:
+            for tuple_id in range(len(log_queue)):
+                log_queue[tuple_id][1] = from_id[log_queue[tuple_id][1]]
 
         cursor.executemany("INSERT INTO logs VALUES (?, ?, ?)", log_tuples)
 

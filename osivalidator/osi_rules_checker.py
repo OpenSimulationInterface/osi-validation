@@ -239,10 +239,11 @@ class OSIRulesChecker:
 
         return getattr(self.logger, severity_method)(self.timestamp, message)
 
-    def set_timestamp(self, timestamp):
+    def set_timestamp(self, timestamp, ts_id):
         """Set the timestamp for the analysis"""
-        self.timestamp = int(timestamp.nanos + timestamp.seconds * 10e9)
-        return self.timestamp
+        self.timestamp_ns = int(timestamp.nanos + timestamp.seconds * 10e9)
+        self.timestamp = ts_id
+        return self.timestamp, ts_id
 
     def check_message(self, inherit, rules, id_manager=None):
         """Method to check the rules for a complex message

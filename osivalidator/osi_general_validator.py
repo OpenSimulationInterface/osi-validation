@@ -67,6 +67,8 @@ TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
 VALIDATION_RULES = OSIRules()
 LANES_HASHES = MANAGER.list()
+DATA = OSIDataContainer()
+ID_TO_TS = MANAGER.dict()
 BAR_SUFFIX = '%(index)d/%(max)d [%(elapsed_td)s]'
 BAR = Bar('', suffix=BAR_SUFFIX)
 
@@ -90,8 +92,7 @@ def main():
 
     # Read data
     LOGGER.info(None, "Read data")
-    data_container = OSIDataContainer()
-    data_container.from_file(arguments.data, arguments.type)
+    DATA.from_file(arguments.data, arguments.type)
 
     # Collect Validation Rules
     LOGGER.info(None, "Collect validation rules")
@@ -103,7 +104,7 @@ def main():
         LOGGER.info(None, f"Pass the {max_timestep} first timesteps")
     else:
         LOGGER.info(None, "Pass all timesteps")
-        max_timestep = len(data_container.data)
+        max_timestep = len(DATA.data)
 
     # Dividing in several blast to not overload the memory
     max_timestep_blast = 0
@@ -125,7 +126,7 @@ def main():
         # Launch computation
         pool.map(
             process_timestep,
-            data_container.data[first_of_blast:last_of_blast]
+            range(first_of_blast, last_of_blast)
         )
 
         LOGGER.flush(LOGS)
@@ -143,8 +144,10 @@ def close_pool(pool):
     pool.join()
 
 
-def process_timestep(message):
+def process_timestep(message_id):
     """Process one timestep"""
+    message = DATA.data[message_id]
+
     current_ground_truth_dict = MessageToDict(
         message.global_ground_truth,
         preserving_proto_field_name=True,
@@ -156,19 +159,22 @@ def process_timestep(message):
     id_manager = OSIIDManager(LOGGER)
     rule_checker = OSIRulesChecker(
         VALIDATION_RULES, LOGGER, id_manager, ignore_lanes)
-    timestamp = rule_checker.set_timestamp(message.timestamp)
-    LOGGER.log_messages[timestamp] = []
-    LOGGER.debug_messages[timestamp] = []
+    timestamp = rule_checker.set_timestamp(message.timestamp, message_id)
+
+    ID_TO_TS[message_id] = timestamp
+
+    LOGGER.log_messages[message_id] = []
+    LOGGER.debug_messages[message_id] = []
     LOGGER.info(None, f'Analyze message of timestamp {timestamp}', False)
     if ignore_lanes:
-        LOGGER.info(timestamp, f'Ignoring lanes (Hash: {lane_hash})', False)
+        LOGGER.info(message_id, f'Ignoring lanes (Hash: {lane_hash})', False)
     else:
-        LOGGER.info(timestamp, f'Checking lanes (Hash: {lane_hash})', False)
+        LOGGER.info(message_id, f'Checking lanes (Hash: {lane_hash})', False)
 
     # Check if timestamp already exists
-    if timestamp in TIMESTAMP_ANALYZED:
-        LOGGER.error(timestamp, f"Timestamp already exists")
-    TIMESTAMP_ANALYZED.append(timestamp)
+    if message_id in TIMESTAMP_ANALYZED:
+        LOGGER.error(message_id, f"Timestamp already exists")
+    TIMESTAMP_ANALYZED.append(message_id)
 
     fake_field_descriptor = namedtuple('fake_field_descriptor', ['name'])
     fake_field_descriptor.name = MESSAGE_TYPE.value
@@ -181,7 +187,7 @@ def process_timestep(message):
         rule_checker.rules.nested_types[MESSAGE_TYPE.value],
         id_manager=id_manager)
 
-    LOGS.extend(LOGGER.log_messages[timestamp])
+    LOGS.extend(LOGGER.log_messages[message_id])
 
     if not ignore_lanes:
         LANES_HASHES.append(lane_hash)
