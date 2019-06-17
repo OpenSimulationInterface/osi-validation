@@ -27,7 +27,7 @@ class OSIRulesChecker:
         self.ignore_lanes = ignore_lanes
 
     # Rules implementation
-    def is_set(self, **kwargs):
+    def is_set(self, inherit, rule):
         """*Rule*
 
         Check if a field is set. The Python function is actually a wrapper of
@@ -35,13 +35,12 @@ class OSIRulesChecker:
         The setting of the field is checked during the exploration of the
         fields.
         """
-        inherit = kwargs.get('inherit', None)
 
         if hasattr(inherit[-1][1], "DESCRIPTOR"):
-            return self.is_valid(**kwargs)
+            return self.is_valid(inherit, rule)
         return True
 
-    def is_set_if(self, **kwargs):
+    def is_set_if(self, inherit, rule):
         """*Rule*
 
         A wrapper to the function ``is_set``. The condition should be contained
@@ -50,15 +49,14 @@ class OSIRulesChecker:
 
         :param params: The assertion in Python-style pseudo-code as a string.
         """
-        return self.is_set(**kwargs)
+        return self.is_set(inherit, rule)
 
-    def is_valid(self, **kwargs):
+    def is_valid(self, inherit, rule):
         """*Rule*
 
         Check if a field message is valid, that is all the inner rules of the
         message in the field are complying.
         """
-        inherit = kwargs.get('inherit', None)
 
         field = inherit[-1][1]
 
@@ -71,14 +69,13 @@ class OSIRulesChecker:
         return self.check_message(inherit,
                                   self.rules.get_type(message_t_inherit))
 
-    def is_minimum(self, **kwargs):
+    def is_minimum(self, inherit, rule):
         """*Rule*
 
         Check if a number is over a minimum.
         """
-        inherit = kwargs.get('inherit', None)
-        severity = kwargs.get('severity', None)
-        minimum = kwargs.get('params', None)
+        severity = rule.severity
+        minimum = rule.params
 
         self._log('debug', f'Minimum: {minimum}')
         value = inherit[-1][1]
@@ -89,16 +86,15 @@ class OSIRulesChecker:
                       f'(minimum: {minimum})')
         return res
 
-    def is_maximum(self, **kwargs):
+    def is_maximum(self, inherit, rule):
         """*Rule*
 
         Check if a number is under a maximum.
 
         :param params: the maximum
         """
-        inherit = kwargs.get('inherit', None)
-        severity = kwargs.get('severity', None)
-        maximum = kwargs.get('params', None)
+        severity = rule.severity
+        maximum = rule.params
 
         self._log('debug', f'Maximum: {maximum}')
         value = inherit[-1][1]
@@ -109,7 +105,7 @@ class OSIRulesChecker:
                       f'(maximum: {maximum})')
         return res
 
-    def in_range(self, **kwargs):
+    def in_range(self, inherit, rule):
         """*Rule*
 
         Check if a number is in a range.
@@ -123,9 +119,8 @@ class OSIRulesChecker:
 
                        The interval can be 'loro', that is left and right-open.
         """
-        inherit = kwargs.get('inherit', None)
-        severity = kwargs.get('severity', None)
-        interval = kwargs.get('params', None)
+        severity = rule.severity
+        interval = rule.params
 
         mini = float(interval[0])
         maxi = float(interval[1])
@@ -147,7 +142,7 @@ class OSIRulesChecker:
         self._log(log_severity, message_model)
         return result
 
-    def is_global_unique(self, **kwargs):
+    def is_global_unique(self, inherit, rule):
         """*Rule*
 
         Register an ID in the OSI ID manager to later perform a ID
@@ -155,14 +150,13 @@ class OSIRulesChecker:
 
         Must be set to an Identifier.
         """
-        inherit = kwargs.get('inherit', None)
 
         object_of_id = inherit[-2][1]
         identifier = inherit[-1][1].value
 
         return self._id_manager.register_message(identifier, object_of_id)
 
-    def refers(self, **kwargs):
+    def refers(self, inherit, rule):
         """*Rule*
 
         Add a reference to another message by ID.
@@ -172,8 +166,7 @@ class OSIRulesChecker:
 
         :param params: id of the refered object
         """
-        expected_type = kwargs.get('params', None)
-        inherit = kwargs.get('inherit', None)
+        expected_type = rule.params
 
         referer = inherit[-2][1]
         identifier = inherit[-1][1].value
@@ -181,13 +174,12 @@ class OSIRulesChecker:
         self._id_manager.refer(referer, identifier, expected_type, condition)
         return True
 
-    def is_iso_country_code(self, **kwargs):
+    def is_iso_country_code(self, inherit, rule):
         """*Rule*
 
         Check if a string is a ISO country code.
         """
-        severity = kwargs.get('severity', None)
-        inherit = kwargs.get('inherit', None)
+        severity = rule.severity
 
         self._log('debug', f'Checking ISO code for {inherit[-1][1]}')
         iso_code = inherit[-1][1]
@@ -199,60 +191,53 @@ class OSIRulesChecker:
             self._log(severity, f'ISO code {iso_code} is not valid')
             return False
 
-    def first_element(self, **kwargs):
+    def first_element(self, inherit, rule):
         """*Rule*
 
         Check rule for first message of a repeated field.
 
         :param params: dictionary of rules to be checked for the first message
         """
-        inherit = kwargs.get('inherit', None)
-        params = kwargs.get('params', None)
+        params = rule.params
         virtual_message = MessageType('', params, None)
         return self.check_message(
             inherit + [(None, inherit[-1][1][0])], virtual_message)
 
-    def last_element(self, **kwargs):
+    def last_element(self, inherit, rule):
         """*Rule*
 
         Check rule for last message of a repeated field.
 
         :param params: dictionary of rules to be checked for the last message
         """
-        inherit = kwargs.get('inherit', None)
-        params = kwargs.get('params', None)
+        params = rule.params
 
         virtual_message = MessageType('', params, None)
         return self.check_message(
             inherit + [(None, inherit[-1][1][-1])], virtual_message)
 
-    def _check_repeated(self, **kwargs):
-        severity = kwargs.get('severity', None)
-        inherit = kwargs.get('inherit', None)
-        rule_method = kwargs.get('rule_method', None)
-        rules = kwargs.get('rules', None)
-        params = kwargs.get('params', None)
+    def _check_repeated(self, inherit, rule):
+        rule_method = getattr(self, rule.verb)
         verb = rule_method.__name__
 
         self._log('debug',
                   f'Check the rule {verb} for a repeated field')
 
-        if verb == "each":
-            rules = params
         if verb in ['first_element', 'last_element']:
-            return rule_method(
-                severity=severity,
-                inherit=inherit,
-                rules=rules,
-                params=params)
+            return rule_method(inherit, rule)
 
         return all([
-            rule_method(
-                severity=severity,
-                inherit=inherit + [(None, m)],
-                rules=rules,
-                params=params)
-            for m in inherit[-1][1]])
+            rule_method(inherit + [(None, m)], rule) for m in inherit[-1][1]])
+
+    def _log(self, severity, message):
+        if isinstance(severity, Severity):
+            severity_method = SEVERITY[severity]
+        elif isinstance(severity, str):
+            severity_method = severity
+        else:
+            raise TypeError('type not accepted: must be Severity enum or str')
+
+        return getattr(self.logger, severity_method)(self.timestamp, message)
 
     def set_timestamp(self, timestamp):
         """Set the timestamp for the analysis"""
@@ -327,8 +312,6 @@ class OSIRulesChecker:
         final_res = True
         for _, rule_obj in field_rules.rules.items():
             verb = rule_obj.verb
-            params = rule_obj.params
-            severity = SEVERITY[rule_obj.severity]
 
             try:
                 rule_method = getattr(self, verb)
@@ -341,31 +324,12 @@ class OSIRulesChecker:
                             and child_inherit[-1][0].name == 'lane_boundary' \
                             and isinstance(child_inherit[-2][1], GroundTruth):
                         continue
-                    res = self._check_repeated(
-                        severity=severity,
-                        rule_method=rule_method,
-                        inherit=child_inherit,
-                        rules=rules,
-                        params=params)
+                    res = self._check_repeated(child_inherit, rule_obj)
                 else:
-                    res = rule_method(
-                        severity=severity,
-                        inherit=child_inherit,
-                        rules=rules,
-                        params=params)
+                    res = rule_method(child_inherit, rule_obj)
 
                 final_res = final_res if res else False
         return final_res
-
-    def _log(self, severity, message):
-        if isinstance(severity, Severity):
-            severity_method = SEVERITY[severity]
-        elif isinstance(severity, str):
-            severity_method = severity
-        else:
-            raise TypeError('type not accepted: must be Severity enum or str')
-
-        return getattr(self.logger, severity_method)(self.timestamp, message)
 
 
 def get_message_path(inherit):
