@@ -6,8 +6,6 @@ import argparse
 import os
 from collections import namedtuple
 from multiprocessing import Pool, Manager
-from time import time
-import tracemalloc
 
 from progress.bar import Bar
 from google.protobuf.json_format import MessageToDict
@@ -76,9 +74,6 @@ BAR = Bar('', suffix=BAR_SUFFIX)
 def main():
     """Main method"""
 
-    tracemalloc.start()
-
-    start_time = time()
     # Handling of command line arguments
     arguments = command_line_arguments()
 
@@ -126,31 +121,19 @@ def main():
         max_timestep_blast += BLAST_SIZE
         first_of_blast = (max_timestep_blast-BLAST_SIZE)
         last_of_blast = min(max_timestep_blast, max_timestep)
-        # LOGGER.info(None, f"Blast to {last_of_blast}")
 
         # Launch computation
-
         pool.map(
             process_timestep,
             data_container.data[first_of_blast:last_of_blast]
         )
 
-        # for i in range(first_of_blast, last_of_blast):
-        #     process_timestep(data_container.data[i])
-        # print()
-        # LOGGER.info(None, "Flush the logs into database")
         LOGGER.flush(LOGS)
-
-        # LOGGER.info(None, "Clean memory")
         close_pool(pool)
 
     BAR.finish()
 
     # Grab major OSI version
-
-    # Elapsed time
-    elapsed_time = time() - start_time
-    LOGGER.info(None, f"Elapsed time: {elapsed_time}")
 
 
 def close_pool(pool):
@@ -162,7 +145,6 @@ def close_pool(pool):
 
 def process_timestep(message):
     """Process one timestep"""
-    # Instanciate rules checker
     current_ground_truth_dict = MessageToDict(
         message.global_ground_truth,
         preserving_proto_field_name=True,
