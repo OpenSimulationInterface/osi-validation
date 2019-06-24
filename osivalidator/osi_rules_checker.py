@@ -5,6 +5,8 @@ from an OSI scenario can comply.
 
 from iso3166 import countries
 from asteval import Interpreter
+import contextvars
+
 from google.protobuf.json_format import MessageToDict
 from osi3.osi_groundtruth_pb2 import GroundTruth
 
@@ -245,6 +247,25 @@ class OSIRulesChecker:
         self.timestamp = ts_id
         return self.timestamp, ts_id
 
+    def pre_is_set(self, inherit, field_rules_node):
+        if (field_rules_node.must_be_set
+                and not has_attr(inherit[-1][1], field_rules_node.name)):
+            self._log(field_rules_node.rules['is_set'].severity,
+                      f"{field_rules_node.path} is not set!")
+
+    def pre_is_set_if(self, inherit, field_rules_node, **kwargs):
+        message = inherit[-1][1]
+        dict_message_contextvar = kwargs.get("dict_message_contextvar")
+        if field_rules_node.must_be_set_if is not None:
+            cond = field_rules_node.must_be_set_if
+            dict_message = dict_message_contextvar.get(MessageToDict(
+                message, preserving_proto_field_name=True,
+                use_integers_for_enums=True))
+            if (Interpreter(dict_message)(cond) and
+                    not has_attr(message, field_rules_node.name)):
+                self._log(field_rules_node.rules['is_set_if'].severity,
+                          f"{field_rules_node.path} not set as expected: {cond}")
+
     def check_message(self, inherit, rules, id_manager=None):
         """Method to check the rules for a complex message
         It is also the input method
@@ -263,32 +284,22 @@ class OSIRulesChecker:
         final_res = True
         # Add "is_valid" rule for each field that can be validated (default)
         message = inherit[-1][1]
-        dict_message = None
+        dict_message_contextvar = contextvars.ContextVar("dict_message")
 
         add_default_valid_rules(message, rules)
 
-        # loop over the fields in the rules where field are set
+        # loop over the fields in the rules
         # if the name starts with an upper char, it is a submessage type
-        for field_name, f_rules in rules.fields.items():
-            field_path = get_message_path(inherit) + "." + field_name
+        for field_name, rules_field_node in rules.fields.items():
+            field_path = rules_field_node.path
 
             # check the rule "is_set"
-            if f_rules.must_be_set and not has_attr(message, field_name):
-                self._log(f_rules.rules['is_set'].severity,
-                          f"{field_path} is not set!")
+            self.pre_is_set(inherit, rules_field_node)
 
             # "is_set_if" is the conditional version of the rule "is_set"
             # check if the rule exists for an attribute
-            if f_rules.must_be_set_if is not None:
-                cond = f_rules.must_be_set_if
-                dict_message = dict_message \
-                    or MessageToDict(
-                        message, preserving_proto_field_name=True,
-                        use_integers_for_enums=True)
-                if Interpreter(dict_message)(cond) and \
-                   not has_attr(message, field_name):
-                    self._log(f_rules.rules['is_set_if'].severity,
-                              f"{field_path} not set as expected: {cond}")
+            self.pre_is_set_if(inherit, rules_field_node,
+                               dict_message_contextvar=dict_message_contextvar)
 
             if not has_attr(message, field_name):
                 self._log('debug', f'Field {field_path} does not exist')
@@ -299,7 +310,7 @@ class OSIRulesChecker:
                        message.ListFields()))
             child_inherit = inherit + [proto_field_tuple]
 
-            res = self._loop_over_rules(rules, f_rules, child_inherit)
+            res = self._loop_over_rules(rules, rules_field_node, child_inherit)
 
             final_res = False if not res else final_res
 
@@ -365,3 +376,11 @@ def add_default_valid_rules(message, rules):
             rules.get_field(desc.name).add_rule('is_valid')
         elif not rules.fields[desc.name].must_be_set:
             rules.get_field(desc.name).add_rule('is_valid')
+
+
+def static_vars(**kwargs):
+    def decorate(func):
+        for k in kwargs:
+            setattr(func, k, kwargs[k])
+        return func
+    return decorate
