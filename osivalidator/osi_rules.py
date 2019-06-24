@@ -86,6 +86,9 @@ class ProtoMessagePath:
     def __repr__(self):
         return ".".join(self.inheritance)
 
+    def __getitem__(self, parent):
+        return self.inheritance[parent]
+
     def pretty_html(self):
         """Return a pretty html version of the message path"""
         return ".".join(map(lambda l: "<b>"+l+"</b>", self.inheritance[:-1])) \
@@ -104,7 +107,7 @@ class OSIRuleNode:
 
     def __init__(self, name, message_path):
         self.name = name
-        self.message_path = message_path
+        self.path = message_path
 
     def get_name(self):
         """Return the name of the node"""
@@ -112,7 +115,7 @@ class OSIRuleNode:
 
     def get_path(self):
         """Return the path of the node"""
-        return self.message_path
+        return self.path
 
 
 class TypeContainer(OSIRuleNode):
@@ -124,8 +127,7 @@ class TypeContainer(OSIRuleNode):
 
     def add_type(self, name, fields=None):
         """Add a message type in the TypeContainer"""
-        new_message_t = MessageType(name, fields,
-                                    self.message_path.child_path(name))
+        new_message_t = MessageType(name, fields, self.path.child_path(name))
         self.nested_types[name] = new_message_t
         return new_message_t
 
@@ -189,7 +191,7 @@ class MessageType(TypeContainer):
     def add_field(self, field_name, rules=None):
         """Add a field with or without rules to a Message Type"""
         self.fields[field_name] = \
-            Field(field_name, self.message_path.child_path(field_name), rules)
+            Field(field_name, self.path.child_path(field_name), rules)
 
     def get_field(self, field_name):
         return self.fields[field_name]
@@ -228,7 +230,7 @@ class Field(OSIRuleNode):
         else:
             verb = rule
 
-        new_rule = Rule(verb, self.message_path.child_path(verb), params)
+        new_rule = Rule(verb, self.path.child_path(verb), params)
         self.rules[new_rule.verb] = new_rule
 
         if new_rule.verb == "is_set":
