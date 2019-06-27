@@ -156,9 +156,7 @@ def process_timestep(message_id):
     lane_hash = hash(current_ground_truth_dict['lane_boundary'].__repr__())
 
     ignore_lanes = lane_hash in LANES_HASHES
-    id_manager = OSIIDManager(LOGGER)
-    rule_checker = OSIRulesChecker(
-        VALIDATION_RULES, LOGGER, id_manager, ignore_lanes)
+    rule_checker = OSIRulesChecker(VALIDATION_RULES, LOGGER, ignore_lanes)
     timestamp = rule_checker.set_timestamp(message.timestamp, message_id)
 
     ID_TO_TS[message_id] = timestamp

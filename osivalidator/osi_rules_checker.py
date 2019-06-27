@@ -9,6 +9,7 @@ from osi3.osi_groundtruth_pb2 import GroundTruth
 
 from .osi_rules import Severity, Rule, Field
 from .osi_validator_logger import SEVERITY
+from .osi_id_manager import OSIIDManager
 from . import osi_rules_implementations
 from .utils import has_attr
 
@@ -20,10 +21,10 @@ class OSIRulesChecker:
     The rule methods are marked with *Rule*.
     """
 
-    def __init__(self, ovr, logger, id_manager, ignore_lanes):
+    def __init__(self, ovr, logger, ignore_lanes):
         self.rules = ovr.t_rules
         self.logger = logger
-        self.id_manager = id_manager
+        self.id_manager = OSIIDManager(logger)
         self.timestamp = self.timestamp_ns = -1
         self.ignore_lanes = ignore_lanes
 
