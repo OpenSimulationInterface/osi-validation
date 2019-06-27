@@ -182,10 +182,9 @@ def process_timestep(message_id):
     BAR.goto(len(TIMESTAMP_ANALYZED))
 
     # Check common rules
-    rule_checker.check_message(
+    rule_checker.check_compliance(
         [(fake_field_descriptor, message)],
-        rule_checker.rules.nested_types[MESSAGE_TYPE.value],
-        id_manager=id_manager)
+        rule_checker.rules.nested_types[MESSAGE_TYPE.value])
 
     LOGS.extend(LOGGER.log_messages[message_id])
 

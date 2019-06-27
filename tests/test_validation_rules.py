@@ -19,7 +19,7 @@ class TestValidationRules(unittest.TestCase):
 
     def test_add_type_from_path(self):
         container = ovr.TypeContainer()
-        path = ['foo', 'bar', 'type']
+        path = ovr.ProtoMessagePath(['foo', 'bar', 'type'])
         container.add_type_from_path(path)
         container.get_type(path)
 
@@ -30,11 +30,13 @@ class TestValidationRules(unittest.TestCase):
   location_rmse:
     is_set:"""
         validation_rules = ovr.OSIRules()
-        validation_rules.from_yaml(raw)
+        validation_rules.from_yaml(raw, only=True)
         rules = validation_rules.t_rules
         field = rules['HostVehicleData'].get_field('location')
-        self.assertEqual(field['is_set'],
-                         ovr.Rule('is_set', 'HostVehicleData.location.is_set'))
+        rule_check = ovr.Rule('is_set')
+        rule_check.path = ovr.ProtoMessagePath(
+            ["HostVehicleData", "location.is_set"])
+        self.assertEqual(field['is_set'], rule_check)
 
 
 if __name__ == '__main__':

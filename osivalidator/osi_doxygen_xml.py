@@ -24,7 +24,7 @@ class OSIDoxygenXML:
         proto2cpp_path = os.path.join(osivalidator_path, 'proto2cpp')
         self.proto2cpp_file_path = os.path.join(proto2cpp_path, "proto2cpp.py")
 
-    def generate(self):
+    def generate_osi_doxygen_xml(self):
         """Generate the Doxygen XML documentation in the OSI path
         """
 
