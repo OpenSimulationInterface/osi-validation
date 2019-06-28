@@ -12,7 +12,6 @@ from google.protobuf.json_format import MessageToDict
 
 from .osi_rules import OSIRules
 from .osi_validator_logger import OSIValidatorLogger
-from .osi_id_manager import OSIIDManager
 from .osi_data_container import OSIDataContainer
 from .osi_rules_checker import OSIRulesChecker
 
@@ -135,6 +134,10 @@ def main():
     BAR.finish()
 
     # Grab major OSI version
+
+    # Synthetize
+
+    LOGGER.synthetize_results_from_sqlite()
 
 
 def close_pool(pool):

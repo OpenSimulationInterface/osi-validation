@@ -9,6 +9,13 @@ import time
 import os
 import sqlite3
 
+import itertools
+import textwrap
+import sqlite3
+
+from tabulate import tabulate
+import colorama
+
 from .osi_rules import Severity
 
 
@@ -72,8 +79,8 @@ class OSIValidatorLogger():
 
     def create_database(self, timestamp, output_path):
         """Create an SQLite database and set the table for logs"""
-        self.conn = sqlite3.connect(
-            os.path.join(output_path, f'logs_{timestamp}.db'))
+        self.dbname = os.path.join(output_path, f'logs_{timestamp}.db')
+        self.conn = sqlite3.connect(self.dbname)
 
         cursor = self.conn.cursor()
 
@@ -177,6 +184,58 @@ class OSIValidatorLogger():
         else:
             del self.log_messages
             self.log_messages = dict()
+
+    def synthetize_results_from_sqlite(self):
+        def ranges(i):
+            for a, b in itertools.groupby(enumerate(i), lambda x_y: x_y[1] - x_y[0]):
+                b = list(b)
+                yield b[0][1], b[-1][1]
+
+        def format_ranges(r):
+            if r[0] == r[1]:
+                return str(r[0])
+            else:
+                return f"[{r[0]}, {r[1]}]"
+
+        def process_timestamps(distinct_messages):
+            results = []
+            c2 = conn.cursor()
+            for message in distinct_messages:
+                c2.execute(
+                    "SELECT DISTINCT timestamp FROM logs WHERE message = ? ORDER BY timestamp", message)
+                timestamps = list(map(extract_from_tuple, c2.fetchall()))
+                ts_ranges = ", ".join(map(format_ranges, ranges(timestamps)))
+                results.append([wrapper_ranges.fill(ts_ranges),
+                                wrapper.fill(extract_from_tuple(message))])
+            return results
+
+        def extract_from_tuple(t): return t[0]
+
+        wrapper_ranges = textwrap.TextWrapper(width=40)
+        wrapper = textwrap.TextWrapper(width=70)
+
+        conn = sqlite3.connect(self.dbname)
+
+        c = conn.cursor()
+        distinct_messages_w = c.execute(
+            'SELECT DISTINCT message FROM logs WHERE severity = 30')
+        c3 = conn.cursor()
+        distinct_messages_e = c3.execute(
+            'SELECT DISTINCT message FROM logs WHERE severity = 40')
+
+        results_w = process_timestamps(distinct_messages_w)
+        results_e = process_timestamps(distinct_messages_e)
+        conn.commit()
+        conn.close()
+
+        colorama.init()
+        print(colorama.Fore.RED + "Errors (" + str(len(results_e)) + ") " +
+              colorama.Style.RESET_ALL)
+        print(tabulate(results_e, headers=["Ranges of timestamps", "Message"]))
+        print()
+        print(colorama.Fore.YELLOW + "Warnings (" +
+              str(len(results_w)) + ") " + colorama.Style.RESET_ALL)
+        print(tabulate(results_w, headers=["Ranges of timestamps", "Message"]))
 
 
 SEVERITY = {
