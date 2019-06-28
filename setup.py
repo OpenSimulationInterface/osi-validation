@@ -42,6 +42,8 @@ if __name__ == "__main__":
             'open-simulation-interface',
             'doxygen-interface',
             'defusedxml',
+            'colorama',
+            'tabulate',
         ],
         dependency_links=[
             'git+https://github.com/OpenSimulationInterface/' +
