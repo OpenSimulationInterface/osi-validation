@@ -68,8 +68,8 @@ def is_valid(self, inherit, rule_obj):
 
     self.log("debug", f"Check for compliancy of {rule_obj.path}")
 
-    return self.check_compliance(inherit,
-                                 self.rules.get_type(ProtoMessagePath(message_t_inherit)))
+    child_rules = self.rules.get_type(ProtoMessagePath(message_t_inherit))
+    return self.check_compliance(inherit, child_rules)
 
 
 @rule

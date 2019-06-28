@@ -11,7 +11,6 @@ import sqlite3
 
 import itertools
 import textwrap
-import sqlite3
 
 from tabulate import tabulate
 import colorama
@@ -52,6 +51,7 @@ class OSIValidatorLogger():
         self.logger.setLevel(logging.DEBUG if debug else logging.INFO)
         self._is_cli_output_set = False
         self.conn = None
+        self.dbname = None
 
     def init_cli_output(self, verbose):
         """Initialize the CLI output"""
@@ -149,15 +149,23 @@ class OSIValidatorLogger():
         msg = "[TS " + str(timestamp) + "]" + msg
         return self.logger.error(msg, *args, **kwargs)
 
-    def info(self, timestamp, msg, pass_to_logger=True, *args, **kwargs):
+    def info(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python info logger"""
         if timestamp:
             self.log_messages[timestamp].append((20, timestamp, msg))
-        if pass_to_logger:
+        if kwargs.get("pass_to_logger"):
             return self.logger.info(msg, *args, **kwargs)
+        return 0
 
     def flush(self, log_queue=None, timestamp=None, from_id=None):
-        """Flush the ouput to the database"""
+        """Flush the ouput to the database
+
+        :param log_queue: list of tuple of messages that have to be flushed
+        :param timestamp: if not None, only the timestamp given will be flushed
+        :param from_id: if None, the timestamp will be in millisecond,
+                        otherwhise it will be the id of the timestamp according
+                        to the lookup table given in this parameter
+        """
 
         # Open a new cursor
         cursor = self.conn.cursor()
@@ -168,8 +176,8 @@ class OSIValidatorLogger():
             log_tuples = log_queue
 
         if from_id:
-            for tuple_id in range(len(log_queue)):
-                log_queue[tuple_id][1] = from_id[log_queue[tuple_id][1]]
+            for tuple_id, log_tuple in enumerate(log_queue):
+                log_queue[tuple_id][1] = from_id[log_tuple[1]]
 
         cursor.executemany("INSERT INTO logs VALUES (?, ?, ?)", log_tuples)
 
@@ -186,56 +194,72 @@ class OSIValidatorLogger():
             self.log_messages = dict()
 
     def synthetize_results_from_sqlite(self):
+        """Aggregate the sqlite log and output a synthetized version of the
+        result"""
         def ranges(i):
-            for a, b in itertools.groupby(enumerate(i), lambda x_y: x_y[1] - x_y[0]):
-                b = list(b)
-                yield b[0][1], b[-1][1]
+            group = itertools.groupby(
+                enumerate(i), lambda x_y: x_y[1] - x_y[0])
+            for _, second in group:
+                second = list(second)
+                yield second[0][1], second[-1][1]
 
-        def format_ranges(r):
-            if r[0] == r[1]:
-                return str(r[0])
-            else:
-                return f"[{r[0]}, {r[1]}]"
+        def format_ranges(ran):
+            if ran[0] == ran[1]:
+                return str(ran[0])
+            return f"[{ran[0]}, {ran[1]}]"
 
         def process_timestamps(distinct_messages):
             results = []
-            c2 = conn.cursor()
+            cursor = conn.cursor()
             for message in distinct_messages:
-                c2.execute(
-                    "SELECT DISTINCT timestamp FROM logs WHERE message = ? ORDER BY timestamp", message)
-                timestamps = list(map(extract_from_tuple, c2.fetchall()))
+                cursor.execute(
+                    """SELECT DISTINCT timestamp
+                       FROM logs
+                       WHERE message = ?
+                       ORDER BY timestamp""",
+                    message
+                )
+
+                timestamps = list(map(first_elt, cursor.fetchall()))
                 ts_ranges = ", ".join(map(format_ranges, ranges(timestamps)))
                 results.append([wrapper_ranges.fill(ts_ranges),
-                                wrapper.fill(extract_from_tuple(message))])
+                                wrapper.fill(first_elt(message))])
             return results
 
-        def extract_from_tuple(t): return t[0]
+        def first_elt(iterable):
+            return iterable[0]
 
         wrapper_ranges = textwrap.TextWrapper(width=40)
         wrapper = textwrap.TextWrapper(width=70)
 
-        conn = sqlite3.connect(self.dbname)
+        conn = self.conn
 
-        c = conn.cursor()
-        distinct_messages_w = c.execute(
+        cursor_warn = conn.cursor()
+        distinct_messages_w = cursor_warn.execute(
             'SELECT DISTINCT message FROM logs WHERE severity = 30')
-        c3 = conn.cursor()
-        distinct_messages_e = c3.execute(
+        cursor_error = conn.cursor()
+        distinct_messages_e = cursor_error.execute(
             'SELECT DISTINCT message FROM logs WHERE severity = 40')
 
-        results_w = process_timestamps(distinct_messages_w)
-        results_e = process_timestamps(distinct_messages_e)
         conn.commit()
-        conn.close()
 
         colorama.init()
-        print(colorama.Fore.RED + "Errors (" + str(len(results_e)) + ") " +
-              colorama.Style.RESET_ALL)
-        print(tabulate(results_e, headers=["Ranges of timestamps", "Message"]))
+
         print()
-        print(colorama.Fore.YELLOW + "Warnings (" +
-              str(len(results_w)) + ") " + colorama.Style.RESET_ALL)
-        print(tabulate(results_w, headers=["Ranges of timestamps", "Message"]))
+        print_synthesis("Errors", "RED",
+                        process_timestamps(distinct_messages_e))
+        print()
+        print_synthesis("Warnings", "YELLOW",
+                        process_timestamps(distinct_messages_w))
+
+
+def print_synthesis(title, color, ranges_messages_table):
+    """Print the (range, messages) table in a nice way, precessed with title and
+    the number of messages"""
+    headers = ["Ranges of timestamps", "Message"]
+    print(getattr(colorama.Fore, color) + title + " (" +
+          str(len(ranges_messages_table)) + ") " + colorama.Style.RESET_ALL)
+    print(tabulate(ranges_messages_table, headers=headers))
 
 
 SEVERITY = {
