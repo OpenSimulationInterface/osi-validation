@@ -19,7 +19,7 @@ from .osi_rules_checker import OSIRulesChecker
 def command_line_arguments():
     """ Define and handle command line interface """
 
-    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
     parser = argparse.ArgumentParser(
         description='Validate data defined at the input',

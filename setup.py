@@ -1,18 +1,22 @@
-import setuptools
+"""
+Setup module of OSI Validation Software
+"""
 import glob
 
-author = 'Altran Germany / BMW'
+import setuptools
+
+AUTHOR = 'Altran Germany / BMW'
 
 if __name__ == "__main__":
     with open("README.md", "r") as fh:
-        long_description = fh.read()
+        README = fh.read()
 
     setuptools.setup(
         name="osivalidator",
         version="0.1a0",
-        author=author,
+        author=AUTHOR,
         description="Validator for OSI messages",
-        long_description=long_description,
+        long_description=README,
         long_description_content_type="text/markdown",
         url="https://github.com/OpenSimulationInterface/osi-validation",
         packages=setuptools.find_packages(),
@@ -25,8 +29,8 @@ if __name__ == "__main__":
             ('open-simulation-interface',
              glob.glob('open-simulation-interface/*.proto')),
             ('proto2cpp', ['proto2cpp/proto2cpp.py']),
-            ('osivalidator/requirements-osi-3',
-             glob.glob('osivalidator/requirements-osi-3/*.yml'))
+            ('requirements-osi-3',
+             glob.glob('requirements-osi-3/*.yml'))
         ],
         include_package_data=True,
         install_requires=[
@@ -40,7 +44,9 @@ if __name__ == "__main__":
             'defusedxml',
         ],
         dependency_links=[
-            'git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@master#egg=open-simulation-interface',
+            'git+https://github.com/OpenSimulationInterface/' +
+            'open-simulation-interface.git' +
+            '@master#egg=open-simulation-interface',
         ],
         entry_points={
             'console_scripts':
