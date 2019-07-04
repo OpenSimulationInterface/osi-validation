@@ -25,3 +25,11 @@ def has_attr(message, field_name):
             return len(getattr(message, field_name)) > 0
         except AttributeError:
             return False
+
+
+def get_size_from_file_stream(file_object):
+    current_position = file_object.tell()
+    file_object.seek(0, 2)
+    size = file_object.tell()
+    file_object.seek(current_position)
+    return size
