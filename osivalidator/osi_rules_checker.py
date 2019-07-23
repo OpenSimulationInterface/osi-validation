@@ -29,9 +29,13 @@ class OSIRulesChecker:
         self.ignore_lanes = ignore_lanes
 
         verb_list = [
-            m
-            for m in dir(osi_rules_implementations)
-            if getattr(getattr(osi_rules_implementations, m), 'is_rule', False)
+            method
+            for method in dir(osi_rules_implementations)
+            if getattr(
+                getattr(osi_rules_implementations, method),
+                'is_rule',
+                False
+            )
         ]
 
         for verb in verb_list:
@@ -43,7 +47,7 @@ class OSIRulesChecker:
 
     # Rules implementation
 
-    def _check_repeated(self, inherit, rule):
+    def _check_repeated(self, message_list, rule):
         rule_method = getattr(self, rule.verb)
         verb = rule_method.__name__
 
@@ -51,10 +55,9 @@ class OSIRulesChecker:
                  f'Check the rule {verb} for a repeated field')
 
         if verb in ['first_element', 'last_element']:
-            return rule_method(inherit, rule)
+            return rule_method(message_list, rule)
 
-        return all([
-            rule_method(inherit + [(None, m)], rule) for m in inherit[-1][1]])
+        return all([rule_method(message, rule) for message in message_list])
 
     def log(self, severity, message):
         """
@@ -75,7 +78,7 @@ class OSIRulesChecker:
         self.timestamp = ts_id
         return self.timestamp, ts_id
 
-    def check_compliance(self, inherit, rules):
+    def check_compliance(self, linked_message, rules):
         """Method to check the rules for a complex message
         It is also the input method
 
@@ -92,19 +95,18 @@ class OSIRulesChecker:
         """
         final_res = True
         # Add "is_valid" rule for each field that can be validated (default)
-        message = inherit[-1][1]
+        message = linked_message
         dict_message_cont = [None]
 
-        add_default_valid_rules(message, rules)
+        add_default_rules(message, rules)
 
         # loop over the fields in the rules
-        # if the name starts with an upper char, it is a submessage type
         for field_name, rules_field_node in rules.fields.items():
             field_path = rules_field_node.path
 
             for verb in self.pre_check_rules:
                 if rules_field_node.has_rule(verb):
-                    getattr(self, verb)(inherit, rules_field_node,
+                    getattr(self, verb)(linked_message, rules_field_node,
                                         pre_check=True,
                                         dict_message_cont=dict_message_cont)
 
@@ -112,22 +114,18 @@ class OSIRulesChecker:
                 self.log('debug', f'Field {field_path} does not exist')
                 continue
 
-            proto_field_tuple = next(
-                filter(lambda t, fn=field_name: t[0].name == fn,
-                       message.ListFields()))
-            child_inherit = inherit + [proto_field_tuple]
-
-            res = self._loop_over_rules(rules_field_node, child_inherit)
+            res = self._loop_over_rules(
+                rules_field_node, linked_message[field_name])
 
             final_res = False if not res else final_res
 
         # Resolve ID and references
-        if len(inherit) == 1:
+        if not linked_message.GetParent:
             self.id_manager.resolve_unicity(self.timestamp)
             self.id_manager.resolve_references(self.timestamp)
         return final_res
 
-    def _loop_over_rules(self, field_rules, child_inherit):
+    def _loop_over_rules(self, field_rules, linked_message):
         final_res = True
         for _, rule_obj in field_rules.rules.items():
             verb = rule_obj.verb
@@ -138,28 +136,33 @@ class OSIRulesChecker:
                 self.log('error', f'Rule "{verb}" not implemented yet!')
             else:
                 # If the field is "REPEATED"
-                if child_inherit[-1][0].label == 3:
-                    if (self.ignore_lanes and
-                            child_inherit[-1][0].name == 'lane_boundary' and
-                            isinstance(child_inherit[-2][1], GroundTruth)):
+                if isinstance(linked_message, list):
+                    first_elt = linked_message[0]
+                    if(self.ignore_lanes
+                       and first_elt.GetFieldName() == 'lane_boundary'
+                       and isinstance(
+                           first_elt.GetParent().GetProtoNode(),
+                           GroundTruth
+                       )):
                         continue
-                    res = self._check_repeated(child_inherit, rule_obj)
+                    res = self._check_repeated(linked_message, rule_obj)
                 else:
-                    res = rule_method(child_inherit, rule_obj)
+                    res = rule_method(linked_message, rule_obj)
 
                 final_res = final_res if res else False
         return final_res
 
 
-def add_default_valid_rules(message, rules):
+def add_default_rules(message, rules):
     """Add "is_valid" rule to all the field of message without is_set or
     is_valid
     """
     def is_validable(message):
-        return message[0].message_type is not None
-    for desc, _ in filter(is_validable, message.ListFields()):
-        if desc.name not in rules.fields:
-            rules.add_field(Field(desc.name))
-            rules.get_field(desc.name).add_rule(Rule('is_valid'))
-        elif not rules.fields[desc.name].has_rule('is_set'):
-            rules.get_field(desc.name).add_rule(Rule('is_valid'))
+        return message.IsMessage()
+    for linked_message in filter(is_validable, message.ListFields()):
+        if linked_message.GetFieldName() not in rules.fields:
+            rules.add_field(Field(linked_message.GetFieldName())
+                            ).add_rule(Rule('is_valid'))
+        else:
+            rules.get_field(linked_message.GetFieldName()
+                            ).add_rule(Rule('is_valid'))

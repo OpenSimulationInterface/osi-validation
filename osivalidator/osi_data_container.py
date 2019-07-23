@@ -10,6 +10,7 @@ from osi3.osi_sensorview_pb2 import SensorView
 from osi3.osi_groundtruth_pb2 import GroundTruth
 from osi3.osi_sensordata_pb2 import SensorData
 
+from .linked_proto_message import LinkedProtoMessage
 from .utils import get_size_from_file_stream
 
 SEPARATOR = b'$$__$$'
@@ -41,8 +42,8 @@ class OSIDataContainer:
     def open_file(self, file_name):
         self.scenario_file = open(file_name, "rb")
 
-    def from_file(self, path, message_type_name, show_progress=True,
-                  show_exec_time=True):
+    def from_file(self, path, message_type_name="SensorView",
+                  show_progress=True, show_exec_time=True):
         """Import a scenario from a file"""
 
         self.open_file(path)
@@ -127,26 +128,25 @@ class OSIDataContainer:
         Get a message by its index. Try first to get it from the cache made
         by the method `cache_messages_in_index_range`.
         """
-        try:
-            return self.message_cache[index]
-        except KeyError:
-            raise KeyError(f"Message of index {index} has been not cached")
-        #     pass
+        message = self.message_cache.get(index, None)
 
-        # self.scenario_file.seek(self.message_offsets[index])
+        if message:
+            return message
 
-        # message_end = self.message_offsets[index + 1] - SEPARATOR_LENGTH \
-        #     if index + 1 < len(self.message_offsets) \
-        #     else get_size_from_file_stream(self.scenario_file)
+        self.scenario_file.seek(self.message_offsets[index])
 
-        # message_length = message_end - \
-        #     self.message_offsets[index] - SEPARATOR_LENGTH
-        # serialized_message = self.scenario_file.read(message_length)
+        message_end = self.message_offsets[index + 1] - SEPARATOR_LENGTH \
+            if index + 1 < len(self.message_offsets) \
+            else get_size_from_file_stream(self.scenario_file)
 
-        # message = self.message_type()
-        # message.ParseFromString(serialized_message)
+        message_length = message_end - \
+            self.message_offsets[index] - SEPARATOR_LENGTH
+        serialized_message = self.scenario_file.read(message_length)
 
-        # return message
+        message = self.message_type()
+        message.ParseFromString(serialized_message)
+
+        return LinkedProtoMessage(message, field_name=self.message_type.__class__.__name__)
 
     def get_messages_in_index_range(self, begin, end):
         """
@@ -178,7 +178,7 @@ class OSIDataContainer:
             message = self.message_type()
             serialized_message = serialized_messages_extract[rel_begin:rel_end]
             message.ParseFromString(serialized_message)
-            yield message
+            yield LinkedProtoMessage(message, field_name=self.message_type.__class__.__name__)
 
     def cache_messages_in_index_range(self, begin, end):
         """

@@ -5,14 +5,15 @@ requirements or in the Doxygen documentation.
 All these rules are bounded into "OSIRulesChecker", so they have access to all
 its attributes and methods.
 """
+from functools import wraps
 
 from asteval import Interpreter
 from iso3166 import countries
 
 from google.protobuf.json_format import MessageToDict
 
-from .osi_rules import MessageType, ProtoMessagePath
-from .utils import get_message_path, has_attr
+from .osi_rules import MessageType, ProtoMessagePath, Rule
+from .utils import has_attr
 
 # DECORATORS
 # These functions are no rule implementation, but decorators to characterize
@@ -35,7 +36,7 @@ def rule(func):
     """
     func.is_rule = True
 
-    return func
+    # return func
 
     # Uncomment for function benchmarking
     # @wraps(func)
@@ -47,18 +48,32 @@ def rule(func):
 
     # return wrapper
 
+    @wraps(func)
+    def wrapper(self, linked_message, rule_obj, **kwargs):
+        result = func(self, linked_message, rule_obj, **kwargs)
+        if isinstance(rule_obj, Rule):
+            severity = rule_obj.severity
+            params = "" if rule_obj.params is None else f"({rule_obj.params})"
+            verb = rule_obj.verb
+            if not result:
+                self.log(
+                    severity,
+                    f'{linked_message.GetPath()}: {verb}{params} does not comply')
+        return result
+
+    return wrapper
 # RULES
 
 
 @rule
-def is_valid(self, inherit, rule_obj):
+def is_valid(self, linked_message, rule_obj):
     """*Rule*
 
     Check if a field message is valid, that is all the inner rules of the
     message in the field are complying.
     """
 
-    field = inherit[-1][1]
+    field = linked_message
 
     field_type_desc = field.DESCRIPTOR
     message_t_inherit = []
@@ -66,14 +81,12 @@ def is_valid(self, inherit, rule_obj):
         message_t_inherit.insert(0, field_type_desc.name)
         field_type_desc = field_type_desc.containing_type
 
-    self.log("debug", f"Check for compliancy of {rule_obj.path}")
-
     child_rules = self.rules.get_type(ProtoMessagePath(message_t_inherit))
-    return self.check_compliance(inherit, child_rules)
+    return self.check_compliance(linked_message, child_rules)
 
 
 @rule
-def is_minimum(self, inherit, rule_obj):
+def is_minimum(self, linked_message, rule_obj):
     """*Rule*
 
     Check if a number is over a minimum.
@@ -81,18 +94,13 @@ def is_minimum(self, inherit, rule_obj):
     severity = rule_obj.severity
     minimum = rule_obj.params
 
-    self.log('debug', f'Minimum: {minimum}')
-    value = inherit[-1][1]
-    res = value >= minimum
-    if not res:
-        self.log(severity,
-                 f'{get_message_path(inherit)} = {value} is too low ' +
-                 f'(minimum: {minimum})')
+    value = linked_message
+    res = float(value) >= minimum
     return res
 
 
 @rule
-def is_maximum(self, inherit, rule_obj):
+def is_maximum(self, linked_message, rule_obj):
     """*Rule*
 
     Check if a number is under a maximum.
@@ -102,18 +110,13 @@ def is_maximum(self, inherit, rule_obj):
     severity = rule_obj.severity
     maximum = rule_obj.params
 
-    self.log('debug', f'Maximum: {maximum}')
-    value = inherit[-1][1]
-    res = value >= maximum
-    if not res:
-        self.log(severity,
-                 f'{get_message_path(inherit)} = {value} is too high ' +
-                 f'(maximum: {maximum})')
+    value = linked_message
+    res = float(value) <= maximum
     return res
 
 
 @rule
-def in_range(self, inherit, rule_obj):
+def in_range(self, linked_message, rule_obj):
     """*Rule*
 
     Check if a number is in a range.
@@ -127,12 +130,11 @@ def in_range(self, inherit, rule_obj):
 
                    The interval can be 'loro', that is left and right-open.
     """
-    severity = rule_obj.severity
     interval = rule_obj.params
 
     mini = float(interval[0])
     maxi = float(interval[1])
-    val = inherit[-1][1]
+    val = float(linked_message)
 
     is_equal_to_bound = len(interval) >= 3 and (
         str.find(interval[2], 'lo') >= 0 and mini == val or
@@ -141,18 +143,11 @@ def in_range(self, inherit, rule_obj):
 
     result = mini <= val <= maxi and not is_equal_to_bound
 
-    n_in = "not " if not result else ""
-
-    message_model = \
-        f'{get_message_path(inherit)}= {val} {n_in}in range: {mini, maxi}'
-
-    log_severity = "debug" if result else severity
-    self.log(log_severity, message_model)
     return result
 
 
 @rule
-def is_global_unique(self, inherit, rule_obj):
+def is_global_unique(self, linked_message, rule_obj):
     """*Rule*
 
     Register an ID in the OSI ID manager to later perform a ID
@@ -161,16 +156,14 @@ def is_global_unique(self, inherit, rule_obj):
     Must be set to an Identifier.
     """
 
-    object_of_id = inherit[-2][1]
-    identifier = inherit[-1][1].value
-
-    self.log("debug", f"Check for uniqueness of {rule_obj.path}")
+    object_of_id = linked_message.GetParent().GetProtoNode()
+    identifier = linked_message.GetProtoNode().value
 
     return self.id_manager.register_message(identifier, object_of_id)
 
 
 @rule
-def refers(self, inherit, rule_obj):
+def refers(self, linked_message, rule_obj):
     """*Rule*
 
     Add a reference to another message by ID.
@@ -182,34 +175,30 @@ def refers(self, inherit, rule_obj):
     """
     expected_type = rule_obj.params
 
-    referer = inherit[-2][1]
-    identifier = inherit[-1][1].value
+    referer = linked_message.GetParent().GetProtoNode()
+    identifier = linked_message.GetProtoNode().value
     condition = None
     self.id_manager.refer(referer, identifier, expected_type, condition)
     return True
 
 
 @rule
-def is_iso_country_code(self, inherit, rule_obj):
+def is_iso_country_code(self, linked_message, rule_obj):
     """*Rule*
 
     Check if a string is a ISO country code.
     """
     severity = rule_obj.severity
-
-    self.log('debug', f'Checking ISO code for {inherit[-1][1]}')
-    iso_code = inherit[-1][1]
+    iso_code = linked_message
     try:
         countries.get(iso_code)
-        self.log("debug", f'ISO code {iso_code} is valid')
         return True
     except KeyError:
-        self.log(severity, f'ISO code {iso_code} is not valid')
         return False
 
 
 @rule
-def first_element(self, inherit, rule_obj):
+def first_element(self, linked_message, rule_obj):
     """*Rule*
 
     Check rule for first message of a repeated field.
@@ -217,13 +206,12 @@ def first_element(self, inherit, rule_obj):
     :param params: dictionary of rules to be checked for the first message
     """
     nested_fields_rules = rule_obj.params
-    virtual_message = MessageType('', nested_fields_rules)
-    return self.check_compliance(
-        inherit + [(None, inherit[-1][1][0])], virtual_message)
+    virtual_message_rules = MessageType('', nested_fields_rules)
+    return self.check_compliance(linked_message[0], virtual_message_rules)
 
 
 @rule
-def last_element(self, inherit, rule_obj):
+def last_element(self, linked_message, rule_obj):
     """*Rule*
 
     Check rule for last message of a repeated field.
@@ -232,14 +220,13 @@ def last_element(self, inherit, rule_obj):
     """
     nested_fields_rules = rule_obj.params
 
-    virtual_message = MessageType('', nested_fields_rules)
-    return self.check_compliance(
-        inherit + [(None, inherit[-1][1][-1])], virtual_message)
+    virtual_message_rules = MessageType('', nested_fields_rules)
+    return self.check_compliance(linked_message[-1], virtual_message_rules)
 
 
 @rule
 @pre_check
-def is_set(self, inherit, rule_obj, **kwargs):
+def is_set(self, linked_message, rule_obj, **kwargs):
     """*Rule*
 
     Check if a field is set. The Python function is actually a wrapper of
@@ -248,19 +235,16 @@ def is_set(self, inherit, rule_obj, **kwargs):
     fields.
     """
     if kwargs.get("pre_check", False):
-        if not has_attr(inherit[-1][1], rule_obj.name):
+        if not has_attr(linked_message.GetProtoNode(), rule_obj.name):
             self.log(rule_obj.rules['is_set'].severity,
                      f"{rule_obj.path} is not set!")
             return False
-        return True
-    if hasattr(inherit[-1][1], "DESCRIPTOR"):
-        return self.is_valid(inherit, rule_obj)
     return True
 
 
 @rule
 @pre_check
-def is_set_if(self, inherit, rule_obj, **kwargs):
+def is_set_if(self, linked_message, rule_obj, **kwargs):
     """*Rule*
 
     A wrapper to the function ``is_set``. The condition should be contained
@@ -271,7 +255,7 @@ def is_set_if(self, inherit, rule_obj, **kwargs):
     """
     if kwargs.get("pre_check", False):
         dict_message_cont = kwargs.get("dict_message_cont", None)
-        message = inherit[-1][1]
+        message = linked_message.GetProtoNode()
         cond = rule_obj['is_set_if'].params
         dict_message_cont[0] = dict_message_cont[0] or MessageToDict(
             message, preserving_proto_field_name=True,
@@ -284,4 +268,4 @@ def is_set_if(self, inherit, rule_obj, **kwargs):
             return False
         return True
 
-    return self.is_set(inherit, rule_obj)
+    return self.is_set(linked_message, rule_obj)

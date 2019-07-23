@@ -156,10 +156,10 @@ def close_pool(pool):
 
 def process_timestep(message_index):
     """Process one timestep"""
-    message = MESSAGE_CACHE[message_index]
+    linked_message = MESSAGE_CACHE[message_index]
 
     current_ground_truth_dict = MessageToDict(
-        message.global_ground_truth,
+        linked_message.global_ground_truth.GetProtoNode(),
         preserving_proto_field_name=True,
         use_integers_for_enums=True)
 
@@ -170,7 +170,8 @@ def process_timestep(message_index):
 
     ignore_lanes = lane_hash in LANES_HASHES
     rule_checker = OSIRulesChecker(VALIDATION_RULES, LOGGER, ignore_lanes)
-    timestamp = rule_checker.set_timestamp(message.timestamp, message_index)
+    timestamp = rule_checker.set_timestamp(
+        linked_message.timestamp, message_index)
 
     ID_TO_TS[message_index] = timestamp
 
@@ -189,14 +190,11 @@ def process_timestep(message_index):
         LOGGER.error(message_index, f"Timestamp already exists")
     TIMESTAMP_ANALYZED.append(message_index)
 
-    fake_field_descriptor = namedtuple('fake_field_descriptor', ['name'])
-    fake_field_descriptor.name = MESSAGE_TYPE.value
-
     BAR.goto(len(TIMESTAMP_ANALYZED))
 
     # Check common rules
     rule_checker.check_compliance(
-        [(fake_field_descriptor, message)],
+        linked_message,
         rule_checker.rules.nested_types[MESSAGE_TYPE.value])
 
     LOGS.extend(LOGGER.log_messages[message_index])
