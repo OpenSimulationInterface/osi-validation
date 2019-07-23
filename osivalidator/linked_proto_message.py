@@ -4,6 +4,9 @@ parent message and bind message to its field descriptor (when the message is
 nested).
 """
 
+from google.protobuf.message import Message
+from google.protobuf.pyext._message import RepeatedCompositeContainer
+
 
 class LinkedProtoMessage:
     """
@@ -12,45 +15,77 @@ class LinkedProtoMessage:
     nested).
     """
 
-    def __init__(self, proto_message, parent=None, descriptor=None):
-        self.proto_message = proto_message
-        self.parent = parent
-        self.descriptor = descriptor
-        self.field_descriptor_value_tuples = None
+    def __init__(self, proto_node, field_name=None, inheritance=None):
+        self._proto_inheritance = inheritance
+        self._proto_field_name = field_name
+        self._proto_node = proto_node
+        self._inheritance = []
 
-    def get_field_descriptor_value_tuple_by_name(self, field_name):
-        """
-        Return only one tuple (FieldDescriptor, value) of the field which
-        corresponds to the field name "field_name"
-        """
-        for field_tuple in self.field_descriptor_value_tuples:
-            if field_name == field_tuple[0]:
-                return field_tuple
+    def GetProtoNode(self):
+        return self._proto_node
 
-        raise KeyError(self.proto_message.name +
-                       ' does not contain any field named "' + field_name + '"')
+    def GetFieldName(self):
+        return self._proto_field_name
+
+    def GetParent(self):
+        return self._proto_inheritance[-1]
+
+    def GetPath(self):
+        return ".".join(map(lambda node: node.GetFieldName(), self._proto_inheritance))
+
+    def ListFields(self):
+        """
+        Overloading of protobuf ListFields function that return
+        a list of LinkedProtoMessages.
+        """
+        return [
+            LinkedProtoMessage(
+                attr_tuple[1],
+                inheritance=self._inheritance + [self],
+                field_name=attr_tuple[0].name)
+            for attr_tuple
+            in self._proto_node.ListFields()
+        ]
+
+    def IsMessage(self):
+        return isinstance(self._proto_node, Message)
+
+    def GetField(self, field_name):
+        field = getattr(self._proto_node, field_name)
+        return LinkedProtoMessage(
+            field,
+            inheritance=self._inheritance + [self],
+            field_name=field_name
+        )
 
     def __getattr__(self, attr_name):
-        # Generate the field list if not already done
-        if self.field_descriptor_value_tuples is None:
-            self.field_descriptor_value_tuples = self.proto_message.ListFields()
+        if attr_name in ['__getstate__', '__setstate__']:
+            return object.__getattr__(self, attr_name)
 
-        try:
-            # Try to return a field
-            descriptor, value = self.get_field_descriptor_value_tuple_by_name(
-                attr_name)
-        except KeyError:
-            # If no field found, try to return a proto_message field
-            # Error will be handled by it
-            return getattr(self.proto_message, attr_name)
-        else:
-            if descriptor.label == 3:
-                # If REPEATED field, return a list of LinkedProtoMessage.
-                return [
-                    LinkedProtoMessage(repeated_value, self, descriptor)
-                    for repeated_value
-                    in value
-                ]
+        if attr_name in "_proto_message":
+            raise AttributeError("Undesirable recursion")
 
-            # else, return a simple LinkedProtoMessage
-            return LinkedProtoMessage(value, self, descriptor)
+        attr = getattr(self._proto_node, attr_name)
+
+        if isinstance(attr, Message):
+            return self.GetField(attr_name)
+        if isinstance(attr, RepeatedCompositeContainer):
+            return [
+                LinkedProtoMessage(
+                    single_attr,
+                    inheritance=self._inheritance + [self],
+                    field_name=attr_name)
+                for single_attr
+                in attr
+            ]
+
+        return attr
+
+    def __repr__(self):
+        return self._proto_node.__repr__()
+
+    def __float__(self):
+        return float(self._proto_node)
+
+    def __getitem__(self, field_name):
+        return self.GetField(field_name)
