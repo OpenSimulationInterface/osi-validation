@@ -19,7 +19,10 @@ class LinkedProtoMessage:
         self._proto_inheritance = inheritance
         self._proto_field_name = field_name
         self._proto_node = proto_node
-        self._inheritance = []
+        if inheritance is None:
+            self._inheritance = []
+        else:
+            self._inheritance = inheritance
 
     def GetProtoNode(self):
         return self._proto_node
