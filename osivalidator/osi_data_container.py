@@ -10,7 +10,7 @@ from osi3.osi_sensorview_pb2 import SensorView
 from osi3.osi_groundtruth_pb2 import GroundTruth
 from osi3.osi_sensordata_pb2 import SensorData
 
-from .linked_proto_message import LinkedProtoMessage
+from .linked_proto_field import LinkedProtoField
 from .utils import get_size_from_file_stream
 
 SEPARATOR = b'$$__$$'
@@ -25,6 +25,7 @@ class OSIDataContainer:
         self.scenario_file = None
         self.message_offsets = None
         self.message_type = None
+        self.message_type_name = None
         self.manager = Manager()
         self.message_cache = self.manager.dict()
         self.timestep_count = 0
@@ -37,6 +38,7 @@ class OSIDataContainer:
             "GroundTruth": GroundTruth,
             "SensorData": SensorData
         }
+        self.message_type_name = message_type_name
         self.message_type = message_types[message_type_name]
 
     def open_file(self, file_name):
@@ -146,7 +148,7 @@ class OSIDataContainer:
         message = self.message_type()
         message.ParseFromString(serialized_message)
 
-        return LinkedProtoMessage(message, field_name=self.message_type.__class__.__name__)
+        return LinkedProtoField(message, field_name=self.message_type_name)
 
     def get_messages_in_index_range(self, begin, end):
         """
@@ -178,7 +180,7 @@ class OSIDataContainer:
             message = self.message_type()
             serialized_message = serialized_messages_extract[rel_begin:rel_end]
             message.ParseFromString(serialized_message)
-            yield LinkedProtoMessage(message, field_name=self.message_type.__class__.__name__)
+            yield LinkedProtoField(message, field_name=self.message_type_name)
 
     def cache_messages_in_index_range(self, begin, end):
         """
