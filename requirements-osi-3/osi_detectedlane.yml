@@ -3,7 +3,8 @@ DetectedLane:
     - is_set
   CandidateLane:
     probability:
-      - in_range: [0, 1]
+      - is_greater_than_or_equal_to: 0
+      - is_less_than_or_equal_to: 1
     classification:
       - is_set
 

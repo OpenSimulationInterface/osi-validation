@@ -5,7 +5,7 @@ SensorDetectionHeader:
   measurement_time:
     - is_set
   cycle_counter:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   mounting_position:
     - is_set
   mounting_position_rmse:
@@ -13,7 +13,7 @@ SensorDetectionHeader:
   data_qualifier:
     - is_set
   number_of_valid_detection:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   sensor_id:
     - is_valid # TODO
 
@@ -25,7 +25,8 @@ RadarDetectionData:
 
 RadarDetection:
   existence_probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   object_id:
     - refers: DetectedObject
   position:
@@ -33,15 +34,16 @@ RadarDetection:
   position_rmse:
     - is_set # ASK: uncertainties are negative or positive? Uncertainties: +/- [positive number] (https://opensimulationinterface.github.io/open-simulation-interface/structosi3_1_1Dimension3d.html)
   radial_velocity:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   radial_velocity_rmse:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   rcs:
     - is_set
   snr:
     - is_set
   point_target_probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   ambiguity_id:
     - is_set # TODO
 
@@ -51,7 +53,8 @@ LidarDetectionData:
 
 LidarDetection:
   existence_probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   object_id:
     - refers: DetectedObject
   position:
@@ -59,13 +62,15 @@ LidarDetection:
   position_rmse:
     - is_set
   height:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   height_rmse:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   intensity:
-    - in_range: [0, 100]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 100
   free_space_probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   reflectivity:
     - is_set # TODO
 
@@ -75,15 +80,17 @@ UltrasonicDetectionData:
 
 UltrasonicDetection:
   existence_probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   object_id:
     - refers: DetectedObject
   distance:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
 
 UltrasonicIndirectDetection:
   existence_probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   object_id:
     - refers: DetectedObject
   ellipsoid_radial:
@@ -97,7 +104,7 @@ UltrasonicIndirectDetection:
 
 CameraDetectionSpecificHeader:
   number_of_valid_points:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
 
 CameraDetectionData:
   header:
@@ -109,7 +116,8 @@ CameraDetectionData:
 
 CameraDetection:
   existence_probability: 
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   object_id:
     - refers: DetectedObject
   time_difference:
@@ -117,15 +125,18 @@ CameraDetection:
   image_shape_type:
     - is_set
   shape_classification_probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   color_probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   number_of_points:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
 
 CameraPoint:
   existence_probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   point:
     - is_set
   point_rmse:

@@ -12,7 +12,7 @@ SensorViewConfiguration:
   field_of_view_vertical:
     - is_set
   range:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   update_cycle_time:
     - is_set
   update_cycle_offset:
@@ -44,13 +44,13 @@ RadarSensorViewConfiguration:
   field_of_view_vertical:
     - is_set
   number_of_rays_horizontal:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
   number_of_rays_vertical:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
   max_number_of_interactions:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
   emitter_frequency:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   tx_antenna_diagram:
     - is_set
   rx_antenna_diagram:
@@ -75,15 +75,15 @@ LidarSensorViewConfiguration:
   field_of_view_vertical:
     - is_set
   number_of_rays_horizontal:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
   number_of_rays_vertical:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
   max_number_of_interactions:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
   emitter_frequency:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   num_of_pixels:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
   
 CameraSensorViewConfiguration:
   sensor_id:
@@ -97,11 +97,11 @@ CameraSensorViewConfiguration:
   field_of_view_vertical:
     - is_set
   number_of_pixels_horizontal:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
   number_of_pixels_vertical:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
   channel_format:
-    - is_minimum: 1
+    - is_greater_than_or_equal_to: 1
 
 
 UltrasonicSensorViewConfiguration:

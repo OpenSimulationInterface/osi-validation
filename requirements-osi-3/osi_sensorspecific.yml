@@ -5,9 +5,10 @@ RadarSpecificObjectData:
 
 UltrasonicSpecificObjectData:
   maximum_measurement_distance_sensor:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   probability:
-    - in_range: [0, 1]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
   trilateration_status:
     - is_set
   trend:

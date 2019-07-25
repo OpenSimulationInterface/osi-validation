@@ -15,13 +15,13 @@ Vector2d:
 Dimension3d:
   length:
     - is_set
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   width:
     - is_set
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   height:
     - is_set
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
 
 Orientation3d:
   roll:
@@ -40,7 +40,7 @@ MountingPosition:
 Spherical3d:
   distance:
     - is_set
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   azimuth:
     - is_set
   elevation:
@@ -76,9 +76,10 @@ BaseMoving:
 
 Identifier:
   value:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
 Timestamp:
   seconds:
-    - is_minimum: 0
+    - is_greater_than_or_equal_to: 0
   nanos:
-    - in_range: [0, 999999999]
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 999999999

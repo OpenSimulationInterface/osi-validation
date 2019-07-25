@@ -152,9 +152,9 @@ class OSIRuleNode:
 class TypeContainer(OSIRuleNode):
     """This class defines either a MessageType or a list of MessageTypes"""
 
-    def __init__(self, name=None, path=None):
-        super().__init__(name, path or ProtoMessagePath())
-        self.nested_types = dict()
+    def __init__(self, name="", nested_types=None):
+        super().__init__(name, ProtoMessagePath())
+        self.nested_types = nested_types or dict()
 
     def add_type(self, message_type):
         """Add a message type in the TypeContainer"""
@@ -222,6 +222,8 @@ class MessageType(TypeContainer):
         if isinstance(fields, list):
             for field in fields:
                 self.fields[field.name] = field
+        elif isinstance(fields, dict):
+            self.fields = fields
 
     def add_field(self, field):
         """Add a field with or without rules to a Message Type"""
@@ -240,7 +242,7 @@ class MessageType(TypeContainer):
         return f'MessageType({len(self.fields)}): {self.fields}\n' + \
             f'Nested types ({len(self.nested_types)})' + \
             (': ' + ', '.join(self.nested_types.keys()) if self.nested_types
-                else '')
+             else '')
 
 
 class Field(OSIRuleNode):
@@ -281,6 +283,7 @@ class Rule(OSIRuleNode):
     def __init__(self, verb, params=None, severity=None):
         super().__init__(verb)
         self.construct(verb, params, severity)
+        self.field_name = self.path[-2]
 
     def construct(self, verb, params, severity=None):
         """Construct an empty rule"""
