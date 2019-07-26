@@ -10,7 +10,7 @@ from progress.bar import Bar
 
 from .osi_rules import OSIRules
 from .osi_validator_logger import OSIValidatorLogger
-from .osi_data_container import OSIDataContainer
+from .osi_scenario import OSIScenario
 from .osi_rules_checker import OSIRulesChecker
 
 
@@ -64,7 +64,7 @@ TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
 VALIDATION_RULES = OSIRules()
 LANES_HASHES = MANAGER.list()
-DATA = OSIDataContainer()
+DATA = OSIScenario()
 ID_TO_TS = MANAGER.dict()
 BAR_SUFFIX = '%(index)d/%(max)d [%(elapsed_td)s]'
 BAR = Bar('', suffix=BAR_SUFFIX)
@@ -98,8 +98,8 @@ def main():
 
     # Pass all timesteps or the number specified
     if arguments.timesteps != -1:
-        max_timestep = arguments.timesteps
         LOGGER.info(None, f"Pass the {max_timestep} first timesteps")
+        max_timestep = arguments.timesteps
     else:
         LOGGER.info(None, "Pass all timesteps")
         max_timestep = DATA.timestep_count
@@ -138,7 +138,6 @@ def main():
     # Grab major OSI version
 
     # Synthetize
-
     LOGGER.synthetize_results_from_sqlite()
 
 
@@ -160,7 +159,7 @@ def process_timestep(timestep):
         lane_hash = ""
 
     ignore_lanes = lane_hash in LANES_HASHES
-    rule_checker = OSIRulesChecker(VALIDATION_RULES, LOGGER, ignore_lanes)
+    rule_checker = OSIRulesChecker(LOGGER, ignore_lanes)
     timestamp = rule_checker.set_timestamp(message.value.timestamp, timestep)
 
     ID_TO_TS[timestep] = timestamp
@@ -182,8 +181,7 @@ def process_timestep(timestep):
 
     # Check common rules
     rule_checker.check_compliance(
-        message,
-        rule_checker.rules.nested_types[MESSAGE_TYPE.value])
+        message, VALIDATION_RULES.t_rules.nested_types[MESSAGE_TYPE.value])
 
     LOGS.extend(LOGGER.log_messages[timestep])
 

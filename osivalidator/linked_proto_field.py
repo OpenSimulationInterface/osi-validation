@@ -58,7 +58,7 @@ class LinkedProtoField:
         if self._fields is None:
             self._retrieve_fields()
 
-        return self._fields
+        return self._fields.values()
 
     def get_field(self, field_name):
         """
@@ -86,6 +86,22 @@ class LinkedProtoField:
                 return len(getattr(self.value, field_name)) > 0
             except AttributeError:
                 return False
+
+    def query(self, path):
+        """
+        Return a LinkedProtoField from a path.
+
+        Example of path: ./global_ground_truth/moving_object
+        """
+        cursor = self
+        for path_component in path.split("/"):
+            if path_component == ".":
+                cursor = cursor
+            elif path_component == "..":
+                cursor = cursor.parent
+            else:
+                cursor = cursor.get_field(path_component)
+        return cursor
 
     def __repr__(self):
         return self.value.__repr__()

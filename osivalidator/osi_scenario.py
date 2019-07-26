@@ -35,7 +35,7 @@ MESSAGES_TYPE = {
 }
 
 
-class OSIDataContainer:
+class OSIScenario:
     """This class wrap OSI data. It can import and decode OSI scenarios."""
 
     def __init__(self, show_progress=True, path=None, type_name="SensorView"):

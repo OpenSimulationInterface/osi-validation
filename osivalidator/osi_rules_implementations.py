@@ -185,6 +185,7 @@ def is_iso_country_code(self, field, rule):
 
 
 @rule_implementation
+@repeated_selector
 def first_element(self, field, rule):
     """*Rule*
 
@@ -201,6 +202,7 @@ def first_element(self, field, rule):
 
 
 @rule_implementation
+@repeated_selector
 def last_element(self, field, rule):
     """*Rule*
 

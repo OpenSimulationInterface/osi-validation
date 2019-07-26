@@ -20,24 +20,23 @@ class OSIRulesChecker:
     The rule methods are marked with *Rule*.
     """
 
-    def __init__(self, ovr, logger, ignore_lanes):
-        self.rules = ovr.t_rules
+    def __init__(self, logger, ignore_lanes):
         self.logger = logger
         self.id_manager = OSIIDManager(logger)
         self.timestamp = self.timestamp_ns = -1
         self.ignore_lanes = ignore_lanes
 
-        verb_list = [
-            method for method in dir(rule_implementations)
-            if getattr(getattr(rule_implementations, method), 'is_rule', False)
-        ]
+        self.pre_check_rules = []
+        self.repeated_selectors = []
 
-        for verb in verb_list:
-            setattr(self, verb, MethodType(
-                getattr(rule_implementations, verb), self))
-
-        self.pre_check_rules = [method for method in dir(
-            self) if getattr(getattr(self, method), "pre_check", False)]
+        for module_name in dir(rule_implementations):
+            method = getattr(rule_implementations, module_name)
+            if getattr(method, "is_rule", False):
+                setattr(self, module_name, MethodType(method, self))
+                if getattr(method, "pre_check", False):
+                    self.pre_check_rules.append(module_name)
+                if getattr(method, "repeated_selector", False):
+                    self.repeated_selectors.append(module_name)
 
     # Rules implementation
 
@@ -47,7 +46,7 @@ class OSIRulesChecker:
 
         self.log('debug', f'Check the rule {verb} for a repeated field')
 
-        if verb in ['first_element', 'last_element']:
+        if verb in self.repeated_selectors:
             return rule_method(message_list, rule)
 
         return all([rule_method(message, rule) for message in message_list])
@@ -71,7 +70,7 @@ class OSIRulesChecker:
         self.timestamp = ts_id
         return self.timestamp, ts_id
 
-    def check_compliance(self, field, rules):
+    def check_compliance(self, message, rules):
         """Method to check the rules for a complex message
         It is also the input method
 
@@ -87,34 +86,32 @@ class OSIRulesChecker:
                   The last tuple represents the processed message.
         """
         final_result = True
-        # Add "is_valid" rule for each field that can be validated (default)
-        add_default_rules(field, rules)
+        # Add default rules for each subfield that can be validated (default)
+        add_default_rules(message, rules)
 
         # loop over the fields in the rules
         for field_name, field_rules in rules.fields.items():
-            field_path = field_rules.path
-
             for verb in self.pre_check_rules:
                 if field_rules.has_rule(verb):
-                    getattr(self, verb)(field, field_rules, pre_check=True)
+                    getattr(self, verb)(message, field_rules, pre_check=True)
 
-            if not field.has_field(field_name):
-                self.log('debug', f'Field {field_path} does not exist')
+            if not message.has_field(field_name):
+                self.log('debug', f'Field {field_rules.path} does not exist')
                 continue
 
             result = self._loop_over_rules(
-                field_rules, field.get_field(field_name))
+                field_rules, message.get_field(field_name))
             final_result = False if not result else final_result
 
         # Resolve ID and references
-        if not field.parent:
+        if not message.parent:
             self.id_manager.resolve_unicity(self.timestamp)
             self.id_manager.resolve_references(self.timestamp)
         return final_result
 
     def _loop_over_rules(self, field_rules, field):
         final_result = True
-        for _, rule in field_rules.rules.items():
+        for rule in field_rules.rules.values():
             try:
                 rule_method = getattr(self, rule.verb)
             except AttributeError:
@@ -133,11 +130,11 @@ class OSIRulesChecker:
         return final_result
 
 
-def add_default_rules(field, type_rules):
+def add_default_rules(message, type_rules):
     """Add "is_valid" rule to every field of message without is_set or
     is_valid
     """
-    for field in field.fields.values():
+    for field in message.fields:
         field_rules = (type_rules.get_field(field.name)
                        if field.name in type_rules.fields
                        else type_rules.add_field(FieldRules(field.name)))
