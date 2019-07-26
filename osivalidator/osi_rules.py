@@ -136,13 +136,8 @@ class ProtoMessagePath:
 class OSIRuleNode:
     """Represents any node in the tree of OSI rules"""
 
-    def __init__(self, name, message_path=None):
-        self.name = name
-        self.path = message_path
-
-    def get_name(self):
-        """Return the name of the node"""
-        return self.name
+    def __init__(self, path=None):
+        self.path = path
 
     def get_path(self):
         """Return the path of the node"""
@@ -152,15 +147,15 @@ class OSIRuleNode:
 class TypeContainer(OSIRuleNode):
     """This class defines either a MessageType or a list of MessageTypes"""
 
-    def __init__(self, name="", nested_types=None):
-        super().__init__(name, ProtoMessagePath())
+    def __init__(self, nested_types=None):
+        super().__init__(path=ProtoMessagePath())
         self.nested_types = nested_types or dict()
 
     def add_type(self, message_type):
         """Add a message type in the TypeContainer"""
         message_type = deepcopy(message_type)
-        message_type.path = self.path.child_path(message_type.name)
-        self.nested_types[message_type.name] = message_type
+        message_type.path = self.path.child_path(message_type.type_name)
+        self.nested_types[message_type.type_name] = message_type
         return message_type
 
     def add_type_from_path(self, path, fields=None):
@@ -217,19 +212,20 @@ class MessageType(TypeContainer):
     """This class manages the fields of a Message Type"""
 
     def __init__(self, name, fields=None):
-        super().__init__(name)
+        super().__init__()
+        self.type_name = name
         self.fields = dict()
         if isinstance(fields, list):
             for field in fields:
-                self.fields[field.name] = field
+                self.fields[field.field_name] = field
         elif isinstance(fields, dict):
             self.fields = fields
 
     def add_field(self, field):
         """Add a field with or without rules to a Message Type"""
         field = deepcopy(field)
-        field.path = self.path.child_path(field.name)
-        self.fields[field.name] = field
+        field.path = self.path.child_path(field.field_name)
+        self.fields[field.field_name] = field
         return field
 
     def get_field(self, field_name):
@@ -249,8 +245,9 @@ class Field(OSIRuleNode):
     """This class manages the rules of a Message Type"""
 
     def __init__(self, name, rules=None):
-        super().__init__(name)
+        super().__init__()
         self.rules = dict()
+        self.field_name = name
 
         if isinstance(rules, list):
             for rule in rules:
@@ -262,7 +259,7 @@ class Field(OSIRuleNode):
         value (the parameters).
         """
         rule = deepcopy(rule)
-        rule.path = self.path.child_path(rule.name)
+        rule.path = self.path.child_path(rule.verb)
         self.rules[rule.verb] = rule
 
     def has_rule(self, rule):
@@ -281,9 +278,11 @@ class Rule(OSIRuleNode):
     """This class manages one rule"""
 
     def __init__(self, verb, params=None, severity=None):
-        super().__init__(verb)
+        super().__init__()
         self.construct(verb, params, severity)
-        self.field_name = self.path[-2]
+
+        self.field_name = self.path[-2] if isinstance(
+            self.path, list) else "unknownfield"
 
     def construct(self, verb, params, severity=None):
         """Construct an empty rule"""

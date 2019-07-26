@@ -4,11 +4,9 @@ Main class and entry point of the OSI Validator.
 
 import argparse
 import os
-from collections import namedtuple
 from multiprocessing import Pool, Manager
 
 from progress.bar import Bar
-from google.protobuf.json_format import MessageToDict
 
 from .osi_rules import OSIRules
 from .osi_validator_logger import OSIValidatorLogger
@@ -128,10 +126,7 @@ def main():
         MESSAGE_CACHE.update(DATA.message_cache)
 
         # Launch computation
-        pool.map(
-            process_timestep,
-            range(first_of_blast, last_of_blast)
-        )
+        pool.map(process_timestep, range(first_of_blast, last_of_blast))
 
         LOGGER.flush(LOGS)
 
@@ -154,50 +149,43 @@ def close_pool(pool):
     pool.join()
 
 
-def process_timestep(message_index):
+def process_timestep(timestep):
     """Process one timestep"""
-    linked_message = MESSAGE_CACHE[message_index]
-
-    current_ground_truth_dict = MessageToDict(
-        linked_message.global_ground_truth.GetProtoNode(),
-        preserving_proto_field_name=True,
-        use_integers_for_enums=True)
+    message = MESSAGE_CACHE[timestep]
+    ground_truth_dict = message.get_field("global_ground_truth").dict
 
     try:
-        lane_hash = hash(current_ground_truth_dict['lane_boundary'].__repr__())
+        lane_hash = hash(ground_truth_dict['lane_boundary'].__repr__())
     except KeyError:
         lane_hash = ""
 
     ignore_lanes = lane_hash in LANES_HASHES
     rule_checker = OSIRulesChecker(VALIDATION_RULES, LOGGER, ignore_lanes)
-    timestamp = rule_checker.set_timestamp(
-        linked_message.timestamp, message_index)
+    timestamp = rule_checker.set_timestamp(message.value.timestamp, timestep)
 
-    ID_TO_TS[message_index] = timestamp
+    ID_TO_TS[timestep] = timestamp
 
-    LOGGER.log_messages[message_index] = []
-    LOGGER.debug_messages[message_index] = []
+    LOGGER.log_messages[timestep] = []
+    LOGGER.debug_messages[timestep] = []
     LOGGER.info(None, f'Analyze message of timestamp {timestamp}', False)
     if ignore_lanes:
-        LOGGER.info(message_index,
-                    f'Ignoring lanes (Hash: {lane_hash})', False)
+        LOGGER.info(timestep, f'Ignoring lanes (Hash: {lane_hash})', False)
     else:
-        LOGGER.info(message_index,
-                    f'Checking lanes (Hash: {lane_hash})', False)
+        LOGGER.info(timestep, f'Checking lanes (Hash: {lane_hash})', False)
 
     # Check if timestamp already exists
-    if message_index in TIMESTAMP_ANALYZED:
-        LOGGER.error(message_index, f"Timestamp already exists")
-    TIMESTAMP_ANALYZED.append(message_index)
+    if timestep in TIMESTAMP_ANALYZED:
+        LOGGER.error(timestep, f"Timestamp already exists")
+    TIMESTAMP_ANALYZED.append(timestep)
 
     BAR.goto(len(TIMESTAMP_ANALYZED))
 
     # Check common rules
     rule_checker.check_compliance(
-        linked_message,
+        message,
         rule_checker.rules.nested_types[MESSAGE_TYPE.value])
 
-    LOGS.extend(LOGGER.log_messages[message_index])
+    LOGS.extend(LOGGER.log_messages[timestep])
 
     if not ignore_lanes:
         LANES_HASHES.append(lane_hash)

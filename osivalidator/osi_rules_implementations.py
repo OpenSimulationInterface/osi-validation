@@ -11,7 +11,6 @@ from asteval import Interpreter
 from iso3166 import countries
 
 from .osi_rules import MessageType, ProtoMessagePath, Field
-from .utils import has_attr
 
 # DECORATORS
 # These functions are no rule implementation, but decorators to characterize
@@ -28,7 +27,7 @@ def pre_check(func):
     return func
 
 
-def rule(func):
+def rule_implementation(func):
     """
     Decorator to label rules method implementations
     """
@@ -47,8 +46,8 @@ def rule(func):
     # return wrapper
 
     @wraps(func)
-    def wrapper(self, linked_message, rule_obj, **kwargs):
-        result = func(self, linked_message, rule_obj, **kwargs)
+    def wrapper(self, field, rule_obj, **kwargs):
+        result = func(self, field, rule_obj, **kwargs)
         if isinstance(rule_obj, Field):
             rule_obj = rule_obj.rules[func.__name__]
         severity = rule_obj.severity
@@ -56,7 +55,7 @@ def rule(func):
         if not result:
             self.log(
                 severity, f'{rule_obj.path}{params} does not comply in '
-                + linked_message.GetPath())
+                + field.path)
         return result
 
     return wrapper
@@ -64,70 +63,70 @@ def rule(func):
 # RULES
 
 
-@rule
-def is_valid(self, linked_field, rule_obj):
+@rule_implementation
+def is_valid(self, field, rule):
     """*Rule*
 
     Check if a field message is valid, that is all the inner rules of the
     message in the field are complying.
     """
 
-    field_type_desc = linked_field.DESCRIPTOR
+    field_type_desc = field.value.DESCRIPTOR
     message_t_inherit = []
     while field_type_desc is not None:
         message_t_inherit.insert(0, field_type_desc.name)
         field_type_desc = field_type_desc.containing_type
 
     child_rules = self.rules.get_type(ProtoMessagePath(message_t_inherit))
-    return self.check_compliance(linked_field, child_rules)
+    return self.check_compliance(field, child_rules)
 
 
-@rule
-def is_less_than_or_equal_to(self, linked_field, rule_obj):
+@rule_implementation
+def is_less_than_or_equal_to(self, field, rule):
     """*Rule*
 
     Check if a number is under or equal a maximum.
 
     :param params: the maximum
     """
-    return float(linked_field) <= rule_obj.params
+    return field.value <= rule.params
 
 
-@rule
-def is_less_than(self, linked_field, rule_obj):
+@rule_implementation
+def is_less_than(self, field, rule):
     """*Rule*
 
     Check if a number is under a maximum.
 
     :param params: the maximum
     """
-    return float(linked_field) < rule_obj.params
+    return field.value < rule.params
 
 
-@rule
-def is_greater_than_or_equal_to(self, linked_field, rule_obj):
+@rule_implementation
+def is_greater_than_or_equal_to(self, field, rule):
     """*Rule*
 
     Check if a number is over or equal a minimum.
 
     :param params: the maximum
     """
-    return float(linked_field) >= rule_obj.params
+    return field.value >= rule.params
 
 
-@rule
-def is_greater_than(self, linked_field, rule_obj):
+@rule_implementation
+def is_greater_than(self, field, rule):
     """*Rule*
 
     Check if a number is over a minimum.
 
     :param params: the maximum
     """
-    return float(linked_field) > rule_obj.params
+    return field.value > rule.params
 
 
-@rule
-def is_global_unique(self, linked_field, rule_obj):
+@rule_implementation
+def is_global_unique(self, field, rule):
     """*Rule*
 
     Register an ID in the OSI ID manager to later perform a ID
@@ -136,14 +135,14 @@ def is_global_unique(self, linked_field, rule_obj):
     Must be set to an Identifier.
     """
 
-    object_of_id = linked_field.GetParent().GetProtoNode()
-    identifier = linked_field.GetProtoNode().value
+    object_of_id = field.parent.value
+    identifier = field.value.value
 
     return self.id_manager.register_message(identifier, object_of_id)
 
 
-@rule
-def refers(self, linked_field, rule_obj):
+@rule_implementation
+def refers(self, field, rule):
     """*Rule*
 
     Add a reference to another message by ID.
@@ -153,22 +152,22 @@ def refers(self, linked_field, rule_obj):
 
     :param params: id of the refered object
     """
-    expected_type = rule_obj.params
+    expected_type = rule.params
 
-    referer = linked_field.GetParent().GetProtoNode()
-    identifier = linked_field.GetProtoNode().value
+    referer = field.parent.value
+    identifier = field.value.value
     condition = None
     self.id_manager.refer(referer, identifier, expected_type, condition)
     return True
 
 
-@rule
-def is_iso_country_code(self, linked_field, rule_obj):
+@rule_implementation
+def is_iso_country_code(self, field, rule):
     """*Rule*
 
     Check if a string is a ISO country code.
     """
-    iso_code = linked_field
+    iso_code = field
     try:
         countries.get(iso_code)
         return True
@@ -176,39 +175,37 @@ def is_iso_country_code(self, linked_field, rule_obj):
         return False
 
 
-@rule
-def first_element(self, linked_field, rule_obj):
+@rule_implementation
+def first_element(self, field, rule):
     """*Rule*
 
     Check rule for first message of a repeated field.
 
     :param params: dictionary of rules to be checked for the first message
     """
-    nested_fields_rules = rule_obj.params
+    nested_fields_rules = rule.params
 
-    # Note: Here, the virtual message type get the field name as a name
-    virtual_message_rules = MessageType(
-        rule_obj.field_name, nested_fields_rules)
-    return self.check_compliance(linked_field[0], virtual_message_rules)
+    # Note: Here, the virtual message type get its field name as a name
+    virtual_message_rules = MessageType(rule.field_name, nested_fields_rules)
+    return self.check_compliance(field[0], virtual_message_rules)
 
 
-@rule
-def last_element(self, linked_field, rule_obj):
+@rule_implementation
+def last_element(self, field, rule):
     """*Rule*
 
     Check rule for last message of a repeated field.
 
     :param params: dictionary of rules to be checked for the last message
     """
-    nested_fields_rules = rule_obj.params
-    virtual_message_rules = MessageType(
-        rule_obj.field_name, nested_fields_rules)
-    return self.check_compliance(linked_field[-1], virtual_message_rules)
+    nested_fields_rules = rule.params
+    virtual_message_rules = MessageType(rule.field_name, nested_fields_rules)
+    return self.check_compliance(field[-1], virtual_message_rules)
 
 
-@rule
+@rule_implementation
 @pre_check
-def is_set(self, linked_message, rule_obj, **kwargs):
+def is_set(self, field, rule, **kwargs):
     """*Rule*
 
     Check if a field is set. The Python function is actually a wrapper of
@@ -217,14 +214,14 @@ def is_set(self, linked_message, rule_obj, **kwargs):
     fields.
     """
     if kwargs.get("pre_check", False):
-        if not linked_message.HasField(rule_obj.name):
+        if not field.has_field(rule.field_name):
             return False
     return True
 
 
-@rule
+@rule_implementation
 @pre_check
-def is_set_if(self, linked_message, rule_obj, **kwargs):
+def is_set_if(self, field, rule, **kwargs):
     """*Rule*
 
     A wrapper to the function ``is_set``. The condition should be contained
@@ -234,10 +231,10 @@ def is_set_if(self, linked_message, rule_obj, **kwargs):
     :param params: The assertion in Python-style pseudo-code as a string.
     """
     if kwargs.get("pre_check", False):
-        cond = rule_obj['is_set_if'].params
-        dict_message = linked_message.GetDict()
+        cond = rule['is_set_if'].params
+        dict_message = field.dict
         if Interpreter(dict_message)(cond):
-            if not linked_message.HasField(rule_obj.name):
+            if not field.has_field(rule.name):
                 return False
 
     return True

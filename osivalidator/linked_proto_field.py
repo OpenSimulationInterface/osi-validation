@@ -19,79 +19,59 @@ class LinkedProtoField:
     field are here bounded to each element of the list.
     """
 
-    def __init__(self, proto_node, field_name=None, parent=None):
-        self._proto_field_name = field_name
-        self._proto_node = proto_node
-        if parent is None:
-            self._path = field_name
-        else:
-            self._path = parent.GetPath() + "." + field_name
-        self._parent = parent
+    def __init__(self, value, name=None, parent=None):
+        self.name = name
+        self.value = value
+        self.parent = parent
+        self.is_message = isinstance(self.value, Message)
+        self.path = name if parent is None else parent.path + "." + name
+
         self._dict = None
+        self._fields = None
 
-    def GetProtoNode(self):
-        """
-        Return the deserialized protobuf data, i.e. if the node wrap a message,
-        it will yield a message, if it is a native type it will return the
-        value.
-        """
-        return self._proto_node
-
-    def GetFieldName(self):
-        """
-        Return the name of the field in its parent message.
-        """
-        return self._proto_field_name
-
-    def GetParent(self):
-        """
-        Return the parent message as a LinkedProtoField.
-        """
-        return self._parent
-
-    def GetPath(self):
-        """
-        Return the path of the field in the message tree.
-        """
-        return self._path
-
-    def GetDict(self):
+    @property
+    def dict(self):
         """
         Return the dict version of the protobuf message.
 
         Compute the dict only once, then store it and retrieve it.
         """
         if self._dict is None:
-            self._dict = MessageToDict(self._proto_node)
+            self._dict = MessageToDict(self.value)
 
         return self._dict
 
-    def ListFields(self):
+    def _retrieve_fields(self):
+        self._fields = {field_tuple[0].name:
+                        LinkedProtoField(field_tuple[1], parent=self,
+                                         name=field_tuple[0].name)
+                        for field_tuple in self.value.ListFields()}
+
+    @property
+    def fields(self):
         """
         Overloading of protobuf ListFields function that return
         a list of LinkedProtoFields.
 
         Only works if the field is composite, raise an AttributeError otherwise.
         """
-        return [LinkedProtoField(field_tuple[1], parent=self,
-                                 field_name=field_tuple[0].name)
-                for field_tuple in self._proto_node.ListFields()]
+        if self._fields is None:
+            self._retrieve_fields()
 
-    def IsMessage(self):
-        """
-        Return true if the field contains a message.
-        """
-        return isinstance(self._proto_node, Message)
+        return self._fields
 
-    def GetField(self, field_name):
+    def get_field(self, field_name):
         """
         If the LinkedProtoField wraps a message, return the field of this
         message. Otherwise, raise an AttributeError.
         """
-        field = getattr(self._proto_node, field_name)
-        return LinkedProtoField(field, parent=self, field_name=field_name)
+        if self._fields is not None:
+            return self._fields[field_name]
 
-    def HasField(self, field_name):
+        field = getattr(self.value, field_name)
+        return LinkedProtoField(field, parent=self, name=field_name)
+
+    def has_field(self, field_name):
         """
         Check if a protobuf message message have an attribute/field even if this
         is a repeated field.
@@ -100,36 +80,15 @@ class LinkedProtoField:
         element into it.
         """
         try:
-            return self._proto_node.HasField(field_name)
+            return self.value.HasField(field_name)
         except ValueError:
             try:
-                return len(getattr(self._proto_node, field_name)) > 0
+                return len(getattr(self.value, field_name)) > 0
             except AttributeError:
                 return False
 
-    def __getattr__(self, attr_name):
-        if attr_name in ['__getstate__', '__setstate__']:
-            return object.__getattr__(self, attr_name)
-
-        if attr_name in "_proto_node":
-            raise AttributeError("Undesirable recursion")
-
-        attr = getattr(self._proto_node, attr_name)
-
-        if isinstance(attr, Message):
-            return self.GetField(attr_name)
-
-        if isinstance(attr, RepeatedCompositeContainer):
-            return [LinkedProtoField(field, parent=self, field_name=attr_name)
-                    for field in attr]
-
-        return attr
-
     def __repr__(self):
-        return self._proto_node.__repr__()
-
-    def __float__(self):
-        return float(self._proto_node)
+        return self.value.__repr__()
 
     def __getitem__(self, field_name):
-        return self.GetField(field_name)
+        return self.get_field(field_name)

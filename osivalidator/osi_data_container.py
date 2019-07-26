@@ -11,11 +11,28 @@ from osi3.osi_groundtruth_pb2 import GroundTruth
 from osi3.osi_sensordata_pb2 import SensorData
 
 from .linked_proto_field import LinkedProtoField
-from .utils import get_size_from_file_stream
 
 SEPARATOR = b'$$__$$'
 SEPARATOR_LENGTH = len(SEPARATOR)
 BUFFER_SIZE = 1000000
+
+
+def get_size_from_file_stream(file_object):
+    """
+    Return a file size from a file stream given in parameters
+    """
+    current_position = file_object.tell()
+    file_object.seek(0, 2)
+    size = file_object.tell()
+    file_object.seek(current_position)
+    return size
+
+
+MESSAGES_TYPE = {
+    "SensorView": SensorView,
+    "GroundTruth": GroundTruth,
+    "SensorData": SensorData
+}
 
 
 class OSIDataContainer:
@@ -24,32 +41,21 @@ class OSIDataContainer:
     def __init__(self):
         self.scenario_file = None
         self.message_offsets = None
-        self.message_type = None
-        self.message_type_name = None
+        self.type = None
+        self.type_name = None
         self.manager = Manager()
         self.message_cache = self.manager.dict()
         self.timestep_count = 0
 
     # Open and Read text file
 
-    def set_message_type(self, message_type_name):
-        message_types = {
-            "SensorView": SensorView,
-            "GroundTruth": GroundTruth,
-            "SensorData": SensorData
-        }
-        self.message_type_name = message_type_name
-        self.message_type = message_types[message_type_name]
-
-    def open_file(self, file_name):
-        self.scenario_file = open(file_name, "rb")
-
-    def from_file(self, path, message_type_name="SensorView",
+    def from_file(self, path, type_name="SensorView",
                   show_progress=True, show_exec_time=True):
         """Import a scenario from a file"""
 
-        self.open_file(path)
-        self.set_message_type(message_type_name)
+        self.scenario_file = open(path, "rb")
+        self.type_name = type_name
+        self.type = MESSAGES_TYPE[type_name]
 
         self.timestep_count = self.retrieve_message_offsets(
             show_progress=show_progress, show_exec_time=show_exec_time)
@@ -132,7 +138,7 @@ class OSIDataContainer:
         """
         message = self.message_cache.get(index, None)
 
-        if message:
+        if message is not None:
             return message
 
         self.scenario_file.seek(self.message_offsets[index])
@@ -145,10 +151,10 @@ class OSIDataContainer:
             self.message_offsets[index] - SEPARATOR_LENGTH
         serialized_message = self.scenario_file.read(message_length)
 
-        message = self.message_type()
+        message = self.type()
         message.ParseFromString(serialized_message)
 
-        return LinkedProtoField(message, field_name=self.message_type_name)
+        return LinkedProtoField(message, name=self.type_name)
 
     def get_messages_in_index_range(self, begin, end):
         """
@@ -177,10 +183,10 @@ class OSIDataContainer:
             rel_end = rel_message_offsets[rel_index + 1] - SEPARATOR_LENGTH \
                 if rel_index + 1 < len(rel_message_offsets) \
                 else message_sequence_len
-            message = self.message_type()
+            message = self.type()
             serialized_message = serialized_messages_extract[rel_begin:rel_end]
             message.ParseFromString(serialized_message)
-            yield LinkedProtoField(message, field_name=self.message_type_name)
+            yield LinkedProtoField(message, name=self.type_name)
 
     def cache_messages_in_index_range(self, begin, end):
         """

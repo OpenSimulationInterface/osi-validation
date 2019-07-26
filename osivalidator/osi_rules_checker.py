@@ -10,8 +10,7 @@ from osi3.osi_groundtruth_pb2 import GroundTruth
 from .osi_rules import Severity, Rule, Field
 from .osi_validator_logger import SEVERITY
 from .osi_id_manager import OSIIDManager
-from . import osi_rules_implementations
-from .utils import has_attr
+from . import osi_rules_implementations as rule_implementations
 
 
 class OSIRulesChecker:
@@ -29,18 +28,13 @@ class OSIRulesChecker:
         self.ignore_lanes = ignore_lanes
 
         verb_list = [
-            method
-            for method in dir(osi_rules_implementations)
-            if getattr(
-                getattr(osi_rules_implementations, method),
-                'is_rule',
-                False
-            )
+            method for method in dir(rule_implementations)
+            if getattr(getattr(rule_implementations, method), 'is_rule', False)
         ]
 
         for verb in verb_list:
             setattr(self, verb, MethodType(
-                getattr(osi_rules_implementations, verb), self))
+                getattr(rule_implementations, verb), self))
 
         self.pre_check_rules = [method for method in dir(
             self) if getattr(getattr(self, method), "pre_check", False)]
@@ -51,8 +45,7 @@ class OSIRulesChecker:
         rule_method = getattr(self, rule.verb)
         verb = rule_method.__name__
 
-        self.log('debug',
-                 f'Check the rule {verb} for a repeated field')
+        self.log('debug', f'Check the rule {verb} for a repeated field')
 
         if verb in ['first_element', 'last_element']:
             return rule_method(message_list, rule)
@@ -78,7 +71,7 @@ class OSIRulesChecker:
         self.timestamp = ts_id
         return self.timestamp, ts_id
 
-    def check_compliance(self, linked_message, rules):
+    def check_compliance(self, field, rules):
         """Method to check the rules for a complex message
         It is also the input method
 
@@ -93,76 +86,58 @@ class OSIRulesChecker:
 
                   The last tuple represents the processed message.
         """
-        final_res = True
+        final_result = True
         # Add "is_valid" rule for each field that can be validated (default)
-        message = linked_message
-        dict_message_cont = [None]
-
-        add_default_rules(message, rules)
+        add_default_rules(field, rules)
 
         # loop over the fields in the rules
-        for field_name, rules_field_node in rules.fields.items():
-            field_path = rules_field_node.path
+        for field_name, field_rules in rules.fields.items():
+            field_path = field_rules.path
 
             for verb in self.pre_check_rules:
-                if rules_field_node.has_rule(verb):
-                    getattr(self, verb)(linked_message, rules_field_node,
-                                        pre_check=True,
-                                        dict_message_cont=dict_message_cont)
+                if field_rules.has_rule(verb):
+                    getattr(self, verb)(field, field_rules, pre_check=True)
 
-            if not has_attr(message, field_name):
+            if not field.has_field(field_name):
                 self.log('debug', f'Field {field_path} does not exist')
                 continue
 
-            res = self._loop_over_rules(
-                rules_field_node, linked_message[field_name])
-
-            final_res = False if not res else final_res
+            result = self._loop_over_rules(field_rules, field[field_name])
+            final_result = False if not result else final_result
 
         # Resolve ID and references
-        if not linked_message.GetParent:
+        if not field.parent:
             self.id_manager.resolve_unicity(self.timestamp)
             self.id_manager.resolve_references(self.timestamp)
-        return final_res
+        return final_result
 
-    def _loop_over_rules(self, field_rules, linked_message):
-        final_res = True
-        for _, rule_obj in field_rules.rules.items():
-            verb = rule_obj.verb
-
+    def _loop_over_rules(self, field_rules, field):
+        final_result = True
+        for _, rule in field_rules.rules.items():
             try:
-                rule_method = getattr(self, verb)
+                rule_method = getattr(self, rule.verb)
             except AttributeError:
-                self.log('error', f'Rule "{verb}" not implemented yet!')
+                self.log('error', f'Rule "{rule.verb}" not implemented yet')
             else:
                 # If the field is "REPEATED"
-                if isinstance(linked_message, list):
-                    first_elt = linked_message[0]
-                    if(self.ignore_lanes
-                       and first_elt.GetFieldName() == 'lane_boundary'
-                       and isinstance(
-                           first_elt.GetParent().GetProtoNode(),
-                           GroundTruth
-                       )):
+                if isinstance(field, list):
+                    if(self.ignore_lanes and field[0].name == 'lane_boundary'
+                       and isinstance(field[0].parent.value, GroundTruth)):
                         continue
-                    res = self._check_repeated(linked_message, rule_obj)
+                    result = self._check_repeated(field, rule)
                 else:
-                    res = rule_method(linked_message, rule_obj)
+                    result = rule_method(field, rule)
 
-                final_res = final_res if res else False
-        return final_res
+                final_result = final_result if result else False
+        return final_result
 
 
-def add_default_rules(message, rules):
+def add_default_rules(field, rules):
     """Add "is_valid" rule to all the field of message without is_set or
     is_valid
     """
-    def is_validable(message):
-        return message.IsMessage()
-    for linked_message in filter(is_validable, message.ListFields()):
-        if linked_message.GetFieldName() not in rules.fields:
-            rules.add_field(Field(linked_message.GetFieldName())
-                            ).add_rule(Rule('is_valid'))
+    for field in filter(lambda f: f.is_message, field.fields.values()):
+        if field.name not in rules.fields:
+            rules.add_field(Field(field.name)).add_rule(Rule('is_valid'))
         else:
-            rules.get_field(linked_message.GetFieldName()
-                            ).add_rule(Rule('is_valid'))
+            rules.get_field(field.name).add_rule(Rule('is_valid'))
