@@ -1,6 +1,5 @@
 RadarSpecificObjectData:
   rcs:
-    - is_set
 
 
 UltrasonicSpecificObjectData:
@@ -10,8 +9,5 @@ UltrasonicSpecificObjectData:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
   trilateration_status:
-    - is_set
   trend:
-    - is_set
   signalway:
-    - is_set

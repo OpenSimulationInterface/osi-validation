@@ -1,27 +1,19 @@
 FeatureData:
   version:
-    - is_set!
 SensorDetectionHeader:
   measurement_time:
-    - is_set
   cycle_counter:
     - is_greater_than_or_equal_to: 0
   mounting_position:
-    - is_set
   mounting_position_rmse:
-    - is_set
   data_qualifier:
-    - is_set
   number_of_valid_detection:
     - is_greater_than_or_equal_to: 0
   sensor_id:
-    - is_valid # TODO
 
 RadarDetectionData:
   header:
-    - is_set
   detection:
-    - is_set
 
 RadarDetection:
   existence_probability:
@@ -30,26 +22,20 @@ RadarDetection:
   object_id:
     - refers: DetectedObject
   position:
-    - is_set
   position_rmse:
-    - is_set # ASK: uncertainties are negative or positive? Uncertainties: +/- [positive number] (https://opensimulationinterface.github.io/open-simulation-interface/structosi3_1_1Dimension3d.html)
   radial_velocity:
     - is_greater_than_or_equal_to: 0
   radial_velocity_rmse:
     - is_greater_than_or_equal_to: 0
   rcs:
-    - is_set
   snr:
-    - is_set
   point_target_probability:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
-  ambiguity_id:
-    - is_set # TODO
+  ambiguity_id: # TODO
 
 LidarDetectionData:
   header:
-    - is_set
 
 LidarDetection:
   existence_probability:
@@ -58,9 +44,7 @@ LidarDetection:
   object_id:
     - refers: DetectedObject
   position:
-    - is_set
   position_rmse:
-    - is_set
   height:
     - is_greater_than_or_equal_to: 0
   height_rmse:
@@ -71,12 +55,10 @@ LidarDetection:
   free_space_probability:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
-  reflectivity:
-    - is_set # TODO
+  reflectivity: # TODO
 
 UltrasonicDetectionData:
   header:
-    - is_set
 
 UltrasonicDetection:
   existence_probability:
@@ -94,13 +76,9 @@ UltrasonicIndirectDetection:
   object_id:
     - refers: DetectedObject
   ellipsoid_radial:
-    - is_set # TODO
   ellipsoid_axial:
-    - is_set # TODO
   receiver_id:
-    - is_set # TODO 
   receiver_origin:
-    - is_set
 
 CameraDetectionSpecificHeader:
   number_of_valid_points:
@@ -108,11 +86,8 @@ CameraDetectionSpecificHeader:
 
 CameraDetectionData:
   header:
-    - is_set
   specific_header:
-    - is_set
   detection:
-    - is_set
 
 CameraDetection:
   existence_probability: 
@@ -121,9 +96,7 @@ CameraDetection:
   object_id:
     - refers: DetectedObject
   time_difference:
-    - is_valid
   image_shape_type:
-    - is_set
   shape_classification_probability:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
@@ -138,6 +111,4 @@ CameraPoint:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
   point:
-    - is_set
   point_rmse:
-    - is_set

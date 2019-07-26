@@ -2,12 +2,9 @@ RoadMarking:
   id:
     - is_global_unique
   base:
-    - is_set
   classification:
-    - is_set
   Classification:
     type:
-      - is_set
     traffic_main_sign_type:
       - is_set_if: type in [2, 3, 4] or traffic_main_sign_type == 1
     monochrome_color:
@@ -19,4 +16,3 @@ RoadMarking:
     assigned_lane_id:
       - refers: Lane
     is_out_of_service:
-      - is_set

@@ -10,7 +10,7 @@ from functools import wraps
 from asteval import Interpreter
 from iso3166 import countries
 
-from .osi_rules import MessageType, ProtoMessagePath, Field
+from .osi_rules import MessageTypeRules, ProtoMessagePath, FieldRules
 
 # DECORATORS
 # These functions are no rule implementation, but decorators to characterize
@@ -24,6 +24,14 @@ def pre_check(func):
     exists or not
     """
     func.pre_check = True
+    return func
+
+
+def repeated_selector(func):
+    """
+    Decorator for selector-rules that take
+    """
+    func.repeated_selector = True
     return func
 
 
@@ -48,7 +56,7 @@ def rule_implementation(func):
     @wraps(func)
     def wrapper(self, field, rule_obj, **kwargs):
         result = func(self, field, rule_obj, **kwargs)
-        if isinstance(rule_obj, Field):
+        if isinstance(rule_obj, FieldRules):
             rule_obj = rule_obj.rules[func.__name__]
         severity = rule_obj.severity
         params = "" if rule_obj.params is None else f"({rule_obj.params})"
@@ -59,6 +67,7 @@ def rule_implementation(func):
         return result
 
     return wrapper
+
 
 # RULES
 
@@ -186,7 +195,8 @@ def first_element(self, field, rule):
     nested_fields_rules = rule.params
 
     # Note: Here, the virtual message type get its field name as a name
-    virtual_message_rules = MessageType(rule.field_name, nested_fields_rules)
+    virtual_message_rules = MessageTypeRules(
+        rule.field_name, nested_fields_rules)
     return self.check_compliance(field[0], virtual_message_rules)
 
 
@@ -199,8 +209,18 @@ def last_element(self, field, rule):
     :param params: dictionary of rules to be checked for the last message
     """
     nested_fields_rules = rule.params
-    virtual_message_rules = MessageType(rule.field_name, nested_fields_rules)
+    virtual_message_rules = MessageTypeRules(
+        rule.field_name, nested_fields_rules)
     return self.check_compliance(field[-1], virtual_message_rules)
+
+
+@rule_implementation
+def is_optional(self, field, rule):
+    """*Rule*
+
+    This rule set the is_set one on a "Warning" severity.
+    """
+    return True
 
 
 @rule_implementation
@@ -224,16 +244,16 @@ def is_set(self, field, rule, **kwargs):
 def is_set_if(self, field, rule, **kwargs):
     """*Rule*
 
-    A wrapper to the function ``is_set``. The condition should be contained
+    Conditional version of is_set The condition should be contained
     in `params` as a string but is checked during the exploration of the
     message.
 
     :param params: The assertion in Python-style pseudo-code as a string.
     """
     if kwargs.get("pre_check", False):
-        cond = rule['is_set_if'].params
+        condition = rule['is_set_if'].params
         dict_message = field.dict
-        if Interpreter(dict_message)(cond):
+        if Interpreter(dict_message)(condition):
             if not field.has_field(rule.name):
                 return False
 

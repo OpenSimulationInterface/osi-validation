@@ -1,24 +1,17 @@
 EnvironmentalConditions:
   ambient_illumination:
-    - is_set
   time_of_day:
-    - is_set
   atmospheric_pressure:
-    - is_set
     - is_greater_than_or_equal_to: 80000
     - is_less_than_or_equal_to: 120000
   temperature:
-    - is_set
     - is_greater_than_or_equal_to: 170
     - is_less_than_or_equal_to: 340
   relative_humidity:
-    - is_set
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 100
   precipitation:
-    - is_set
   fog:
-    - is_set
   TimeOfDay:
     seconds_since_midnight:
       - is_greater_than_or_equal_to: 0

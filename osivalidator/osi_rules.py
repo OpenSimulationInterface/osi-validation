@@ -17,7 +17,7 @@ class OSIRules:
 
     def __init__(self):
         self.rules = dict()
-        self.t_rules = TypeContainer()
+        self.t_rules = TypeRulesContainer()
 
     def from_yaml_directory(self, path=None):
         """ Collect validation rules found in the directory. """
@@ -69,7 +69,7 @@ class OSIRules:
 
             message_t = self.t_rules.add_type_from_path(message_t_path)
             for field_rule in field_rules:
-                message_t.add_field(Field(field_name, field_rule))
+                message_t.add_field(FieldRules(field_name, field_rule))
 
     def get_rules(self):
         """Return the rules
@@ -88,10 +88,10 @@ class OSIRules:
             is_message_type = key[0].isupper()
 
             if is_message_type and isinstance(value, dict):
-                new_message_t = t_rules.add_type(MessageType(key))
+                new_message_t = t_rules.add_type(MessageTypeRules(key))
                 self.translate_rules(value, new_message_t)
             elif isinstance(value, list):
-                field = t_rules.add_field(Field(key))
+                field = t_rules.add_field(FieldRules(key))
                 for yaml_rule in value:
                     if isinstance(yaml_rule, str):
                         field.add_rule(Rule(yaml_rule))
@@ -99,7 +99,7 @@ class OSIRules:
                         (verb, params), = yaml_rule.items()
                         field.add_rule(Rule(verb, params))
             elif isinstance(value, dict):
-                field = t_rules.add_field(Field(key))
+                field = t_rules.add_field(FieldRules(key))
                 for verb, params in value.items():
                     field.add_rule(Rule(verb, params))
 
@@ -144,7 +144,7 @@ class OSIRuleNode:
         return self.path
 
 
-class TypeContainer(OSIRuleNode):
+class TypeRulesContainer(OSIRuleNode):
     """This class defines either a MessageType or a list of MessageTypes"""
 
     def __init__(self, nested_types=None):
@@ -173,7 +173,7 @@ class TypeContainer(OSIRuleNode):
             pass
 
         name = path[-1]
-        new_message_t = MessageType(name, fields)
+        new_message_t = MessageTypeRules(name, fields)
 
         new_message_t.path = path
 
@@ -182,7 +182,7 @@ class TypeContainer(OSIRuleNode):
             try:
                 child = child.nested_types[node]
             except KeyError:
-                child = child.add_type(MessageType(node))
+                child = child.add_type(MessageTypeRules(node))
 
         child.nested_types[path.inheritance[-1]] = new_message_t
 
@@ -208,7 +208,7 @@ class TypeContainer(OSIRuleNode):
                '\n'.join(map(str, self.nested_types))
 
 
-class MessageType(TypeContainer):
+class MessageTypeRules(TypeRulesContainer):
     """This class manages the fields of a Message Type"""
 
     def __init__(self, name, fields=None):
@@ -241,7 +241,7 @@ class MessageType(TypeContainer):
              else '')
 
 
-class Field(OSIRuleNode):
+class FieldRules(OSIRuleNode):
     """This class manages the rules of a Message Type"""
 
     def __init__(self, name, rules=None):
@@ -290,11 +290,10 @@ class Rule(OSIRuleNode):
 
         if verb[-1] == "!" or severity == Severity.ERROR:
             self.severity = Severity.ERROR
-            verb = verb[:-1]
         else:
             self.severity = Severity.WARN
 
-        self.verb = verb
+        self.verb = verb[:-1] if verb[-1] == "!" else verb
 
     def __repr__(self):
         return f'{self.verb}' + (f"({self.params})" or "")

@@ -7,7 +7,7 @@ from types import MethodType
 
 from osi3.osi_groundtruth_pb2 import GroundTruth
 
-from .osi_rules import Severity, Rule, Field
+from .osi_rules import Severity, Rule, FieldRules
 from .osi_validator_logger import SEVERITY
 from .osi_id_manager import OSIIDManager
 from . import osi_rules_implementations as rule_implementations
@@ -102,7 +102,8 @@ class OSIRulesChecker:
                 self.log('debug', f'Field {field_path} does not exist')
                 continue
 
-            result = self._loop_over_rules(field_rules, field[field_name])
+            result = self._loop_over_rules(
+                field_rules, field.get_field(field_name))
             final_result = False if not result else final_result
 
         # Resolve ID and references
@@ -132,12 +133,21 @@ class OSIRulesChecker:
         return final_result
 
 
-def add_default_rules(field, rules):
-    """Add "is_valid" rule to all the field of message without is_set or
+def add_default_rules(field, type_rules):
+    """Add "is_valid" rule to every field of message without is_set or
     is_valid
     """
-    for field in filter(lambda f: f.is_message, field.fields.values()):
-        if field.name not in rules.fields:
-            rules.add_field(Field(field.name)).add_rule(Rule('is_valid'))
+    for field in field.fields.values():
+        field_rules = (type_rules.get_field(field.name)
+                       if field.name in type_rules.fields
+                       else type_rules.add_field(FieldRules(field.name)))
+
+        if field.is_message:
+            field_rules.add_rule(Rule('is_valid'))
+
+        if field_rules.has_rule('is_optional'):
+            is_set_severity = Severity.WARN
         else:
-            rules.get_field(field.name).add_rule(Rule('is_valid'))
+            is_set_severity = Severity.ERROR
+
+        field_rules.add_rule(Rule('is_set', severity=is_set_severity))

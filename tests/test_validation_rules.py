@@ -26,7 +26,7 @@ class TestValidationRules(unittest.TestCase):
 
     def test_add_type_from_path(self):
         """Test the adding of a Message type from a path in the rule tree"""
-        container = osi_rules.TypeContainer()
+        container = osi_rules.TypeRulesContainer()
         path = osi_rules.ProtoMessagePath(['foo', 'bar', 'type'])
         container.add_type_from_path(path)
         container.get_type(path)

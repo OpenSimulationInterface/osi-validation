@@ -1,10 +1,7 @@
 DetectedRoadMarking:
   header:
-    - is_set
   base:
-    - is_set
   base_rsme:
-    - is_set
   CandidateRoadMarking:
     probability:
       - is_greater_than_or_equal_to: 0

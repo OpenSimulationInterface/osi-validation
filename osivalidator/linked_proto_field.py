@@ -89,6 +89,3 @@ class LinkedProtoField:
 
     def __repr__(self):
         return self.value.__repr__()
-
-    def __getitem__(self, field_name):
-        return self.get_field(field_name)

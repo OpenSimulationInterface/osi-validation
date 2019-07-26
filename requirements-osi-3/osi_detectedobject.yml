@@ -1,23 +1,16 @@
 DetectedItemHeader:
   tracking_id:
-    - is_set
   ground_truth_id:
-    - is_set
   existence_probability:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
   age:
-    - is_set
   measurement_state:
-    - is_set
   
 DetectedStationaryObject:
   header:
-    - is_set
   base:
-    - is_set
   base_rsme:
-    - is_set
   CandidateStationaryObject:
     probability:
       - is_greater_than_or_equal_to: 0
@@ -25,21 +18,14 @@ DetectedStationaryObject:
 
 DetectedMovingObject:
   header:
-    - is_set
   base:
-    - is_set
   base_rsme:
-    - is_set
   reference_point:
-    - is_set
   movement_state:
-    - is_set
   percentage_side_lane_left:
-    - is_set
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 100
   percentage_side_lane_right:
-    - is_set
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 100
   radar_specifics:
@@ -55,10 +41,6 @@ DetectedMovingObject:
       - is_greater_than_or_equal_to: 0
       - is_less_than_or_equal_to: 1
     type:
-      - is_set
     vehicle_classification:
-      - is_set
     head_pose:
-      - is_set
     upper_body_pose:
-      - is_set

@@ -38,29 +38,29 @@ MESSAGES_TYPE = {
 class OSIDataContainer:
     """This class wrap OSI data. It can import and decode OSI scenarios."""
 
-    def __init__(self):
+    def __init__(self, show_progress=True, path=None, type_name="SensorView"):
         self.scenario_file = None
         self.message_offsets = None
-        self.type = None
-        self.type_name = None
+        self.type_name = type_name
         self.manager = Manager()
         self.message_cache = self.manager.dict()
         self.timestep_count = 0
+        self.show_progress = show_progress
+
+        if path is not None and type_name is not None:
+            self.from_file(path)
 
     # Open and Read text file
 
-    def from_file(self, path, type_name="SensorView",
-                  show_progress=True, show_exec_time=True):
+    def from_file(self, path, type_name="SensorView"):
         """Import a scenario from a file"""
 
         self.scenario_file = open(path, "rb")
         self.type_name = type_name
-        self.type = MESSAGES_TYPE[type_name]
 
-        self.timestep_count = self.retrieve_message_offsets(
-            show_progress=show_progress, show_exec_time=show_exec_time)
+        self.timestep_count = self.retrieve_message_offsets()
 
-    def retrieve_message_offsets(self, show_progress=True, show_exec_time=True):
+    def retrieve_message_offsets(self):
         """
         Retrieve the offsets of all the messages of the scenario and store them
         in the `message_offsets` attribute of the object
@@ -68,14 +68,14 @@ class OSIDataContainer:
         It returns the number of discovered timesteps
         """
         scenario_size = get_size_from_file_stream(self.scenario_file)
-        if show_progress:
+        if self.show_progress:
             progress_bar = Bar(max=scenario_size)
             print("Retrieving message offsets in scenario file...")
         else:
             progress_bar = None
 
         def update_bar(progress_bar, new_index):
-            if show_progress and progress_bar is not None:
+            if self.show_progress and progress_bar is not None:
                 progress_bar.index = new_index
                 progress_bar.update()
 
@@ -84,7 +84,7 @@ class OSIDataContainer:
         self.message_offsets = [0]
         eof = False
 
-        if show_exec_time:
+        if self.show_progress:
             start_time = time.time()
 
         self.scenario_file.seek(0)
@@ -122,10 +122,8 @@ class OSIDataContainer:
 
                 update_bar(progress_bar, message_offset)
 
-        if show_progress:
+        if self.show_progress:
             progress_bar.finish()
-
-        if show_exec_time:
             print(len(self.message_offsets), "messages has been discovered in",
                   time.time() - start_time, "s")
 
@@ -151,7 +149,7 @@ class OSIDataContainer:
             self.message_offsets[index] - SEPARATOR_LENGTH
         serialized_message = self.scenario_file.read(message_length)
 
-        message = self.type()
+        message = MESSAGES_TYPE[self.type_name]()
         message.ParseFromString(serialized_message)
 
         return LinkedProtoField(message, name=self.type_name)
@@ -183,7 +181,7 @@ class OSIDataContainer:
             rel_end = rel_message_offsets[rel_index + 1] - SEPARATOR_LENGTH \
                 if rel_index + 1 < len(rel_message_offsets) \
                 else message_sequence_len
-            message = self.type()
+            message = MESSAGES_TYPE[self.type_name]()
             serialized_message = serialized_messages_extract[rel_begin:rel_end]
             message.ParseFromString(serialized_message)
             yield LinkedProtoField(message, name=self.type_name)

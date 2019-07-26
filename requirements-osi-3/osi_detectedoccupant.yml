@@ -1,8 +1,6 @@
 DetectedOccupant:
   header:
-    - is_set
   candidate:
-    - is_set
   CandidateOccupant:
     probability:
       - is_greater_than_or_equal_to: 0

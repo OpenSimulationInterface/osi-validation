@@ -1,17 +1,13 @@
 DetectedLane:
   header:
-    - is_set
   CandidateLane:
     probability:
       - is_greater_than_or_equal_to: 0
       - is_less_than_or_equal_to: 1
     classification:
-      - is_set
 
 DetectedLaneBoundary:
   header:
-    - is_set
   boundary_line:
     - each:
         position:
-          - is_set
