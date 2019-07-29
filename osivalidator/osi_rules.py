@@ -16,8 +16,7 @@ class OSIRules:
     """ This class collects validation rules """
 
     def __init__(self):
-        self.rules = dict()
-        self.t_rules = TypeRulesContainer()
+        self.rules = TypeRulesContainer()
 
     def from_yaml_directory(self, path=None):
         """ Collect validation rules found in the directory. """
@@ -30,30 +29,24 @@ class OSIRules:
         try:
             for filename in os.listdir(path):
                 if filename.startswith('osi_') and filename.endswith(exts):
-                    self.from_yaml_file(os.path.join(path, filename), False)
+                    self.from_yaml_file(os.path.join(path, filename))
 
         except FileNotFoundError:
             print('Error while reading files OSI-rules. Exiting!')
 
-        self.translate_rules()
-
-    def from_yaml_file(self, path, only=True):
+    def from_yaml_file(self, path):
         """Import from a file
         """
         rules_file = open(path)
-        self.rules.update(yaml.load(rules_file, Loader=yaml.SafeLoader))
+        self.from_dict(rules_dict=yaml.load(
+            rules_file, Loader=yaml.SafeLoader))
         rules_file.close()
 
-        if only:
-            self.translate_rules()
-
-    def from_yaml(self, yaml_content, only=True):
+    def from_yaml(self, yaml_content,):
         """Import from a string
         """
-        self.rules.update(yaml.load(yaml_content, Loader=yaml.SafeLoader))
-
-        if only:
-            self.translate_rules()
+        self.from_dict(rules_dict=yaml.load(
+            yaml_content, Loader=yaml.SafeLoader))
 
     def from_xml_doxygen(self):
         """Parse the Doxygen XML documentation to get the rules
@@ -67,7 +60,7 @@ class OSIRules:
             field_name = field_rules_tuple[0][-1]
             field_rules = field_rules_tuple[1]
 
-            message_t = self.t_rules.add_type_from_path(message_t_path)
+            message_t = self.rules.add_type_from_path(message_t_path)
             for field_rule in field_rules:
                 message_t.add_field(FieldRules(
                     name=field_name, rules=field_rule))
@@ -75,41 +68,33 @@ class OSIRules:
     def get_rules(self):
         """Return the rules
         """
-        return deepcopy(self.rules)
+        return self.rules
 
-    def translate_rules(self, rules=None, t_rules=None):
+    def from_dict(self, rules_dict=None, rules_container=None):
         """Translate dict rules into objects rules"""
 
-        if rules is None:
-            rules = self.rules
-        if t_rules is None:
-            t_rules = self.t_rules
+        rules_container = rules_container or self.rules
 
-        for key, value in rules.items():
-            is_message_type = key[0].isupper()
+        for key, value in rules_dict.items():
+            if key[0].isupper() and isinstance(value, dict):  # it's a nested type
+                new_message_t = rules_container.add_type(
+                    MessageTypeRules(name=key))
+                if value is not None:
+                    self.from_dict(value, new_message_t)
 
-            if is_message_type and isinstance(value, dict):  # List of types
-                new_message_t = t_rules.add_type(MessageTypeRules(name=key))
-                self.translate_rules(value, new_message_t)
-            elif isinstance(value, list):  # If it is a list of rules
-                field = t_rules.add_field(FieldRules(name=key))
-                for yaml_rule in value:
-                    if isinstance(yaml_rule, str):
-                        (verb, *params) = yaml_rule.split()
-                        extra_params = None
-                    elif isinstance(yaml_rule, dict):
-                        (verb, params), *extra_params = yaml_rule.items()
-                    field.add_rule(Rule(verb=verb,
-                                        params=params,
-                                        extra_params=extra_params))
-            elif isinstance(value, dict):  # If it is a list of rules (dict)
-                field = t_rules.add_field(FieldRules(name=key))
-                for verb, params in value.items():
-                    field.add_rule(Rule(verb=verb, params=params))
-
+            elif isinstance(value, list):  # it's a field
+                field = rules_container.add_field(FieldRules(name=key))
+                for rule in value:  # iterate over rules
+                    try:
+                        (verb, params), *extra_params = rule.items()
+                        field.add_rule(Rule(verb=verb, params=params,
+                                            extra_params=extra_params))
+                    except AttributeError:
+                        raise TypeError(
+                            'rule must be YAML mapping, got: ' + str(value))
             elif value is not None:
                 raise TypeError(
-                    f'must be dict or list, got {type(rules).__name__}')
+                    f'must be dict or list, got {type(rules_dict).__name__}')
 
 
 class ProtoMessagePath:
@@ -286,8 +271,13 @@ class FieldRules(OSIRuleNode):
         """List the rules of a field"""
         return self.rules
 
-    def __getitem__(self, rule_verb):
-        return self.rules[rule_verb]
+    def get_rule(self, verb):
+        """Return the rule object for the verb rule_verb in this field.
+        """
+        return self.rules[verb]
+
+    def __getitem__(self, verb):
+        return self.get_rule(verb)
 
     def __repr__(self):
         nested_rules = [self.rules[r] for r in self.rules]

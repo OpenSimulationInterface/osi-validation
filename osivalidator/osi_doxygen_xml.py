@@ -93,10 +93,9 @@ class OSIDoxygenXML:
 
                 try:
                     dict_rules = yaml.safe_load(attr_rule)
-                except yaml.parser.ParserError as error:
-                    print(attr_path, attr_rule, 'ParserError', error)
-                except yaml.parser.ScannerError as error:
-                    print(attr_path, attr_rule, 'ScannerError', error)
+                except (yaml.parser.ParserError,
+                        yaml.parser.ScannerError) as error:
+                    print(attr_path, attr_rule, error)
                 else:
                     rules.append((attr_path, dict_rules))
         return rules

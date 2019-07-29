@@ -58,7 +58,7 @@ def command_line_arguments():
 
 MANAGER = Manager()
 LOGS = MANAGER.list()
-BLAST_SIZE = 500
+BLAST_SIZE = 2000
 MESSAGE_TYPE = MANAGER.Value("s", "")
 TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
@@ -74,31 +74,32 @@ def main():
     """Main method"""
 
     # Handling of command line arguments
-    arguments = command_line_arguments()
+    args = command_line_arguments()
 
     # Set message type
-    MESSAGE_TYPE.value = arguments.type
+    MESSAGE_TYPE.value = args.type
 
     # Instanciate Logger
     print("Instanciate logger")
-    directory = arguments.output
+    directory = args.output
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    LOGGER.init(arguments.debug, arguments.verbose, directory)
+    LOGGER.init(args.debug, args.verbose, directory)
 
     # Read data
-    LOGGER.info(None, "Read data")
-    DATA.from_file(arguments.data, arguments.type)
+    print("Read data")
+    DATA.from_file(path=args.data, type_name=args.type,
+                   max_index=args.timesteps)
 
     # Collect Validation Rules
-    LOGGER.info(None, "Collect validation rules")
-    VALIDATION_RULES.from_yaml_directory(arguments.rules)
+    print("Collect validation rules")
+    VALIDATION_RULES.from_yaml_directory(args.rules)
 
     # Pass all timesteps or the number specified
-    if arguments.timesteps != -1:
+    if args.timesteps != -1:
+        max_timestep = args.timesteps
         LOGGER.info(None, f"Pass the {max_timestep} first timesteps")
-        max_timestep = arguments.timesteps
     else:
         LOGGER.info(None, "Pass all timesteps")
         max_timestep = DATA.timestep_count
@@ -159,15 +160,15 @@ def process_timestep(timestep):
     LOGGER.info(None, f'Analyze message of timestamp {timestamp}', False)
 
     # Check if timestamp already exists
-    if timestep in TIMESTAMP_ANALYZED:
+    if timestamp in TIMESTAMP_ANALYZED:
         LOGGER.error(timestep, f"Timestamp already exists")
-    TIMESTAMP_ANALYZED.append(timestep)
+    TIMESTAMP_ANALYZED.append(timestamp)
 
     BAR.goto(len(TIMESTAMP_ANALYZED))
 
     # Check common rules
-    rule_checker.check_compliance(
-        message, VALIDATION_RULES.t_rules.nested_types[MESSAGE_TYPE.value])
+    getattr(rule_checker, 'is_valid')(
+        message, VALIDATION_RULES.get_rules().get_type(MESSAGE_TYPE.value))
 
     LOGS.extend(LOGGER.log_messages[timestep])
 

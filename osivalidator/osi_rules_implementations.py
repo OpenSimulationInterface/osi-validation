@@ -10,8 +10,26 @@ from functools import wraps
 from asteval import Interpreter
 from iso3166 import countries
 
-from .osi_rules import MessageTypeRules, ProtoMessagePath, FieldRules
-from .linked_proto_field import LinkedProtoField
+from .osi_rules import MessageTypeRules, FieldRules, Severity, Rule
+
+
+def add_default_rules_to_subfields(message, type_rules):
+    """Add default rules to fields of message fields (subfields)
+    """
+    for field in message.fields:
+        field_rules = (type_rules.get_field(field.name)
+                       if field.name in type_rules.fields
+                       else type_rules.add_field(FieldRules(field.name)))
+
+        if field.is_message:
+            field_rules.add_rule(Rule('is_valid'))
+
+        is_set_severity = (Severity.WARN
+                           if field_rules.has_rule('is_optional')
+                           else Severity.ERROR)
+
+        field_rules.add_rule(Rule('is_set', severity=is_set_severity))
+
 
 # DECORATORS
 # These functions are no rule implementation, but decorators to characterize
@@ -50,10 +68,9 @@ def rule_implementation(func):
 
         if isinstance(rule, FieldRules):
             rule = rule.rules[func.__name__]
-        if not result:
-            self.log(rule.severity, f'{rule.path}({rule.params})'
-                     + ' does not comply in '
-                     + field.path)
+        if not result and isinstance(rule, Rule):
+            self.log(rule.severity, str(rule.path) + '(' + str(rule.params) + ')'
+                     + ' does not comply in ' + str(field.path))
         return result
 
     return wrapper
@@ -69,15 +86,35 @@ def is_valid(self, field, rule):
     Check if a field message is valid, that is all the inner rules of the
     message in the field are complying.
     """
+    subfield_rules = rule.root.get_type(field.message_type)
 
-    field_type_desc = field.value.DESCRIPTOR
-    message_t_inherit = []
-    while field_type_desc is not None:
-        message_t_inherit.insert(0, field_type_desc.name)
-        field_type_desc = field_type_desc.containing_type
+    result = True
+    # Add default rules for each subfield that can be validated (default)
+    add_default_rules_to_subfields(field, subfield_rules)
 
-    child_rules = rule.root.get_type(ProtoMessagePath(message_t_inherit))
-    return self.check_compliance(field, child_rules)
+    # loop over the fields in the rules
+    for subfield_name, subfield_rules in subfield_rules.fields.items():
+        for verb in self.pre_check_rules:
+            if subfield_rules.has_rule(verb):
+                getattr(self, verb)(field, subfield_rules.get_rule(verb),
+                                    pre_check=True)
+
+        if not field.has_field(subfield_name):
+            continue
+
+        for subfield_rule in subfield_rules.rules.values():
+            try:
+                result = (getattr(self, subfield_rule.verb)(
+                    field.get_field(subfield_name), subfield_rule) and result)
+            except AttributeError:
+                self.log('error',
+                         f'Rule "{subfield_rule.verb}" not implemented yet')
+
+    # Resolve ID and references
+    if not field.parent:
+        self.id_manager.resolve_unicity(self.timestamp)
+        self.id_manager.resolve_references(self.timestamp)
+    return result
 
 
 @rule_implementation
@@ -188,7 +225,7 @@ def first_element(self, field, rule):
     # Note: Here, the virtual message type get its field name as a name
     virtual_message_rules = MessageTypeRules(
         rule.field_name, nested_fields_rules)
-    return self.check_compliance(field[0], virtual_message_rules)
+    return self.is_valid(field[0], virtual_message_rules)
 
 
 @rule_implementation
@@ -203,7 +240,7 @@ def last_element(self, field, rule):
     nested_fields_rules = rule.params
     virtual_message_rules = MessageTypeRules(
         rule.field_name, nested_fields_rules)
-    return self.check_compliance(field[-1], virtual_message_rules)
+    return self.is_valid(field[-1], virtual_message_rules)
 
 
 @rule_implementation
@@ -242,7 +279,7 @@ def is_set_if(self, field, rule, **kwargs):
     """
     if kwargs.get("pre_check", False):
         condition = rule['is_set_if'].params
-        return (not Interpreter(field.dict)(condition)
+        return (not Interpreter(field.to_dict())(condition)
                 or field.has_field(rule.name))  # Logical implication
 
     return True
