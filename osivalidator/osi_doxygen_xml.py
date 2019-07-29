@@ -14,6 +14,10 @@ from doxygen import Generator
 
 
 class OSIDoxygenXML:
+    """
+    This class an XML Documentation of OSI and can parse the rules from it.
+    """
+
     def __init__(self):
         dir_path = os.path.dirname(os.path.realpath(__file__))
         osivalidator_path = os.path.dirname(dir_path)
@@ -53,6 +57,8 @@ class OSIDoxygenXML:
         doxy_builder.build(clean=False, generate_zip=False)
 
     def get_files(self):
+        """Return the path of the fields in OSI
+        """
         return glob.glob(os.path.join(self.osi_path, 'doc', 'xml', '*.xml'))
 
     def parse_rules(self):
@@ -79,19 +85,18 @@ class OSIDoxygenXML:
 
                 rules_lines = attr_rule.split('\n')
 
-                for line_no in range(len(rules_lines)):
-                    if (rules_lines[line_no].find(":") == -1 and
-                            len(rules_lines[line_no])):
+                for line_no, line in enumerate(rules_lines):
+                    if (line.find(":") == -1 and line):
                         rules_lines[line_no] += ":"
 
                 attr_rule = "\n".join(rules_lines)
 
                 try:
                     dict_rules = yaml.safe_load(attr_rule)
-                except yaml.parser.ParserError as e:
-                    print(attr_path, attr_rule, 'ParserError', e)
-                except yaml.parser.ScannerError as e:
-                    print(attr_path, attr_rule, 'ScannerError', e)
+                except yaml.parser.ParserError as error:
+                    print(attr_path, attr_rule, 'ParserError', error)
+                except yaml.parser.ScannerError as error:
+                    print(attr_path, attr_rule, 'ScannerError', error)
                 else:
                     rules.append((attr_path, dict_rules))
         return rules

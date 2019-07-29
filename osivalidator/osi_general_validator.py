@@ -63,7 +63,6 @@ MESSAGE_TYPE = MANAGER.Value("s", "")
 TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
 VALIDATION_RULES = OSIRules()
-LANES_HASHES = MANAGER.list()
 DATA = OSIScenario()
 ID_TO_TS = MANAGER.dict()
 BAR_SUFFIX = '%(index)d/%(max)d [%(elapsed_td)s]'
@@ -151,26 +150,13 @@ def close_pool(pool):
 def process_timestep(timestep):
     """Process one timestep"""
     message = MESSAGE_CACHE[timestep]
-    ground_truth_dict = message.get_field("global_ground_truth").dict
-
-    try:
-        lane_hash = hash(ground_truth_dict['lane_boundary'].__repr__())
-    except KeyError:
-        lane_hash = ""
-
-    ignore_lanes = lane_hash in LANES_HASHES
-    rule_checker = OSIRulesChecker(LOGGER, ignore_lanes)
+    rule_checker = OSIRulesChecker(LOGGER)
     timestamp = rule_checker.set_timestamp(message.value.timestamp, timestep)
-
     ID_TO_TS[timestep] = timestamp
 
     LOGGER.log_messages[timestep] = []
     LOGGER.debug_messages[timestep] = []
     LOGGER.info(None, f'Analyze message of timestamp {timestamp}', False)
-    if ignore_lanes:
-        LOGGER.info(timestep, f'Ignoring lanes (Hash: {lane_hash})', False)
-    else:
-        LOGGER.info(timestep, f'Checking lanes (Hash: {lane_hash})', False)
 
     # Check if timestamp already exists
     if timestep in TIMESTAMP_ANALYZED:
@@ -184,9 +170,6 @@ def process_timestep(timestep):
         message, VALIDATION_RULES.t_rules.nested_types[MESSAGE_TYPE.value])
 
     LOGS.extend(LOGGER.log_messages[timestep])
-
-    if not ignore_lanes:
-        LANES_HASHES.append(lane_hash)
 
 
 if __name__ == "__main__":

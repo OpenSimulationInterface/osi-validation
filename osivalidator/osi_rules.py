@@ -69,7 +69,8 @@ class OSIRules:
 
             message_t = self.t_rules.add_type_from_path(message_t_path)
             for field_rule in field_rules:
-                message_t.add_field(FieldRules(field_name, field_rule))
+                message_t.add_field(FieldRules(
+                    name=field_name, rules=field_rule))
 
     def get_rules(self):
         """Return the rules
@@ -87,21 +88,24 @@ class OSIRules:
         for key, value in rules.items():
             is_message_type = key[0].isupper()
 
-            if is_message_type and isinstance(value, dict):
-                new_message_t = t_rules.add_type(MessageTypeRules(key))
+            if is_message_type and isinstance(value, dict):  # List of types
+                new_message_t = t_rules.add_type(MessageTypeRules(name=key))
                 self.translate_rules(value, new_message_t)
-            elif isinstance(value, list):
-                field = t_rules.add_field(FieldRules(key))
+            elif isinstance(value, list):  # If it is a list of rules
+                field = t_rules.add_field(FieldRules(name=key))
                 for yaml_rule in value:
                     if isinstance(yaml_rule, str):
-                        field.add_rule(Rule(yaml_rule))
+                        (verb, *params) = yaml_rule.split()
+                        extra_params = None
                     elif isinstance(yaml_rule, dict):
-                        (verb, params), = yaml_rule.items()
-                        field.add_rule(Rule(verb, params))
-            elif isinstance(value, dict):
-                field = t_rules.add_field(FieldRules(key))
+                        (verb, params), *extra_params = yaml_rule.items()
+                    field.add_rule(Rule(verb=verb,
+                                        params=params,
+                                        extra_params=extra_params))
+            elif isinstance(value, dict):  # If it is a list of rules (dict)
+                field = t_rules.add_field(FieldRules(name=key))
                 for verb, params in value.items():
-                    field.add_rule(Rule(verb, params))
+                    field.add_rule(Rule(verb=verb, params=params))
 
             elif value is not None:
                 raise TypeError(
@@ -111,24 +115,26 @@ class OSIRules:
 class ProtoMessagePath:
     """Represents a path to a message object"""
 
-    def __init__(self, inheritance=None):
-        self.inheritance = inheritance or []
+    def __init__(self, path=None):
+        if path and not all(isinstance(component, str) for component in path):
+            raise TypeError('must be str list, found ' + str(path))
+        self.path = deepcopy(path) or []
 
     def __repr__(self):
-        return ".".join(self.inheritance)
+        return ".".join(self.path)
 
     def __getitem__(self, parent):
-        return self.inheritance[parent]
+        return self.path[parent]
 
     def pretty_html(self):
         """Return a pretty html version of the message path"""
-        return ".".join(map(lambda l: "<b>"+l+"</b>", self.inheritance[:-1])) \
-            + "." + self.inheritance[-1]
+        return ".".join(map(lambda l: "<b>"+l+"</b>", self.path[:-1])) \
+            + "." + self.path[-1]
 
-    def child_path(self, child_name):
-        """Return a new path for the child of the message named child_name"""
+    def child_path(self, child):
+        """Return a new path for the child"""
         new_path = deepcopy(self)
-        new_path.inheritance.append(child_name)
+        new_path.path.append(child)
 
         return new_path
 
@@ -137,11 +143,18 @@ class OSIRuleNode:
     """Represents any node in the tree of OSI rules"""
 
     def __init__(self, path=None):
-        self.path = path
+        self._path = path
+        self.root = None
 
-    def get_path(self):
+    @property
+    def path(self):
         """Return the path of the node"""
-        return self.path
+        return self._path
+
+    @path.setter
+    def path(self, path):
+        new_path = ProtoMessagePath(path=path.path)
+        self._path = new_path
 
 
 class TypeRulesContainer(OSIRuleNode):
@@ -150,11 +163,13 @@ class TypeRulesContainer(OSIRuleNode):
     def __init__(self, nested_types=None):
         super().__init__(path=ProtoMessagePath())
         self.nested_types = nested_types or dict()
+        self.root = self
 
     def add_type(self, message_type):
         """Add a message type in the TypeContainer"""
         message_type = deepcopy(message_type)
         message_type.path = self.path.child_path(message_type.type_name)
+        message_type.root = self
         self.nested_types[message_type.type_name] = message_type
         return message_type
 
@@ -173,18 +188,16 @@ class TypeRulesContainer(OSIRuleNode):
             pass
 
         name = path[-1]
-        new_message_t = MessageTypeRules(name, fields)
-
-        new_message_t.path = path
+        new_message_t = MessageTypeRules(name=name, fields=fields)
 
         child = self
-        for node in path.inheritance[:-1]:
+        for node in path[:-1]:
             try:
                 child = child.nested_types[node]
             except KeyError:
                 child = child.add_type(MessageTypeRules(node))
 
-        child.nested_types[path.inheritance[-1]] = new_message_t
+        child.add_type(new_message_t)
 
         return new_message_t
 
@@ -192,8 +205,8 @@ class TypeRulesContainer(OSIRuleNode):
         """Get a MessageType by name or path"""
         if isinstance(message_path, ProtoMessagePath):
             message_t = self
-            for i in message_path.inheritance:
-                message_t = message_t.nested_types[i]
+            for component in message_path.path:
+                message_t = message_t.nested_types[component]
             return message_t
         if isinstance(message_path, str):
             return self.nested_types[message_path]
@@ -225,6 +238,7 @@ class MessageTypeRules(TypeRulesContainer):
         """Add a field with or without rules to a Message Type"""
         field = deepcopy(field)
         field.path = self.path.child_path(field.field_name)
+        field.root = self.root
         self.fields[field.field_name] = field
         return field
 
@@ -235,16 +249,17 @@ class MessageTypeRules(TypeRulesContainer):
         return self.get_field(field_name)
 
     def __repr__(self):
-        return f'MessageType({len(self.fields)}): {self.fields}\n' + \
-            f'Nested types ({len(self.nested_types)})' + \
-            (': ' + ', '.join(self.nested_types.keys()) if self.nested_types
+        return f'{self.type_name}:' + \
+            f'MessageType({len(self.fields)}):{self.fields},' + \
+            f'Nested types({len(self.nested_types)})' + \
+            (':' + ','.join(self.nested_types.keys()) if self.nested_types
              else '')
 
 
 class FieldRules(OSIRuleNode):
     """This class manages the rules of a Message Type"""
 
-    def __init__(self, name, rules=None):
+    def __init__(self, name, rules=None, path=None):
         super().__init__()
         self.rules = dict()
         self.field_name = name
@@ -260,40 +275,37 @@ class FieldRules(OSIRuleNode):
         """
         rule = deepcopy(rule)
         rule.path = self.path.child_path(rule.verb)
+        rule.root = self.root
         self.rules[rule.verb] = rule
 
     def has_rule(self, rule):
         """Check if a field has the rule `rule`"""
         return rule in self.rules
 
+    def list_rules(self):
+        """List the rules of a field"""
+        return self.rules
+
     def __getitem__(self, rule_verb):
         return self.rules[rule_verb]
 
     def __repr__(self):
         nested_rules = [self.rules[r] for r in self.rules]
-        return f"Field({len(self.rules)}):{nested_rules}"
+        return f"{self.field_name}:Field({len(self.rules)}):{nested_rules}"
 
 
 class Rule(OSIRuleNode):
     """This class manages one rule"""
 
-    def __init__(self, verb, params=None, severity=None):
+    def __init__(self, verb, params=None, extra_params=None, severity=None):
         super().__init__()
-        self.construct(verb, params, severity)
-
-        self.field_name = self.path[-2] if isinstance(
-            self.path, list) else "unknownfield"
-
-    def construct(self, verb, params, severity=None):
-        """Construct an empty rule"""
         self.params = params
-
-        if verb[-1] == "!" or severity == Severity.ERROR:
-            self.severity = Severity.ERROR
-        else:
-            self.severity = Severity.WARN
-
+        self.extra_params = extra_params
         self.verb = verb[:-1] if verb[-1] == "!" else verb
+        self.field_name = self.path[-2] if isinstance(
+            self.path, list) else "UnknownField"
+        self.severity = Severity.ERROR if (
+            verb[-1] == "!" or severity == Severity.ERROR) else Severity.WARN
 
     def __repr__(self):
         return f'{self.verb}' + (f"({self.params})" or "")
@@ -305,5 +317,5 @@ class Rule(OSIRuleNode):
 
 class Severity(Enum):
     """Descript the severity of the raised error if a rule does not comply."""
-    WARN = "warning"
-    ERROR = "error"
+    WARN = 30
+    ERROR = 40

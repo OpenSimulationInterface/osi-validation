@@ -11,6 +11,7 @@ from asteval import Interpreter
 from iso3166 import countries
 
 from .osi_rules import MessageTypeRules, ProtoMessagePath, FieldRules
+from .linked_proto_field import LinkedProtoField
 
 # DECORATORS
 # These functions are no rule implementation, but decorators to characterize
@@ -40,30 +41,19 @@ def rule_implementation(func):
     Decorator to label rules method implementations
     """
     func.is_rule = True
-
-    # return func
-
-    # Uncomment for function benchmarking
-    # @wraps(func)
-    # def wrapper(self, *args, **kwargs):
-    #     start = time.time()
-    #     with open("benchmark.txt", "a") as benchmark_file:
-    #         print(func.__name__, time.time()-start, file=benchmark_file)
-    #     return func(self, *args, **kwargs)
-
-    # return wrapper
-
     @wraps(func)
-    def wrapper(self, field, rule_obj, **kwargs):
-        result = func(self, field, rule_obj, **kwargs)
-        if isinstance(rule_obj, FieldRules):
-            rule_obj = rule_obj.rules[func.__name__]
-        severity = rule_obj.severity
-        params = "" if rule_obj.params is None else f"({rule_obj.params})"
+    def wrapper(self, field, rule, **kwargs):
+        if isinstance(field, list) and not func.repeated_selector:
+            result = all([func(unique_field, rule) for unique_field in field])
+        else:
+            result = func(self, field, rule, **kwargs)
+
+        if isinstance(rule, FieldRules):
+            rule = rule.rules[func.__name__]
         if not result:
-            self.log(
-                severity, f'{rule_obj.path}{params} does not comply in '
-                + field.path)
+            self.log(rule.severity, f'{rule.path}({rule.params})'
+                     + ' does not comply in '
+                     + field.path)
         return result
 
     return wrapper
@@ -86,7 +76,7 @@ def is_valid(self, field, rule):
         message_t_inherit.insert(0, field_type_desc.name)
         field_type_desc = field_type_desc.containing_type
 
-    child_rules = self.rules.get_type(ProtoMessagePath(message_t_inherit))
+    child_rules = rule.root.get_type(ProtoMessagePath(message_t_inherit))
     return self.check_compliance(field, child_rules)
 
 
@@ -235,10 +225,8 @@ def is_set(self, field, rule, **kwargs):
     The setting of the field is checked during the exploration of the
     fields.
     """
-    if kwargs.get("pre_check", False):
-        if not field.has_field(rule.field_name):
-            return False
-    return True
+    return (not kwargs.get("pre_check", False)
+            or field.has_field(rule.field_name))
 
 
 @rule_implementation
@@ -254,9 +242,7 @@ def is_set_if(self, field, rule, **kwargs):
     """
     if kwargs.get("pre_check", False):
         condition = rule['is_set_if'].params
-        dict_message = field.dict
-        if Interpreter(dict_message)(condition):
-            if not field.has_field(rule.name):
-                return False
+        return (not Interpreter(field.dict)(condition)
+                or field.has_field(rule.name))  # Logical implication
 
     return True

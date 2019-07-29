@@ -20,11 +20,10 @@ class OSIRulesChecker:
     The rule methods are marked with *Rule*.
     """
 
-    def __init__(self, logger, ignore_lanes):
+    def __init__(self, logger):
         self.logger = logger
         self.id_manager = OSIIDManager(logger)
         self.timestamp = self.timestamp_ns = -1
-        self.ignore_lanes = ignore_lanes
 
         self.pre_check_rules = []
         self.repeated_selectors = []
@@ -42,13 +41,8 @@ class OSIRulesChecker:
 
     def _check_repeated(self, message_list, rule):
         rule_method = getattr(self, rule.verb)
-        verb = rule_method.__name__
-
-        self.log('debug', f'Check the rule {verb} for a repeated field')
-
-        if verb in self.repeated_selectors:
+        if rule.verb in self.repeated_selectors:
             return rule_method(message_list, rule)
-
         return all([rule_method(message, rule) for message in message_list])
 
     def log(self, severity, message):
@@ -117,14 +111,7 @@ class OSIRulesChecker:
             except AttributeError:
                 self.log('error', f'Rule "{rule.verb}" not implemented yet')
             else:
-                # If the field is "REPEATED"
-                if isinstance(field, list):
-                    if(self.ignore_lanes and field[0].name == 'lane_boundary'
-                       and isinstance(field[0].parent.value, GroundTruth)):
-                        continue
-                    result = self._check_repeated(field, rule)
-                else:
-                    result = rule_method(field, rule)
+                result = rule_method(field, rule)
 
                 final_result = final_result if result else False
         return final_result
