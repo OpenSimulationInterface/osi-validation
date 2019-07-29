@@ -1,6 +1,6 @@
 Lane:
   id:
-    - is_global_unique
+    - is_global_unique:
   classification:
   Classification:
     type:
@@ -35,7 +35,7 @@ Lane:
       surface_texture:
 LaneBoundary:
   id:
-    - is_global_unique
+    - is_global_unique:
   boundary_line:
     - first_element: 
         width:

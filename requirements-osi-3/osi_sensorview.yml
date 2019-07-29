@@ -2,7 +2,7 @@ SensorView:
   version:
   timestamp:
   sensor_id:
-    - is_global_unique
+    - is_global_unique:
   mounting_position:
   mounting_position_rmse:
   host_vehicle_data:

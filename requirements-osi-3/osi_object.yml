@@ -1,6 +1,6 @@
 StationaryObject:
   id:
-    - is_global_unique
+    - is_global_unique:
   base:
   classification:
   Classification:
@@ -11,7 +11,7 @@ StationaryObject:
 
 MovingObject:
   id:
-    - is_global_unique
+    - is_global_unique:
   base:
   type:
   assigned_lane_id:

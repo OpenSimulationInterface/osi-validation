@@ -4,7 +4,7 @@ TrafficSignValue:
 
 TrafficSign:
   id:
-    - is_global_unique
+    - is_global_unique:
   main_sign:
   MainSign:
     base:

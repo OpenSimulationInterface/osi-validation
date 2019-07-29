@@ -3,6 +3,12 @@ DetectedTrafficLight:
   base:
   base_rsme:
   CandidateTrafficLight:
+    color: 
     probability:
       - is_greater_than_or_equal_to: 0
       - is_less_than_or_equal_to: 1
+      - if:
+          ../environement/temperature:
+          - 
+        do-check:
+          - is_less_than_or_equal_to: 0.5

@@ -1,6 +1,6 @@
 TrafficLight:
   id:
-    - is_global_unique
+    - is_global_unique:
   base:
   classification:
   Classification:
