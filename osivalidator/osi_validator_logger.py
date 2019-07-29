@@ -230,7 +230,7 @@ class OSIValidatorLogger():
             return iterable[0]
 
         wrapper_ranges = textwrap.TextWrapper(width=40)
-        wrapper = textwrap.TextWrapper(width=70)
+        wrapper = textwrap.TextWrapper(width=200)
 
         conn = self.conn
 
