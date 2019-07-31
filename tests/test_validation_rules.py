@@ -17,7 +17,7 @@ class TestValidationRules(unittest.TestCase):
         ovr.from_yaml_directory('requirements-osi-3')
         test_path = osi_rules.ProtoMessagePath(
             ['LaneBoundary', 'BoundaryPoint'])
-        ovr.t_rules.get_type(test_path)
+        ovr.rules.get_type(test_path)
 
     def test_creation_node(self):
         """Test creation of a node in OSI rules"""
@@ -40,7 +40,7 @@ class TestValidationRules(unittest.TestCase):
     is_set:"""
         validation_rules = osi_rules.OSIRules()
         validation_rules.from_yaml(raw, only=True)
-        rules = validation_rules.t_rules
+        rules = validation_rules.rules
         field = rules['HostVehicleData'].get_field('location')
         rule_check = osi_rules.Rule('is_set')
         rule_check.path = osi_rules.ProtoMessagePath(

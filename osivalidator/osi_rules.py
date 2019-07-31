@@ -242,7 +242,7 @@ class MessageTypeRules(TypeRulesContainer):
 
 
 class FieldRules(OSIRuleNode):
-    """This class manages the rules of a Message Type"""
+    """This class manages the rules of a Field in a Message Type"""
 
     def __init__(self, name, rules=None, path=None):
         super().__init__()
