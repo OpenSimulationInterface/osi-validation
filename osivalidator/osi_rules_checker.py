@@ -3,8 +3,6 @@ This module contains all the rules which a message or an attribute of a message
 from an OSI scenario can comply.
 """
 
-import sys
-
 from types import MethodType
 
 from .osi_rules import Severity

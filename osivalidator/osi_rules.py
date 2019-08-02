@@ -11,7 +11,6 @@ from enum import Enum
 import ruamel.yaml as yaml
 
 from .osi_doxygen_xml import OSIDoxygenXML
-from . import osi_rules_implementations as rule_implementations
 
 
 class OSIRules:
@@ -301,8 +300,10 @@ class Rule(OSIRuleNode):
         if dictionary:
             self.from_dict(dictionary)
 
+        from . import osi_rules_implementations as rule_implementations
+
         if not hasattr(rule_implementations, self.verb):
-            sys.stderr.write('This rule does not exist\n')
+            sys.stderr.write(self.verb + ' rule does not exist\n')
 
     def from_dict(self, rule_dict: dict):
         """Instanciate Rule object from a dictionary"""
@@ -313,8 +314,6 @@ class Rule(OSIRuleNode):
             self.extra_params = dict(extra_params)
             self.target = self.extra_params.pop('target', None)
 
-            if self.severity == Severity.INFO:
-                print('info', self)
             return True
         except AttributeError:
             sys.stderr.write(

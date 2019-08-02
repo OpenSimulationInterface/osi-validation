@@ -12,8 +12,7 @@ TrafficSign:
     Classification:
       variability:
       type:
-      value:
-        - is_set_if: True # TODO: does not require it?
+      value: # TODO: does not require it?
       assigned_lane_id:
         - refers: Lane
       vertically_mirrored:
@@ -25,8 +24,7 @@ TrafficSign:
     Classification:
       variability:
       type:
-      value:
-        - is_set_if: True # TODO: does not require it?
+      value: # TODO: does not require it?
       assigned_lane_id:
         - refers: Lane
       is_out_of_service:

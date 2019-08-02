@@ -28,14 +28,10 @@ DetectedMovingObject:
   percentage_side_lane_right:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 100
-  radar_specifics:
-    - is_not_set_if: # TODO
-  lidar_specifics:
-    - is_not_set_if: # TODO
-  camera_specifics:
-    - is_not_set_if: # TODO
-  ultrasonic_specifics:
-    - is_not_set_if: # TODO
+  radar_specifics: # TODO
+  lidar_specifics: # TODO
+  camera_specifics: # TODO
+  ultrasonic_specifics: # TODO
   CandidateMovingObject:
     probability:
       - is_greater_than_or_equal_to: 0

@@ -25,10 +25,8 @@ RoadMarking:
           target: this.monochrome_color
         do_check:
         - is_set:
-    value:
-      - is_set_if: True # TODO: when is it necessary to put a value?
-    value_text:
-      - is_set_if: True # TODO: when is it necessary to put a value?
+    value: # TODO: when is it necessary to put a value?
+    value_text: # TODO: when is it necessary to put a value?
     assigned_lane_id:
       - refers: Lane
     is_out_of_service:

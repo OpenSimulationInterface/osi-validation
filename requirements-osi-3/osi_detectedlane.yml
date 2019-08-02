@@ -9,5 +9,4 @@ DetectedLane:
 DetectedLaneBoundary:
   header:
   boundary_line:
-    - each:
-        position:
+    position:

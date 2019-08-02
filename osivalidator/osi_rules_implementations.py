@@ -7,8 +7,6 @@ its attributes and methods.
 """
 
 from functools import wraps
-
-from asteval import Interpreter
 from iso3166 import countries
 
 from .osi_rules import MessageTypeRules, FieldRules, Severity, Rule
@@ -77,8 +75,6 @@ def rule_implementation(func):
                 path = field[0].path
             else:
                 path = field.path
-            if rule.severity == Severity.INFO:
-                print(rule)
             self.log(rule.severity, str(rule.path)
                      + '(' + str(rule.params) + ')'
                      + ' does not comply in ' + str(path))
@@ -93,10 +89,11 @@ def rule_implementation(func):
 
 @rule_implementation
 def is_valid(self, field, rule):
-    """*Rule*
-
+    """
     Check if a field message is valid, that is all the inner rules of the
     message in the field are complying.
+
+    :param params: none
     """
     subfield_rules = rule.root.get_type(field.message_type)
 
@@ -119,8 +116,7 @@ def is_valid(self, field, rule):
 
 @rule_implementation
 def is_less_than_or_equal_to(self, field, rule):
-    """*Rule*
-
+    """
     Check if a number is under or equal a maximum.
 
     :param params: the maximum
@@ -145,7 +141,7 @@ def is_greater_than_or_equal_to(self, field, rule):
 
     Check if a number is over or equal a minimum.
 
-    :param params: the maximum
+    :param params: the minimum
     """
     return field.value >= rule.params
 
@@ -156,7 +152,7 @@ def is_greater_than(self, field, rule):
 
     Check if a number is over a minimum.
 
-    :param params: the maximum
+    :param params: the minimum
     """
     return field.value > rule.params
 
@@ -165,6 +161,8 @@ def is_greater_than(self, field, rule):
 def is_equal(self, field, rule):
     """
     Check if a number equals the parameter.
+
+    :param params: the equality to check
 
     Example:
     ```
@@ -179,6 +177,8 @@ def is_different(self, field, rule):
     """
     Check if a number is different from the parameter.
 
+    :param params: the inequality to check
+
     Example:
     ```
     - is_different: 1
@@ -189,12 +189,13 @@ def is_different(self, field, rule):
 
 @rule_implementation
 def is_global_unique(self, field, rule):
-    """*Rule*
-
+    """
     Register an ID in the OSI ID manager to later perform a ID
     consistency validation.
 
     Must be set to an Identifier.
+
+    :param params: none
     """
 
     object_of_id = field.parent.value
@@ -209,10 +210,7 @@ def refers(self, field, rule):
 
     Add a reference to another message by ID.
 
-    **TODO**: the conditional reference. Still no case of use in OSI let
-    this pending.
-
-    :param params: id of the refered object
+    :param params: Type name of the refered object
     """
     expected_type = rule.params
 
@@ -225,9 +223,10 @@ def refers(self, field, rule):
 
 @rule_implementation
 def is_iso_country_code(self, field, rule):
-    """*Rule*
-
+    """
     Check if a string is a ISO country code.
+
+    :param params: non
     """
     iso_code = field
     try:
@@ -240,8 +239,7 @@ def is_iso_country_code(self, field, rule):
 @rule_implementation
 @repeated_selector
 def first_element(self, field, rule):
-    """*Rule*
-
+    """
     Check rule for first message of a repeated field.
 
     :param params: dictionary of rules to be checked for the first message
@@ -257,8 +255,7 @@ def first_element(self, field, rule):
 @rule_implementation
 @repeated_selector
 def last_element(self, field, rule):
-    """*Rule*
-
+    """
     Check rule for last message of a repeated field.
 
     :param params: dictionary of rules to be checked for the last message
@@ -271,9 +268,10 @@ def last_element(self, field, rule):
 
 @rule_implementation
 def is_optional(self, field, rule):
-    """*Rule*
-
+    """
     This rule set the is_set one on a "Warning" severity.
+
+    :param params: none
     """
     return True
 
@@ -281,36 +279,31 @@ def is_optional(self, field, rule):
 @rule_implementation
 @pre_check
 def is_set(self, field, rule):
-    """*Rule*
+    """
+    Check if a field is set or if a repeated field has at least one element.
 
-    Check if a field is set. The Python function is actually a wrapper of
-    ``is_valid``.
-    The setting of the field is checked during the exploration of the
-    fields.
+    :param params: none
     """
     return field.has_field(rule.field_name)
 
 
 @rule_implementation
 @pre_check
-def is_set_if(self, field, rule):
-    """*Rule*
-
-    Conditional version of is_set The condition should be contained
-    in `params` as a string but is checked during the exploration of the
-    message.
-
-    :param params: The assertion in Python-style pseudo-code as a string.
-    """
-    condition = rule.params
-    return (not Interpreter(field.to_dict())(condition)
-            or field.has_field(rule.field_name))  # Logical implication
-
-
-@rule_implementation
-@pre_check
 def check_if(self, field, rule):
     """
+    Evaluate rules if some statements are verified:
+
+    :param params: statements
+    :param extra_params: `do_check`: rules to validate if statements are true
+
+    ```
+    a_field:
+    - check_if:
+      {statements}
+      do_check:
+      {rules to validate if statements are true}
+    ```
+
     Example:
     ```
     a_field:
