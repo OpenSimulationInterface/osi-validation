@@ -37,8 +37,7 @@ def add_default_rules_to_subfields(message, type_rules):
 
 
 def pre_check(func):
-    """
-    Decorator for rules that need to be checked before knowing that the field
+    """Decorator for rules that need to be checked before knowing that the field
     exists or not
     """
     func.pre_check = True
@@ -46,16 +45,14 @@ def pre_check(func):
 
 
 def repeated_selector(func):
-    """
-    Decorator for selector-rules that take
+    """Decorator for selector-rules that take
     """
     func.repeated_selector = True
     return func
 
 
 def rule_implementation(func):
-    """
-    Decorator to label rules method implementations
+    """Decorator to label rules method implementations
     """
     func.is_rule = True
     @wraps(func)
@@ -89,8 +86,7 @@ def rule_implementation(func):
 
 @rule_implementation
 def is_valid(self, field, rule):
-    """
-    Check if a field message is valid, that is all the inner rules of the
+    """Check if a field message is valid, that is all the inner rules of the
     message in the field are complying.
 
     :param params: none
@@ -116,53 +112,45 @@ def is_valid(self, field, rule):
 
 @rule_implementation
 def is_less_than_or_equal_to(self, field, rule):
-    """
-    Check if a number is under or equal a maximum.
+    """Check if a number is under or equal a maximum.
 
-    :param params: the maximum
+    :param params: the maximum (float)
     """
     return field.value <= rule.params
 
 
 @rule_implementation
 def is_less_than(self, field, rule):
-    """*Rule*
+    """Check if a number is under a maximum.
 
-    Check if a number is under a maximum.
-
-    :param params: the maximum
+    :param params: the maximum (float)
     """
     return field.value < rule.params
 
 
 @rule_implementation
 def is_greater_than_or_equal_to(self, field, rule):
-    """*Rule*
+    """Check if a number is over or equal a minimum.
 
-    Check if a number is over or equal a minimum.
-
-    :param params: the minimum
+    :param params: the minimum (float)
     """
     return field.value >= rule.params
 
 
 @rule_implementation
 def is_greater_than(self, field, rule):
-    """*Rule*
+    """Check if a number is over a minimum.
 
-    Check if a number is over a minimum.
-
-    :param params: the minimum
+    :param params: the minimum (float)
     """
     return field.value > rule.params
 
 
 @rule_implementation
 def is_equal(self, field, rule):
-    """
-    Check if a number equals the parameter.
+    """Check if a number equals the parameter.
 
-    :param params: the equality to check
+    :param params: the equality to check (float or bool)
 
     Example:
     ```
@@ -174,10 +162,9 @@ def is_equal(self, field, rule):
 
 @rule_implementation
 def is_different(self, field, rule):
-    """
-    Check if a number is different from the parameter.
+    """Check if a number is different from the parameter.
 
-    :param params: the inequality to check
+    :param params: the inequality to check (float or bool)
 
     Example:
     ```
@@ -189,8 +176,7 @@ def is_different(self, field, rule):
 
 @rule_implementation
 def is_global_unique(self, field, rule):
-    """
-    Register an ID in the OSI ID manager to later perform a ID
+    """Register an ID in the OSI ID manager to later perform a ID
     consistency validation.
 
     Must be set to an Identifier.
@@ -206,11 +192,9 @@ def is_global_unique(self, field, rule):
 
 @rule_implementation
 def refers(self, field, rule):
-    """*Rule*
+    """Add a reference to another message by ID.
 
-    Add a reference to another message by ID.
-
-    :param params: Type name of the refered object
+    :param params: Type name of the refered object (string)
     """
     expected_type = rule.params
 
@@ -223,10 +207,9 @@ def refers(self, field, rule):
 
 @rule_implementation
 def is_iso_country_code(self, field, rule):
-    """
-    Check if a string is a ISO country code.
+    """Check if a string is a ISO country code.
 
-    :param params: non
+    :param params: none
     """
     iso_code = field
     try:
@@ -239,10 +222,10 @@ def is_iso_country_code(self, field, rule):
 @rule_implementation
 @repeated_selector
 def first_element(self, field, rule):
-    """
-    Check rule for first message of a repeated field.
+    """Check rule for first message of a repeated field.
 
     :param params: dictionary of rules to be checked for the first message
+                   (mapping)
     """
     nested_fields_rules = rule.params
 
@@ -255,10 +238,10 @@ def first_element(self, field, rule):
 @rule_implementation
 @repeated_selector
 def last_element(self, field, rule):
-    """
-    Check rule for last message of a repeated field.
+    """Check rule for last message of a repeated field.
 
     :param params: dictionary of rules to be checked for the last message
+                   (mapping)
     """
     nested_fields_rules = rule.params
     virtual_message_rules = MessageTypeRules(
@@ -268,8 +251,7 @@ def last_element(self, field, rule):
 
 @rule_implementation
 def is_optional(self, field, rule):
-    """
-    This rule set the is_set one on a "Warning" severity.
+    """This rule set the is_set one on a "Warning" severity.
 
     :param params: none
     """
@@ -279,8 +261,7 @@ def is_optional(self, field, rule):
 @rule_implementation
 @pre_check
 def is_set(self, field, rule):
-    """
-    Check if a field is set or if a repeated field has at least one element.
+    """Check if a field is set or if a repeated field has at least one element.
 
     :param params: none
     """
@@ -290,18 +271,18 @@ def is_set(self, field, rule):
 @rule_implementation
 @pre_check
 def check_if(self, field, rule):
-    """
-    Evaluate rules if some statements are verified:
+    """Evaluate rules if some statements are verified:
 
     :param params: statements
     :param extra_params: `do_check`: rules to validate if statements are true
 
+    Structure:
     ```
     a_field:
     - check_if:
-      {statements}
+      {params: statements}
       do_check:
-      {rules to validate if statements are true}
+      {extra_params: rules to validate if statements are true}
     ```
 
     Example:
