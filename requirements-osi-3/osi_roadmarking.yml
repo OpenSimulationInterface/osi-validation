@@ -6,9 +6,25 @@ RoadMarking:
   Classification:
     type:
     traffic_main_sign_type:
-      - is_set_if: type in [2, 3, 4] or traffic_main_sign_type == 1
+      - is_optional:
+      - check_if:
+        - is_greater_than_or_equal_to: 2
+          target: this.type
+        - is_less_than_or_equal_to: 4
+          target: this.type
+        do_check:
+        - is_set:
     monochrome_color:
-      - is_set_if: type == 2 or monochrome_color == 1
+      - check_if:
+        - is_equal: 2
+          target: this.type
+        do_check:
+        - is_set:
+      - check_if:
+        - is_equal: 1
+          target: this.monochrome_color
+        do_check:
+        - is_set:
     value:
       - is_set_if: True # TODO: when is it necessary to put a value?
     value_text:

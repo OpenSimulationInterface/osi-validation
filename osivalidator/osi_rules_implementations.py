@@ -6,8 +6,6 @@ All these rules are bounded into "OSIRulesChecker", so they have access to all
 its attributes and methods.
 """
 
-import sys
-
 from functools import wraps
 
 from asteval import Interpreter
@@ -19,12 +17,12 @@ from .osi_rules import MessageTypeRules, FieldRules, Severity, Rule
 def add_default_rules_to_subfields(message, type_rules):
     """Add default rules to fields of message fields (subfields)
     """
-    for field in message.fields:
-        field_rules = (type_rules.get_field(field.name)
-                       if field.name in type_rules.fields
-                       else type_rules.add_field(FieldRules(field.name)))
+    for descriptor in message.all_field_descriptors:
+        field_rules = (type_rules.get_field(descriptor.name)
+                       if descriptor.name in type_rules.fields
+                       else type_rules.add_field(FieldRules(descriptor.name)))
 
-        if field.is_message:
+        if descriptor.message_type:
             field_rules.add_rule(Rule(verb='is_valid'))
 
         is_set_severity = (Severity.WARN
@@ -66,21 +64,25 @@ def rule_implementation(func):
     def wrapper(self, field, rule, **kwargs):
         if isinstance(rule, FieldRules):
             rule = rule.rules[func.__name__]
-        elif isinstance(rule, Rule):
-            field = field.query(rule.target) if rule.target else field
 
-        if isinstance(field, list) and not func.repeated_selector:
-            result = all([
-                func(unique_field, rule)
-                for unique_field in field
-            ])
+        if (isinstance(field, list)
+                and not getattr(func, 'repeated_selector', False)):
+            result = all([func(self, unique_field, rule)
+                          for unique_field in field])
         else:
             result = func(self, field, rule, **kwargs)
 
         if not result and isinstance(rule, Rule):
+            if isinstance(field, list):
+                path = field[0].path
+            else:
+                path = field.path
+            if rule.severity == Severity.INFO:
+                print(rule)
             self.log(rule.severity, str(rule.path)
                      + '(' + str(rule.params) + ')'
-                     + ' does not comply in ' + str(field.path))
+                     + ' does not comply in ' + str(path))
+
         return result
 
     return wrapper
@@ -103,28 +105,12 @@ def is_valid(self, field, rule):
     add_default_rules_to_subfields(field, subfield_rules)
 
     # loop over the fields in the rules
-    for subfield_name, subfield_rules in subfield_rules.fields.items():
+    for subfield_rules in subfield_rules.fields.values():
 
         for subfield_rule in subfield_rules.rules.values():
-            try:
-                rule_method = getattr(self, subfield_rule.verb)
-            except AttributeError:
-                sys.stderr.write(
-                    'Rule ' + {subfield_rule.verb} + ' not implemented yet\n')
+            result = self.check_rule(field, subfield_rule) and result
 
-            if getattr(rule_method, "pre_check", False):
-                # We do NOT know if the child exists
-                checked_field = field
-            elif field.has_field(subfield_name):
-                # We DO know that the child exists
-                checked_field = field.get_field(subfield_name)
-            else:
-                checked_field = None
-
-            if checked_field:
-                result = rule_method(checked_field, subfield_rule) and result
-
-    # Resolve ID and references
+        # Resolve ID and references
     if not field.parent:
         self.id_manager.resolve_unicity(self.timestamp)
         self.id_manager.resolve_references(self.timestamp)
@@ -173,6 +159,32 @@ def is_greater_than(self, field, rule):
     :param params: the maximum
     """
     return field.value > rule.params
+
+
+@rule_implementation
+def is_equal(self, field, rule):
+    """
+    Check if a number equals the parameter.
+
+    Example:
+    ```
+    - is_equal: 1
+    ```
+    """
+    return field.value == rule.params
+
+
+@rule_implementation
+def is_different(self, field, rule):
+    """
+    Check if a number is different from the parameter.
+
+    Example:
+    ```
+    - is_different: 1
+    ```
+    """
+    return field.value != rule.params
 
 
 @rule_implementation
@@ -238,7 +250,7 @@ def first_element(self, field, rule):
 
     # Note: Here, the virtual message type get its field name as a name
     virtual_message_rules = MessageTypeRules(
-        rule.field_name, nested_fields_rules)
+        rule.field_name, nested_fields_rules, root=rule.root)
     return self.is_valid(field[0], virtual_message_rules)
 
 
@@ -253,7 +265,7 @@ def last_element(self, field, rule):
     """
     nested_fields_rules = rule.params
     virtual_message_rules = MessageTypeRules(
-        rule.field_name, nested_fields_rules)
+        rule.field_name, nested_fields_rules, root=rule.root)
     return self.is_valid(field[-1], virtual_message_rules)
 
 
@@ -290,21 +302,45 @@ def is_set_if(self, field, rule):
 
     :param params: The assertion in Python-style pseudo-code as a string.
     """
-    condition = rule['is_set_if'].params
+    condition = rule.params
     return (not Interpreter(field.to_dict())(condition)
-            or field.has_field(rule.name))  # Logical implication
+            or field.has_field(rule.field_name))  # Logical implication
 
 
 @rule_implementation
 @pre_check
 def check_if(self, field, rule):
+    """
+    Example:
+    ```
+    a_field:
+    - check_if:
+      - is_set: # Statements
+        target: parent.environment.temperature
+      - another_statement: statement parameter
+      do_check: # Check that will be performed only if the statements are True
+      - is_less_than_or_equal_to: 0.5
+      - is_greater_than_or_equal_to: 0
+    ```
+    """
     statements = rule.params
+    do_checks = rule.extra_params['do_check']
     statement_true = True
+
+    # Check if all the statements are true
     for statement in statements:
-        statement_rule = Rule(dictionary=statement)
-        verb = statement_rule.verb
-        statement_true = getattr(self, verb)(
+        statement_rule = Rule(dictionary=statement,
+                              field_name=rule.field_name,
+                              severity=Severity.INFO)
+        statement_rule.path = rule.path.child_path(statement_rule.verb)
+        statement_true = self.check_rule(
             field, statement_rule) and statement_true
 
-    if statement_true:
-        pass
+    # If the statements are true, check the do_check rules
+    if not statement_true:
+        return True
+
+    return all((self.check_rule(field, Rule(path=rule.path.child_path(next(iter(check.keys()))),
+                                            dictionary=check,
+                                            field_name=rule.field_name))
+                for check in do_checks))

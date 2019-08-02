@@ -65,6 +65,13 @@ class LinkedProtoField:
 
         return self._fields.values()
 
+    @property
+    def all_field_descriptors(self):
+        """
+        List all the fields descriptors, i.e even the one that are not set
+        """
+        return self.value.DESCRIPTOR.fields
+
     def to_dict(self):
         """
         Return the dict version of the protobuf message.
@@ -85,6 +92,14 @@ class LinkedProtoField:
             return self._fields[field_name]
 
         field = getattr(self.value, field_name)
+
+        if (hasattr(self.value, 'DESCRIPTOR') and
+                self.value.DESCRIPTOR.fields_by_name[field_name].label == 3):
+            return [
+                LinkedProtoField(u_field, parent=self, name=field_name)
+                for u_field in field
+            ]
+
         return LinkedProtoField(field, parent=self, name=field_name)
 
     def has_field(self, field_name):
@@ -103,20 +118,28 @@ class LinkedProtoField:
             except AttributeError:
                 return False
 
-    def query(self, path):
+    def query(self, path, parent=False):
         """
         Return a LinkedProtoField from a path.
 
         Example of path: ./global_ground_truth/moving_object
         """
         cursor = self
-        for path_component in path.split("."):
+        components = path.split(".")
+        if parent:
+            if len(components) > 1:
+                components.pop()
+            else:
+                components.append("parent")
+
+        for path_component in components:
             if path_component == "this":
                 cursor = cursor
             elif path_component == "parent":
                 cursor = cursor.parent
             else:
                 cursor = cursor.get_field(path_component)
+
         return cursor
 
     def __repr__(self):

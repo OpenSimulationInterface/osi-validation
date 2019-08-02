@@ -16,12 +16,26 @@ MovingObject:
   type:
   assigned_lane_id:
   vehicle_attributes:
-    - is_set_if: type == 2
+    - check_if:
+      - is_equal: 2
+        target: this.type
+      do_check:
+      - is_set:
   vehicle_classification:
-    - is_set_if: type == 2
+    - check_if:
+      - is_equal: 2
+        target: this.type
+      do_check:
+      - is_set:
 
   VehicleAttributes:
     driver_id: # TODO: is set only if host_vehicle is false or use value for non valid id
+      - check_if:
+        - is_set:
+          target: parent.parent.host_vehicle_id
+        do_check:
+        - is_set:
+    
     radius_wheel:
       - is_greater_than_or_equal_to: 0
     number_wheel:
@@ -35,7 +49,12 @@ MovingObject:
     light_state:
     has_trailer:
     trailer_id:
-      - is_set_if: has_trailer
+      - is_optional:
+      - check_if:
+        - is_equal: true
+          target: this.has_trailer
+        do_check:
+        - is_set:
     
     LightState:
       indicator_state:

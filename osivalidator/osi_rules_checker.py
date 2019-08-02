@@ -3,10 +3,12 @@ This module contains all the rules which a message or an attribute of a message
 from an OSI scenario can comply.
 """
 
+import sys
+
 from types import MethodType
 
 from .osi_rules import Severity
-from .osi_validator_logger import SEVERITY
+from .osi_validator_logger import SEVERITY, OSIValidatorLogger
 from .osi_id_manager import OSIIDManager
 from . import osi_rules_implementations as rule_implementations
 
@@ -18,8 +20,8 @@ class OSIRulesChecker:
     The rule methods are marked with *Rule*.
     """
 
-    def __init__(self, logger):
-        self.logger = logger
+    def __init__(self, logger=None):
+        self.logger = logger or OSIValidatorLogger()
         self.id_manager = OSIIDManager(logger)
         self.timestamp = self.timestamp_ns = -1
 
@@ -47,3 +49,28 @@ class OSIRulesChecker:
         self.timestamp_ns = int(timestamp.nanos + timestamp.seconds * 10e9)
         self.timestamp = ts_id
         return self.timestamp, ts_id
+
+    def check_rule(self, parent_field, rule):
+        """Check if a field comply with a rule given the *parent* field"""
+        try:
+            rule_method = getattr(self, rule.verb)
+        except AttributeError:
+            raise AttributeError(
+                'Rule ' + rule.verb + ' not implemented yet\n')
+
+        if rule.target is not None:
+            parent_field = parent_field.query(rule.target, parent=True)
+
+        if getattr(rule_method, "pre_check", False):
+            # We do NOT know if the child exists
+            checked_field = parent_field
+        elif parent_field.has_field(rule.targeted_field):
+            # We DO know that the child exists
+            checked_field = parent_field.get_field(rule.targeted_field)
+        else:
+            checked_field = None
+
+        if checked_field is not None:
+            return rule_method(checked_field, rule)
+
+        return False

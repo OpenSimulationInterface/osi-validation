@@ -6,15 +6,35 @@ Lane:
     type:
     is_host_vehicle_lane:
     left_adjacent_lane_id:
-      - is_set_if: type != 4
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
     right_adjacent_lane_id:
-      - is_set_if: type != 4
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
     right_lane_boundary_id:
-      - is_set_if: type != 4
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
     left_lane_boundary_id:
-      - is_set_if: type != 4
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
     free_lane_boundary_id:
-      - is_set_if: type != 4
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
     road_condition:
     LanePairing:
       antecessor_lane_id:

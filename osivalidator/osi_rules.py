@@ -11,6 +11,7 @@ from enum import Enum
 import ruamel.yaml as yaml
 
 from .osi_doxygen_xml import OSIDoxygenXML
+from . import osi_rules_implementations as rule_implementations
 
 
 class OSIRules:
@@ -90,7 +91,8 @@ class OSIRules:
 
             elif value is not None:
                 sys.stderr.write(
-                    'must be dict or list, got ' + type(rules_dict).__name__)
+                    'must be dict or list, got '
+                    + type(rules_dict).__name__ + '\n')
 
 
 class ProtoMessagePath:
@@ -98,7 +100,8 @@ class ProtoMessagePath:
 
     def __init__(self, path=None):
         if path and not all(isinstance(component, str) for component in path):
-            sys.stderr.write('Path must be str list, found ' + str(path))
+            sys.stderr.write(
+                'Path must be str list, found ' + str(path) + '\n')
         self.path = deepcopy(path) or []
 
     def __repr__(self):
@@ -141,16 +144,15 @@ class OSIRuleNode:
 class TypeRulesContainer(OSIRuleNode):
     """This class defines either a MessageType or a list of MessageTypes"""
 
-    def __init__(self, nested_types=None):
+    def __init__(self, nested_types=None, root=None):
         super().__init__(path=ProtoMessagePath())
         self.nested_types = nested_types or dict()
-        self.root = self
+        self.root = root if root else self
 
     def add_type(self, message_type):
         """Add a message type in the TypeContainer"""
-        message_type = deepcopy(message_type)
         message_type.path = self.path.child_path(message_type.type_name)
-        message_type.root = self
+        message_type.root = self.root
         self.nested_types[message_type.type_name] = message_type
         return message_type
 
@@ -187,26 +189,29 @@ class TypeRulesContainer(OSIRuleNode):
         if isinstance(message_path, ProtoMessagePath):
             message_t = self
             for component in message_path.path:
-                message_t = message_t.nested_types[component]
+                try:
+                    message_t = message_t.nested_types[component]
+                except KeyError:
+                    raise KeyError('Type not found: ' + str(message_path))
             return message_t
         if isinstance(message_path, str):
             return self.nested_types[message_path]
 
-        sys.stderr.write('type must be ProtoMessagePath or str')
+        sys.stderr.write('type must be ProtoMessagePath or str' + '\n')
 
     def __getitem__(self, name):
         return self.nested_types[name]
 
     def __repr__(self):
         return f'TypeContainer({len(self.nested_types)}):\n' + \
-               '\n'.join(map(str, self.nested_types))
+               ','.join(map(str, self.nested_types))
 
 
 class MessageTypeRules(TypeRulesContainer):
     """This class manages the fields of a Message Type"""
 
-    def __init__(self, name, fields=None):
-        super().__init__()
+    def __init__(self, name, fields=None, root=None):
+        super().__init__(root=root)
         self.type_name = name
         self.fields = dict()
         if isinstance(fields, list):
@@ -217,7 +222,6 @@ class MessageTypeRules(TypeRulesContainer):
 
     def add_field(self, field):
         """Add a field with or without rules to a Message Type"""
-        field = deepcopy(field)
         field.path = self.path.child_path(field.field_name)
         field.root = self.root
         self.fields[field.field_name] = field
@@ -254,7 +258,6 @@ class FieldRules(OSIRuleNode):
         rule can also be a dictionary containing one key (the verb) with one
         value (the parameters).
         """
-        rule = deepcopy(rule)
         rule.path = self.path.child_path(rule.verb)
         rule.root = self.root
         self.rules[rule.verb] = rule
@@ -285,17 +288,21 @@ class Rule(OSIRuleNode):
 
     def __init__(self, **kwargs):
         super().__init__()
-        dictionary = kwargs.get("dictionary", None)
         self.severity = kwargs.get("severity", Severity.ERROR)
-        if dictionary:
-            self.from_dict(dictionary)
-            return
+        self.path = kwargs.get("path", ProtoMessagePath())
+        self.field_name = kwargs.get("field_name")
+
         self.params = kwargs.get("params", None)
         self.extra_params = kwargs.get("extra_params", None)
         self.target = kwargs.get("target", None)
         self.verb = kwargs.get("verb", None)
-        self.field_name = self.path[-2] if isinstance(
-            self.path, list) else "UnknownField"
+
+        dictionary = kwargs.get("dictionary", None)
+        if dictionary:
+            self.from_dict(dictionary)
+
+        if not hasattr(rule_implementations, self.verb):
+            sys.stderr.write('This rule does not exist\n')
 
     def from_dict(self, rule_dict: dict):
         """Instanciate Rule object from a dictionary"""
@@ -305,21 +312,43 @@ class Rule(OSIRuleNode):
             self.params = params
             self.extra_params = dict(extra_params)
             self.target = self.extra_params.pop('target', None)
+
+            if self.severity == Severity.INFO:
+                print('info', self)
             return True
         except AttributeError:
             sys.stderr.write(
-                'rule must be YAML mapping, got: ' + str(rule_dict))
+                'rule must be YAML mapping, got: ' + str(rule_dict) + '\n')
         return False
 
+    @property
+    def path(self):
+        return self._path
+
+    @property
+    def targeted_field(self):
+        if self.target:
+            return self.target.split('.')[-1]
+        return self.field_name
+
+    @path.setter
+    def path(self, path):
+        self._path = path
+        if len(self.path.path) >= 2 and isinstance(self.path, ProtoMessagePath):
+            self.field_name = self.path.path[-2]
+        elif not hasattr(self, "field_name"):
+            self.field_name = "UnknownField"
+
     def __repr__(self):
-        return f'{self.verb}' + (f"({self.params})" or "")
+        return f"{self.verb}({self.params}) target={self.target}"
 
     def __eq__(self, other):
-        return self.verb == other.verb and self.params == other.params \
-            and self.severity == other.severity
+        return (self.verb == other.verb and self.params == other.params
+                and self.severity == other.severity)
 
 
 class Severity(Enum):
     """Descript the severity of the raised error if a rule does not comply."""
+    INFO = 20
     WARN = 30
     ERROR = 40

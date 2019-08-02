@@ -12,10 +12,21 @@ import sqlite3
 import itertools
 import textwrap
 
+from functools import wraps
 from tabulate import tabulate
 import colorama
 
 from .osi_rules import Severity
+
+
+def log(func):
+    """Wrapper for logging function"""
+    @wraps(func)
+    def wrapper(self, timestamp, msg, *args, **kwargs):
+        if timestamp not in self.log_messages:
+            self.log_messages[timestamp] = []
+        return func(self, timestamp, msg, *args, **kwargs)
+    return wrapper
 
 
 class WarningFilter(logging.Filter):
@@ -130,6 +141,7 @@ class OSIValidatorLogger():
         self.logger.addHandler(handler_error)
         self.logger.addHandler(handler_warning)
 
+    @log
     def debug(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python debug logger"""
         if self.debug_mode:
@@ -137,18 +149,21 @@ class OSIValidatorLogger():
         msg = "[TS " + str(timestamp) + "]" + msg
         return self.logger.debug(msg, *args, **kwargs)
 
+    @log
     def warning(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python warning logger"""
         self.log_messages[timestamp].append((30, timestamp, msg))
         msg = "[TS " + str(timestamp) + "]" + msg
         return self.logger.warning(msg, *args, **kwargs)
 
+    @log
     def error(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python error logger"""
         self.log_messages[timestamp].append((40, timestamp, msg))
         msg = "[TS " + str(timestamp) + "]" + msg
         return self.logger.error(msg, *args, **kwargs)
 
+    @log
     def info(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python info logger"""
         if timestamp:
@@ -263,6 +278,7 @@ def print_synthesis(title, color, ranges_messages_table):
 
 
 SEVERITY = {
+    Severity.INFO: 'info',
     Severity.ERROR: 'error',
     Severity.WARN: 'warning'
 }
