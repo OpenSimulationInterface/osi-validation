@@ -1,0 +1,12 @@
+DetectedLane:
+  header:
+  CandidateLane:
+    probability:
+      - is_greater_than_or_equal_to: 0
+      - is_less_than_or_equal_to: 1
+    classification:
+
+DetectedLaneBoundary:
+  header:
+  boundary_line:
+    position:

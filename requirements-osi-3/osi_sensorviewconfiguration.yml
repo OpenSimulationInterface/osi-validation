@@ -1,0 +1,78 @@
+SensorViewConfiguration:
+  version:
+  sensor_id:
+  mounting_position:
+  mounting_position_rmse:
+  field_of_view_horizontal:
+  field_of_view_vertical:
+  range:
+    - is_greater_than_or_equal_to: 0
+  update_cycle_time:
+  update_cycle_offset:
+  simulation_start_time:
+  
+GenericSensorViewConfiguration:
+  sensor_id:
+  mounting_position:
+  mounting_position_rmse:
+  field_of_view_horizontal:
+  field_of_view_vertical:
+
+RadarSensorViewConfiguration:
+  sensor_id:
+  mounting_position:
+  mounting_position_rmse:
+  field_of_view_horizontal:
+  field_of_view_vertical:
+  number_of_rays_horizontal:
+    - is_greater_than_or_equal_to: 1
+  number_of_rays_vertical:
+    - is_greater_than_or_equal_to: 1
+  max_number_of_interactions:
+    - is_greater_than_or_equal_to: 1
+  emitter_frequency:
+    - is_greater_than_or_equal_to: 0
+  tx_antenna_diagram:
+  rx_antenna_diagram:
+  AntennaDiagramEntry:
+    horizontal_angle:
+    vertical_angle:
+    response:
+
+LidarSensorViewConfiguration:
+  sensor_id:
+  mounting_position:
+  mounting_position_rmse:
+  field_of_view_horizontal:
+  field_of_view_vertical:
+  number_of_rays_horizontal:
+    - is_greater_than_or_equal_to: 1
+  number_of_rays_vertical:
+    - is_greater_than_or_equal_to: 1
+  max_number_of_interactions:
+    - is_greater_than_or_equal_to: 1
+  emitter_frequency:
+    - is_greater_than_or_equal_to: 0
+  num_of_pixels:
+    - is_greater_than_or_equal_to: 1
+  
+CameraSensorViewConfiguration:
+  sensor_id:
+  mounting_position:
+  mounting_position_rmse:
+  field_of_view_horizontal:
+  field_of_view_vertical:
+  number_of_pixels_horizontal:
+    - is_greater_than_or_equal_to: 1
+  number_of_pixels_vertical:
+    - is_greater_than_or_equal_to: 1
+  channel_format:
+    - is_greater_than_or_equal_to: 1
+
+
+UltrasonicSensorViewConfiguration:
+  sensor_id:
+  mounting_position:
+  mounting_position_rmse:
+  field_of_view_horizontal:
+  field_of_view_vertical:

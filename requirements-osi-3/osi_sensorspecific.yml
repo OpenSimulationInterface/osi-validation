@@ -1,0 +1,13 @@
+RadarSpecificObjectData:
+  rcs:
+
+
+UltrasonicSpecificObjectData:
+  maximum_measurement_distance_sensor:
+    - is_greater_than_or_equal_to: 0
+  probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  trilateration_status:
+  trend:
+  signalway:

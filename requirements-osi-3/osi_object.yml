@@ -1,0 +1,71 @@
+StationaryObject:
+  id:
+    - is_global_unique:
+  base:
+  classification:
+  Classification:
+    type:
+    material:
+    density:
+    color:
+
+MovingObject:
+  id:
+    - is_global_unique:
+  base:
+  type:
+  assigned_lane_id:
+  vehicle_attributes:
+    - check_if:
+      - is_equal: 2
+        target: this.type
+      do_check:
+      - is_set:
+  vehicle_classification:
+    - check_if:
+      - is_equal: 2
+        target: this.type
+      do_check:
+      - is_set:
+
+  VehicleAttributes:
+    driver_id: # TODO: is set only if host_vehicle is false or use value for non valid id
+      - check_if:
+        - is_set:
+          target: parent.parent.host_vehicle_id
+        do_check:
+        - is_set:
+    
+    radius_wheel:
+      - is_greater_than_or_equal_to: 0
+    number_wheel:
+      - is_greater_than_or_equal_to: 1
+    bbcenter_to_rear:
+    bbcenter_to_front:
+    ground_clearance:
+  
+  VehicleClassification:
+    type:
+    light_state:
+    has_trailer:
+    trailer_id:
+      - is_optional:
+      - check_if:
+        - is_equal: true
+          target: this.has_trailer
+        do_check:
+        - is_set:
+    
+    LightState:
+      indicator_state:
+      front_fog_light:
+      rear_fog_light:
+      head_light:
+      high_beam:
+      reversing_light:
+      brake_light_state:
+      license_plate_illumination_rear:
+      emergency_vehicle_illumination:
+        #- is_set
+      service_vehicle_illumination:
+        #- is_set

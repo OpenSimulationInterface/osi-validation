@@ -1,0 +1,60 @@
+Vector3d:
+  x:
+  y:
+  z:
+
+Vector2d:
+  x:
+  y:
+
+Dimension3d:
+  length:
+    - is_greater_than_or_equal_to: 0
+  width:
+    - is_greater_than_or_equal_to: 0
+  height:
+    - is_greater_than_or_equal_to: 0
+
+Orientation3d:
+  roll:
+  pitch:
+  yaw:
+
+MountingPosition:
+  position:
+  orientation:
+
+Spherical3d:
+  distance:
+    - is_greater_than_or_equal_to: 0
+  azimuth:
+  elevation:
+
+BaseStationary:
+  dimension:
+  position:
+  orientation:
+  base_polygon:
+    #- is_set
+
+BaseMoving:
+  dimension:
+  position:
+  orientation:
+  velocity:
+  acceleration:
+  orientation_rate:
+  orientation_acceleration:
+    #- is_set
+  base_polygon:
+    #- is_set
+
+Identifier:
+  value:
+    - is_greater_than_or_equal_to: 0
+Timestamp:
+  seconds:
+    - is_greater_than_or_equal_to: 0
+  nanos:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 999999999

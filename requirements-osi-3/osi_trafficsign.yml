@@ -1,0 +1,34 @@
+TrafficSignValue:
+  value:
+  value_unit:
+
+TrafficSign:
+  id:
+    - is_global_unique:
+  main_sign:
+  MainSign:
+    base:
+    classification:
+    Classification:
+      variability:
+      type:
+      value: # TODO: does not require it?
+      assigned_lane_id:
+        - refers: Lane
+      vertically_mirrored:
+      is_out_of_service:
+
+  SupplementarySign:
+    base:
+    classification:
+    Classification:
+      variability:
+      type:
+      value: # TODO: does not require it?
+      assigned_lane_id:
+        - refers: Lane
+      is_out_of_service:
+      Arrow:
+        lane_id:
+          - refers: Lane
+        direction:

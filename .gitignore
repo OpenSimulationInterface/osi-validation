@@ -110,3 +110,6 @@ venv.bak/
 *.osibytes
 *.sosibytes
 .DS_Store
+
+output_logs/
+tests/overtake_right_straight_SensorView.txt
