@@ -5,6 +5,9 @@ requirements or in the Doxygen documentation.
 All these rules are bounded into "OSIRulesChecker", so they have access to all
 its attributes and methods.
 """
+
+import sys
+
 from functools import wraps
 
 from asteval import Interpreter
@@ -22,13 +25,13 @@ def add_default_rules_to_subfields(message, type_rules):
                        else type_rules.add_field(FieldRules(field.name)))
 
         if field.is_message:
-            field_rules.add_rule(Rule('is_valid'))
+            field_rules.add_rule(Rule(verb='is_valid'))
 
         is_set_severity = (Severity.WARN
                            if field_rules.has_rule('is_optional')
                            else Severity.ERROR)
 
-        field_rules.add_rule(Rule('is_set', severity=is_set_severity))
+        field_rules.add_rule(Rule(verb='is_set', severity=is_set_severity))
 
 
 # DECORATORS
@@ -61,15 +64,22 @@ def rule_implementation(func):
     func.is_rule = True
     @wraps(func)
     def wrapper(self, field, rule, **kwargs):
+        if isinstance(rule, FieldRules):
+            rule = rule.rules[func.__name__]
+        elif isinstance(rule, Rule):
+            field = field.query(rule.target) if rule.target else field
+
         if isinstance(field, list) and not func.repeated_selector:
-            result = all([func(unique_field, rule) for unique_field in field])
+            result = all([
+                func(unique_field, rule)
+                for unique_field in field
+            ])
         else:
             result = func(self, field, rule, **kwargs)
 
-        if isinstance(rule, FieldRules):
-            rule = rule.rules[func.__name__]
         if not result and isinstance(rule, Rule):
-            self.log(rule.severity, str(rule.path) + '(' + str(rule.params) + ')'
+            self.log(rule.severity, str(rule.path)
+                     + '(' + str(rule.params) + ')'
                      + ' does not comply in ' + str(field.path))
         return result
 
@@ -104,11 +114,13 @@ def is_valid(self, field, rule):
 
         for subfield_rule in subfield_rules.rules.values():
             try:
-                result = (getattr(self, subfield_rule.verb)(
-                    field.get_field(subfield_name), subfield_rule) and result)
+                rule_method = getattr(self, subfield_rule.verb)
             except AttributeError:
                 self.log('error',
                          f'Rule "{subfield_rule.verb}" not implemented yet')
+            else:
+                result = (rule_method(
+                    field.get_field(subfield_name), subfield_rule) and result)
 
     # Resolve ID and references
     if not field.parent:

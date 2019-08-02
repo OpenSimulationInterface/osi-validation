@@ -4,6 +4,7 @@ validation rules tree.
 """
 
 import os
+import sys
 from copy import deepcopy
 from enum import Enum
 
@@ -84,17 +85,12 @@ class OSIRules:
 
             elif isinstance(value, list):  # it's a field
                 field = rules_container.add_field(FieldRules(name=key))
-                for rule in value:  # iterate over rules
-                    try:
-                        (verb, params), *extra_params = rule.items()
-                        field.add_rule(Rule(verb=verb, params=params,
-                                            extra_params=extra_params))
-                    except AttributeError:
-                        raise TypeError(
-                            'rule must be YAML mapping, got: ' + str(value))
+                for rule_dict in value:  # iterate over rules
+                    field.add_rule(Rule(dictionary=rule_dict))
+
             elif value is not None:
-                raise TypeError(
-                    f'must be dict or list, got {type(rules_dict).__name__}')
+                sys.stderr.write(
+                    'must be dict or list, got ' + type(rules_dict).__name__)
 
 
 class ProtoMessagePath:
@@ -102,7 +98,7 @@ class ProtoMessagePath:
 
     def __init__(self, path=None):
         if path and not all(isinstance(component, str) for component in path):
-            raise TypeError('must be str list, found ' + str(path))
+            sys.stderr.write('Path must be str list, found ' + str(path))
         self.path = deepcopy(path) or []
 
     def __repr__(self):
@@ -196,7 +192,7 @@ class TypeRulesContainer(OSIRuleNode):
         if isinstance(message_path, str):
             return self.nested_types[message_path]
 
-        raise TypeError('parameter must be ProtoMessagePath or str')
+        sys.stderr.write('type must be ProtoMessagePath or str')
 
     def __getitem__(self, name):
         return self.nested_types[name]
@@ -287,15 +283,33 @@ class FieldRules(OSIRuleNode):
 class Rule(OSIRuleNode):
     """This class manages one rule"""
 
-    def __init__(self, verb, params=None, extra_params=None, severity=None):
+    def __init__(self, **kwargs):
         super().__init__()
-        self.params = params
-        self.extra_params = extra_params
-        self.verb = verb[:-1] if verb[-1] == "!" else verb
+        dictionary = kwargs.get("dictionary", None)
+        self.severity = kwargs.get("severity", Severity.ERROR)
+        if dictionary:
+            self.from_dict(dictionary)
+            return
+        self.params = kwargs.get("params", None)
+        self.extra_params = kwargs.get("extra_params", None)
+        self.target = kwargs.get("target", None)
+        self.verb = kwargs.get("verb", None)
         self.field_name = self.path[-2] if isinstance(
             self.path, list) else "UnknownField"
-        self.severity = Severity.ERROR if (
-            verb[-1] == "!" or severity == Severity.ERROR) else Severity.WARN
+
+    def from_dict(self, rule_dict: dict):
+        """Instanciate Rule object from a dictionary"""
+        try:
+            (verb, params), *extra_params = rule_dict.items()
+            self.verb = verb
+            self.params = params
+            self.extra_params = dict(extra_params)
+            self.target = self.extra_params.pop('target', None)
+            return True
+        except AttributeError:
+            sys.stderr.write(
+                'rule must be YAML mapping, got: ' + str(rule_dict))
+        return False
 
     def __repr__(self):
         return f'{self.verb}' + (f"({self.params})" or "")

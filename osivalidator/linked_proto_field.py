@@ -110,10 +110,10 @@ class LinkedProtoField:
         Example of path: ./global_ground_truth/moving_object
         """
         cursor = self
-        for path_component in path.split("/"):
-            if path_component == ".":
+        for path_component in path.split("."):
+            if path_component == "this":
                 cursor = cursor
-            elif path_component == "..":
+            elif path_component == "parent":
                 cursor = cursor.parent
             else:
                 cursor = cursor.get_field(path_component)
