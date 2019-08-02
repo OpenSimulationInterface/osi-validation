@@ -23,15 +23,10 @@ class OSIRulesChecker:
         self.id_manager = OSIIDManager(logger)
         self.timestamp = self.timestamp_ns = -1
 
-        self.pre_check_rules = []
-        self.repeated_selectors = []
-
         for module_name in dir(rule_implementations):
             method = getattr(rule_implementations, module_name)
             if getattr(method, "is_rule", False):
                 setattr(self, module_name, MethodType(method, self))
-                if getattr(method, "pre_check", False):
-                    self.pre_check_rules.append(module_name)
 
     # Rules implementation
     def log(self, severity, message):

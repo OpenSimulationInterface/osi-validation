@@ -104,23 +104,25 @@ def is_valid(self, field, rule):
 
     # loop over the fields in the rules
     for subfield_name, subfield_rules in subfield_rules.fields.items():
-        for verb in self.pre_check_rules:
-            if subfield_rules.has_rule(verb):
-                getattr(self, verb)(field, subfield_rules.get_rule(verb),
-                                    pre_check=True)
-
-        if not field.has_field(subfield_name):
-            continue
 
         for subfield_rule in subfield_rules.rules.values():
             try:
                 rule_method = getattr(self, subfield_rule.verb)
             except AttributeError:
-                self.log('error',
-                         f'Rule "{subfield_rule.verb}" not implemented yet')
+                sys.stderr.write(
+                    'Rule ' + {subfield_rule.verb} + ' not implemented yet\n')
+
+            if getattr(rule_method, "pre_check", False):
+                # We do NOT know if the child exists
+                checked_field = field
+            elif field.has_field(subfield_name):
+                # We DO know that the child exists
+                checked_field = field.get_field(subfield_name)
             else:
-                result = (rule_method(
-                    field.get_field(subfield_name), subfield_rule) and result)
+                checked_field = None
+
+            if checked_field:
+                result = rule_method(checked_field, subfield_rule) and result
 
     # Resolve ID and references
     if not field.parent:
@@ -266,7 +268,7 @@ def is_optional(self, field, rule):
 
 @rule_implementation
 @pre_check
-def is_set(self, field, rule, **kwargs):
+def is_set(self, field, rule):
     """*Rule*
 
     Check if a field is set. The Python function is actually a wrapper of
@@ -274,13 +276,12 @@ def is_set(self, field, rule, **kwargs):
     The setting of the field is checked during the exploration of the
     fields.
     """
-    return (not kwargs.get("pre_check", False)
-            or field.has_field(rule.field_name))
+    return field.has_field(rule.field_name)
 
 
 @rule_implementation
 @pre_check
-def is_set_if(self, field, rule, **kwargs):
+def is_set_if(self, field, rule):
     """*Rule*
 
     Conditional version of is_set The condition should be contained
@@ -289,9 +290,21 @@ def is_set_if(self, field, rule, **kwargs):
 
     :param params: The assertion in Python-style pseudo-code as a string.
     """
-    if kwargs.get("pre_check", False):
-        condition = rule['is_set_if'].params
-        return (not Interpreter(field.to_dict())(condition)
-                or field.has_field(rule.name))  # Logical implication
+    condition = rule['is_set_if'].params
+    return (not Interpreter(field.to_dict())(condition)
+            or field.has_field(rule.name))  # Logical implication
 
-    return True
+
+@rule_implementation
+@pre_check
+def check_if(self, field, rule):
+    statements = rule.params
+    statement_true = True
+    for statement in statements:
+        statement_rule = Rule(dictionary=statement)
+        verb = statement_rule.verb
+        statement_true = getattr(self, verb)(
+            field, statement_rule) and statement_true
+
+    if statement_true:
+        pass
