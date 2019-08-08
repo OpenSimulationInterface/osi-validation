@@ -8,10 +8,10 @@ from multiprocessing import Pool, Manager
 
 from progress.bar import Bar
 
-from .osi_rules import OSIRules
-from .osi_validator_logger import OSIValidatorLogger
-from .osi_scenario import OSIScenario
-from .osi_rules_checker import OSIRulesChecker
+from osivalidator.osi_rules import OSIRules
+from osivalidator.osi_validator_logger import OSIValidatorLogger
+from osivalidator.osi_scenario import OSIScenario
+from osivalidator.osi_rules_checker import OSIRulesChecker
 
 
 def command_line_arguments():

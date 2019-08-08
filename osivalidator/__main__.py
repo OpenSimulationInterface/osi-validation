@@ -1,3 +1,3 @@
-from .osi_general_validator import main
+from osivalidator.osi_general_validator import main
 
 main()

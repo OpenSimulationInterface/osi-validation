@@ -10,8 +10,8 @@ from osivalidator.osi_rules import Rule
 sys.path.append("../..")
 
 
-class TestIsLessThanOrEqualTo(unittest.TestCase):
-    """Test for rule is_less_than_or_equal_to"""
+class TestIsLessThan(unittest.TestCase):
+    """Test for rule is_less_than"""
 
     def setUp(self):
         self.FRC = OSIRulesChecker()
@@ -32,8 +32,8 @@ class TestIsLessThanOrEqualTo(unittest.TestCase):
         for fr_param in field_params_rule_params:
             with self.subTest(fr_param=fr_param):
                 self.assertTrue(
-                    self.FRC.is_less_than_or_equal_to(LinkedProtoField(value=fr_param[1]),
-                                                      Rule(verb="is_less_than_or_equal_to", params=fr_param[0]))
+                    self.FRC.is_less_than(LinkedProtoField(value=fr_param[1]),
+                                          Rule(verb="is_less_than", params=fr_param[0]))
                 )
 
     def test_not_comply_less(self):
@@ -48,11 +48,11 @@ class TestIsLessThanOrEqualTo(unittest.TestCase):
         for fr_param in field_params_rule_params:
             with self.subTest(fr_param=fr_param):
                 self.assertFalse(
-                    self.FRC.is_less_than_or_equal_to(LinkedProtoField(value=fr_param[0]),
-                                                      Rule(verb="is_less_than_or_equal_to", params=fr_param[1]))
+                    self.FRC.is_less_than(LinkedProtoField(value=fr_param[0]),
+                                          Rule(verb="is_less_than", params=fr_param[1]))
                 )
 
-    def test_comply_equal(self):
+    def test_not_comply_equal(self):
 
         field_params_rule_params = [[3, 3],
                                     [0, 0],
@@ -62,7 +62,7 @@ class TestIsLessThanOrEqualTo(unittest.TestCase):
 
         for fr_param in field_params_rule_params:
             with self.subTest(fr_param=fr_param):
-                self.assertTrue(
-                    self.FRC.is_less_than_or_equal_to(LinkedProtoField(value=fr_param[1]),
-                                                      Rule(verb="is_less_than_or_equal_to", params=fr_param[0]))
+                self.assertFalse(
+                    self.FRC.is_less_than(LinkedProtoField(value=fr_param[1]),
+                                          Rule(verb="is_less_than", params=fr_param[0]))
                 )

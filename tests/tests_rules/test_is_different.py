@@ -11,7 +11,7 @@ sys.path.append("../..")
 
 
 # TODO In progress
-class TestIsEqual(unittest.TestCase):
+class TestIsDifferent(unittest.TestCase):
     """Test class of OSIDataContainer class"""
 
     def setUp(self):
@@ -21,13 +21,13 @@ class TestIsEqual(unittest.TestCase):
         del self.FRC
 
     def test_comply(self):
-        field = LinkedProtoField(value=2)
+        field = LinkedProtoField(value=3)
         rule = Rule(verb="is_less_than_or_equal_to", params=2)
-        compliance = self.FRC.is_equal(field, rule)
+        compliance = self.FRC.is_different(field, rule)
         self.assertTrue(compliance)
 
     def test_not_comply(self):
-        field = LinkedProtoField(value=3)
+        field = LinkedProtoField(value=2)
         rule = Rule(verb="is_less_than_or_equal_to", params=2)
-        compliance = self.FRC.is_equal(field, rule)
+        compliance = self.FRC.is_different(field, rule)
         self.assertFalse(compliance)
