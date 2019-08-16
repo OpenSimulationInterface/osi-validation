@@ -15,7 +15,7 @@ from doxygen import Generator
 
 class OSIDoxygenXML:
     """
-    This class an XML Documentation of OSI and can parse the rules from it.
+    This class creates XML from \*.proto Files Documentation of OSI and can parse the rules from it.
     """
 
     def __init__(self):
@@ -29,16 +29,19 @@ class OSIDoxygenXML:
         self.proto2cpp_file_path = os.path.join(proto2cpp_path, "proto2cpp.py")
 
     def generate_osi_doxygen_xml(self):
-        """Generate the Doxygen XML documentation in the OSI path
+        """
+        Generate the Doxygen XML documentation in the OSI path
         """
 
-        configuration = f'''INPUT                  = {self.osi_path}
+        configuration = f'''
+        PROJECT_NAME           = osi-validation
+        INPUT                  = {self.osi_path}
         OUTPUT_DIRECTORY       = {self.osi_doc_path}
         EXTENSION_MAPPING      = proto=C++
         FILE_PATTERNS          = *.proto
         INPUT_FILTER           = "python {self.proto2cpp_file_path}"
         GENERATE_XML           = YES
-        GENERATE_HTML          = NO
+        GENERATE_HTML          = YES
         GENERATE_LATEX         = NO
         XML_PROGRAMLISTING     = NO
         ALIASES                = rules="<pre class=\"rules\">"
@@ -57,12 +60,14 @@ class OSIDoxygenXML:
         doxy_builder.build(clean=False, generate_zip=False)
 
     def get_files(self):
-        """Return the path of the fields in OSI
+        """
+        Return the path of the fields in OSI
         """
         return glob.glob(os.path.join(self.osi_path, 'doc', 'xml', '*.xml'))
 
     def parse_rules(self):
-        """Parse the Doxygen XML documentation to get the rules
+        """
+        Parse the Doxygen XML documentation to get the rules
         """
         xml_files = self.get_files()
 
@@ -86,7 +91,7 @@ class OSIDoxygenXML:
                 rules_lines = attr_rule.split('\n')
 
                 for line_no, line in enumerate(rules_lines):
-                    if (line.find(":") == -1 and line):
+                    if line.find(":") == -1 and line:
                         rules_lines[line_no] += ":"
 
                 attr_rule = "\n".join(rules_lines)
@@ -99,3 +104,8 @@ class OSIDoxygenXML:
                 else:
                     rules.append((attr_path, dict_rules))
         return rules
+
+
+if __name__ == '__main__':
+    osidx = OSIDoxygenXML()
+    osidx.generate_osi_doxygen_xml()

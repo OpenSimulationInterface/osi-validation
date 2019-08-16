@@ -19,15 +19,12 @@ Not complying test:
 
 """
 
-import sys
 import unittest
 
 from osivalidator.osi_rules_checker import OSIRulesChecker
 from osivalidator.linked_proto_field import LinkedProtoField
 from osivalidator.osi_rules import Rule
 from osi3.osi_common_pb2 import Orientation3d
-
-sys.path.append("../..")
 
 
 class TestIsSet(unittest.TestCase):

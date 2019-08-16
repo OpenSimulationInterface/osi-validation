@@ -43,7 +43,7 @@ class OSIRules:
             rules_file, Loader=yaml.SafeLoader))
         rules_file.close()
 
-    def from_yaml(self, yaml_content,):
+    def from_yaml(self, yaml_content):
         """Import from a string
         """
         self.from_dict(rules_dict=yaml.load(
@@ -243,10 +243,16 @@ class MessageTypeRules(TypeRulesContainer):
 class FieldRules(OSIRuleNode):
     """This class manages the rules of a Field in a Message Type"""
 
-    def __init__(self, name, rules=None, path=None):
+    def __init__(self, name, rules=None, path=None, root=None):
         super().__init__()
         self.rules = dict()
         self.field_name = name
+
+        if path:
+            self.path = path
+
+        if root:
+            self.root = root
 
         if isinstance(rules, list):
             for rule in rules:

@@ -47,8 +47,7 @@ class OSIIDManager:
         Condition is a function that will be applied on the found object if the
         reference is resolved
         """
-        self._references.append(
-            (referer, identifier, expected_type, condition))
+        self._references.append((referer, identifier, expected_type, condition))
 
     def resolve_unicity(self, timestamp):
         """Check for double ID"""

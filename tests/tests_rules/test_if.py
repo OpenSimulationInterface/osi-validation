@@ -21,15 +21,12 @@ Not complying test:
 
 """
 
-import sys
 import unittest
 from osivalidator.linked_proto_field import LinkedProtoField
 from osivalidator.osi_rules import Rule
 from osivalidator.osi_rules_checker import OSIRulesChecker
 
-from osi3.osi_common_pb2 import Vector3d, Orientation3d
-
-sys.path.append("../..")
+from osi3.osi_common_pb2 import Vector3d
 
 
 class TestCheckIf(unittest.TestCase):

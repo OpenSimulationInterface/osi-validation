@@ -1,14 +1,10 @@
 """Module for test class of OSIValidationRules class"""
 
-import sys
 import unittest
 
 from osivalidator.osi_rules_checker import OSIRulesChecker
-from osivalidator.osi_rules_implementations import is_greater_than
 from osivalidator.linked_proto_field import LinkedProtoField
 from osivalidator.osi_rules import Rule
-
-sys.path.append("../..")
 
 
 class TestIsGreaterThan(unittest.TestCase):

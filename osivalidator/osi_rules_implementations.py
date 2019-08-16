@@ -60,10 +60,8 @@ def rule_implementation(func):
         if isinstance(rule, FieldRules):
             rule = rule.rules[func.__name__]
 
-        if (isinstance(field, list)
-                and not getattr(func, 'repeated_selector', False)):
-            result = all([func(self, unique_field, rule)
-                          for unique_field in field])
+        if isinstance(field, list) and not getattr(func, 'repeated_selector', False):
+            result = all([func(self, unique_field, rule) for unique_field in field])
         else:
             result = func(self, field, rule, **kwargs)
 
@@ -82,7 +80,7 @@ def rule_implementation(func):
 
 
 # RULES
-
+# TODO Refactor this code into a seperate class so it can be easy parsed by sphinx
 
 @rule_implementation
 def is_valid(self, field, rule):
@@ -91,7 +89,11 @@ def is_valid(self, field, rule):
 
     :param params: none
     """
-    subfield_rules = rule.root.get_type(field.message_type)
+    # subfield_rules = rule.root.get_type(field.message_type)
+    if isinstance(rule, MessageTypeRules):
+        subfield_rules = rule
+    else:
+        subfield_rules = rule.root.get_type(field.message_type)
 
     result = True
     # Add default rules for each subfield that can be validated (default)
@@ -227,12 +229,25 @@ def first_element(self, field, rule):
     :param params: dictionary of rules to be checked for the first message
                    (mapping)
     """
+    statement_true = True
     nested_fields_rules = rule.params
 
-    # Note: Here, the virtual message type get its field name as a name
-    virtual_message_rules = MessageTypeRules(
-        rule.field_name, nested_fields_rules, root=rule.root)
-    return self.is_valid(field[0], virtual_message_rules)
+    # Convert parsed yaml file to dictonary rules
+    nested_fields_rules_list = []
+    for key_field, nested_rule in nested_fields_rules.items():
+        nested_rule[0].update({'target': 'this.'+key_field})
+        nested_fields_rules_list.append(nested_rule[0])
+
+    rules_checker_list = []
+    for nested_fields_rule in nested_fields_rules_list:
+        statement_rule = Rule(dictionary=nested_fields_rule,
+                              field_name=rule.field_name,
+                              severity=Severity.ERROR)
+        statement_rule.path = rule.path.child_path(statement_rule.verb)
+        statement_true = self.check_rule(field[0], statement_rule) and statement_true
+        rules_checker_list.append(statement_true)
+
+    return all(rules_checker_list)
 
 
 @rule_implementation
@@ -240,13 +255,29 @@ def first_element(self, field, rule):
 def last_element(self, field, rule):
     """Check rule for last message of a repeated field.
 
-    :param params: dictionary of rules to be checked for the last message
+    :param field: Field to which the rule needs to comply
+    :param rule: dictionary of rules to be checked for the last message
                    (mapping)
     """
+    statement_true = True
     nested_fields_rules = rule.params
-    virtual_message_rules = MessageTypeRules(
-        rule.field_name, nested_fields_rules, root=rule.root)
-    return self.is_valid(field[-1], virtual_message_rules)
+
+    # Convert parsed yaml file to dictonary rules
+    nested_fields_rules_list = []
+    for key_field, nested_rule in nested_fields_rules.items():
+        nested_rule[0].update({'target': 'this.'+key_field})
+        nested_fields_rules_list.append(nested_rule[0])
+
+    rules_checker_list = []
+    for nested_fields_rule in nested_fields_rules_list:
+        statement_rule = Rule(dictionary=nested_fields_rule,
+                              field_name=rule.field_name,
+                              severity=Severity.ERROR)
+        statement_rule.path = rule.path.child_path(statement_rule.verb)
+        statement_true = self.check_rule(field[-1], statement_rule) and statement_true
+        rules_checker_list.append(statement_true)
+
+    return all(rules_checker_list)
 
 
 @rule_implementation
@@ -271,31 +302,32 @@ def is_set(self, field, rule):
 @rule_implementation
 @pre_check
 def check_if(self, field, rule):
-    """Evaluate rules if some statements are verified:
+    """
+    Evaluate rules if some statements are verified:
 
     :param params: statements
     :param extra_params: `do_check`: rules to validate if statements are true
 
     Structure:
-    ```
+
     a_field:
     - check_if:
-      {params: statements}
-      do_check:
-      {extra_params: rules to validate if statements are true}
-    ```
+    {params: statements}
+    do_check:
+    {extra_params: rules to validate if statements are true}
+
 
     Example:
-    ```
+
     a_field:
     - check_if:
-      - is_set: # Statements
-        target: parent.environment.temperature
-      - another_statement: statement parameter
-      do_check: # Check that will be performed only if the statements are True
-      - is_less_than_or_equal_to: 0.5
-      - is_greater_than_or_equal_to: 0
-    ```
+    - is_set: # Statements
+    target: parent.environment.temperature
+    - another_statement: statement parameter
+    do_check: # Check that will be performed only if the statements are True
+    - is_less_than_or_equal_to: 0.5
+    - is_greater_than_or_equal_to: 0
+
     """
     statements = rule.params
     do_checks = rule.extra_params['do_check']

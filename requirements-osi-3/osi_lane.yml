@@ -57,12 +57,21 @@ LaneBoundary:
   id:
     - is_global_unique:
   boundary_line:
-    - first_element: 
-        width:
-        height:
     - last_element:
         width:
+          - is_equal: 0.13
+
         height:
+          - is_equal: 0.13
+
+#    - first_element:
+#        width:
+#        height:
+#        width:
+#          - last_element:
+#        height:
+#          - is_equal: 0.13
+#            target: this.height
   classification:
   BoundaryPoint:
     position:

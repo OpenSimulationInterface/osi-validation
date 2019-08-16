@@ -94,6 +94,7 @@ def main():
 
     # Collect Validation Rules
     print("Collect validation rules")
+    # VALIDATION_RULES.from_xml_doxygen()
     VALIDATION_RULES.from_yaml_directory(args.rules)
 
     # Pass all timesteps or the number specified
@@ -126,7 +127,10 @@ def main():
         MESSAGE_CACHE.update(DATA.message_cache)
 
         # Launch computation
-        pool.map(process_timestep, range(first_of_blast, last_of_blast))
+        # TODO Change this to parallel processing
+        for i in range(first_of_blast, last_of_blast):
+            process_timestep(i)
+        # pool.map(process_timestep, range(first_of_blast, last_of_blast))
 
         LOGGER.flush(LOGS)
 

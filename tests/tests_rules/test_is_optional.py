@@ -1,11 +1,8 @@
-import sys
 import unittest
 
 from osivalidator.osi_rules_checker import OSIRulesChecker
 from osivalidator.linked_proto_field import LinkedProtoField
 from osivalidator.osi_rules import Rule
-
-sys.path.append("../..")
 
 
 class TestIsOptional(unittest.TestCase):

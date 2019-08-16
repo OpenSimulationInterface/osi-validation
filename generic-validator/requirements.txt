@@ -1,3 +1,0 @@
-iso3166
-pyyaml
-git+https://github.com/kaporzhu/protobuf-to-dict.git

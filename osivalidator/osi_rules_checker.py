@@ -15,7 +15,7 @@ class OSIRulesChecker:
     """This class contains all the available rules to write OSI requirements and
     the necessary methods to check their compliance.
 
-    The rule methods are marked with *Rule*.
+    The rule methods are marked with \*Rule\*.
     """
 
     def __init__(self, logger=None):
@@ -49,7 +49,7 @@ class OSIRulesChecker:
         return self.timestamp, ts_id
 
     def check_rule(self, parent_field, rule):
-        """Check if a field comply with a rule given the *parent* field"""
+        """Check if a field comply with a rule given the \*parent\* field"""
         try:
             rule_method = getattr(self, rule.verb)
         except AttributeError:

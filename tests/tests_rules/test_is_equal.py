@@ -1,16 +1,12 @@
 """Module for test class of OSIValidationRules class"""
 
-import sys
 import unittest
 
 from osivalidator.osi_rules_checker import OSIRulesChecker
 from osivalidator.linked_proto_field import LinkedProtoField
 from osivalidator.osi_rules import Rule
 
-sys.path.append("../..")
 
-
-# TODO In progress
 class TestIsEqual(unittest.TestCase):
     """Test class of OSIDataContainer class"""
 

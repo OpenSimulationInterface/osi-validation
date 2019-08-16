@@ -168,9 +168,13 @@ Ranges of timestamps    Message
 
 ## Deployment of the documentation
 
-All documentation is generated under *docs* directory.
+### Install Doxygen
+
+```sudo apt-get install doxygen doxygen-doc doxygen-gui graphviz ```
 
 ### Deployment of all the documentation
+
+All documentation is generated under *docs* directory.
 
 *This will erase the formerly generated documentation.* This will also deploy
 the KPIs documentation at the same time.

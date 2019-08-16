@@ -1,5 +1,5 @@
 #!/bin/sh
-git clone https://github.com/vkresch/osi-validation.git;
+git clone https://github.com/OpenSimulationInterface/osi-validation.git;
 cd osi-validation;
 git checkout development;
 git clone https://github.com/OpenSimulationInterface/open-simulation-interface.git;
