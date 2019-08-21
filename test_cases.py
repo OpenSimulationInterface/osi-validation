@@ -7,8 +7,19 @@ state = 0
 
 # Define grammar rules for rule definitions
 rules_dict = {'in_range': r'\b(in_range)\b: \[\d+(\.\d+)?, \d+(\.\d+)?\]',
-              'greater_than': r'\b(greater_than)\b',
-              'less_than': r'\b(less_than)\b',
+              'is_greater_than': r'\b(is_greater_than)\b: \d+(\.\d+)?',
+              'is_greater_than_or_equal_to': r'\b(is_greater_than_or_equal_to)\b: \d+(\.\d+)?',
+              'is_less_than_or_equal_to': r'\b(is_less_than_or_equal_to)\b: \d+(\.\d+)?',
+              'is_less_than': r'\b(is_less_than)\b: \d+(\.\d+)?',
+              'is_equal': r'\b(is_equal)\b: \d+(\.\d+)?',
+              'is_different': r'\b(is_different)\b: \d+(\.\d+)?',
+              'is_global_unique': r'\b(is_global_unique)\b',
+              'refers': r'\b(refers)\b',
+              'is_iso_country_code': r'\b(is_iso_country_code)\b',
+              'first_element': r'\b(first_element)\b: \{.*: \d+\.\d+\}',
+              'last_element': r'\b(last_element)\b: \{.*: \d+\.\d+\}',
+              'is_optional': r'\b(is_optional)\b',
+              'check_if': r'\b(check_if)\b: \{.*: \{.*: \[.*\]\}\}',
               'is_set': r'\b(is_set)\b'}
 
 
@@ -237,7 +248,6 @@ for file in glob("open-simulation-interface/*.proto"):
      
                 # --------------------------------------------------------------
                 # Test case 20 is checking comment and html tags
-
                 if matchComment is not None:
                     htmlComment = ""
                     htmlFreeComment = comment
@@ -301,7 +311,7 @@ for file in glob("open-simulation-interface/*.proto"):
 
                         if re.search(r'\b(is_set)\b', comment):
                             isSet = True
-                            foundruleCount += 1
+                            # foundruleCount += 1
 
                         # TODO Stehen geblieben
                         
@@ -327,7 +337,7 @@ for file in glob("open-simulation-interface/*.proto"):
                                     state = 1
 
                                 if hasRule and lineruleCount != foundruleCount and endRule:
-                                    print(file + " in line " + str(i) + ": "+str(lineruleCount-foundruleCount)+" defined rule(s) does not exists for: '"+statement+"'")
+                                    print(file + " in line " + str(i) + ": "+str(lineruleCount-foundruleCount-1)+" defined rule(s) does not exists for: '"+statement+"'")
                                     state = 1
 
                                 if hasRule and lineruleCount > foundruleCount and not endRule:
