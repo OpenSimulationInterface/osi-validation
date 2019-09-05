@@ -42,6 +42,8 @@ class OSIDoxygenXML:
         INPUT_FILTER           = "python {self.proto2cpp_file_path}"
         GENERATE_XML           = YES
         GENERATE_HTML          = YES
+        MAX_DOT_GRAPH_DEPTH    = 2
+        RECURSIVE              = YES
         GENERATE_LATEX         = NO
         XML_PROGRAMLISTING     = NO
         ALIASES                = rules="<pre class=\"rules\">"

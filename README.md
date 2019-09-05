@@ -65,11 +65,6 @@ Last step copy `requirements-osi-3` to `vpython/lib/python3.6/site-packages`
 
 ```cp -R requirements-osi-3 vpython/lib/python3.6/site-packages/```
 
-### Install with virtual environment via script
-
-Just run the script:
-
-```sudo bash installation.sh```
 
 ### In the root directory 
 

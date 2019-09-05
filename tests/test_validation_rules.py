@@ -11,7 +11,7 @@ class TestValidationRules(unittest.TestCase):
     def test_from_directory(self):
         """Test import from directory"""
         ovr = OSIRules()
-        ovr.from_yaml_directory('../requirements-osi-3')
+        ovr.from_yaml_directory('requirements-osi-3')
         test_path = ProtoMessagePath(['LaneBoundary', 'BoundaryPoint'])
         ovr_container = ovr.rules.get_type(test_path)
         self.assertIsInstance(ovr_container.path, ProtoMessagePath)

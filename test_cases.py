@@ -19,7 +19,7 @@ rules_dict = {'in_range': r'\b(in_range)\b: \[\d+(\.\d+)?, \d+(\.\d+)?\]',
               'first_element': r'\b(first_element)\b: \{.*: \d+\.\d+\}',
               'last_element': r'\b(last_element)\b: \{.*: \d+\.\d+\}',
               'is_optional': r'\b(is_optional)\b',
-              'check_if': r'\b(check_if)\b: \{.*: \{.*: \[.*\]\}\}',
+              'check_if': r'\b(check_if)\b: \[\{.*: \d+(\.\d+)?, target: .*}, \{do_check: \{.*: \d+(\.\d+)?}}]',
               'is_set': r'\b(is_set)\b'}
 
 
@@ -313,8 +313,7 @@ for file in glob("open-simulation-interface/*.proto"):
                             isSet = True
                             # foundruleCount += 1
 
-                        # TODO Stehen geblieben
-                        
+                        # TODO There also needs to be a checking for inner rules for check_if and first_element
                         if not endRule and comment != '':
                             foundRule = False
                             for rulename, ruleregex in rules_dict.items():
@@ -336,7 +335,7 @@ for file in glob("open-simulation-interface/*.proto"):
                                     print(file + " in line " + str(i) + ": rule is_set is missing for: '"+statement+"'")
                                     state = 1
 
-                                if hasRule and lineruleCount != foundruleCount and endRule:
+                                if hasRule and lineruleCount != foundruleCount and endRule and lineruleCount-foundruleCount-1>0:
                                     print(file + " in line " + str(i) + ": "+str(lineruleCount-foundruleCount-1)+" defined rule(s) does not exists for: '"+statement+"'")
                                     state = 1
 
