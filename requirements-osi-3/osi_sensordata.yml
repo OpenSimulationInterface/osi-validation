@@ -1,0 +1,13 @@
+DetectedEntityHeader:
+  measurement_time:
+  cycle_counter:
+  data_qualifier:
+
+SensorData:
+  version:
+  timestamp:
+  sensor_id:
+  mounting_position:
+  mounting_position_rmse:
+  sensor_view:
+# TODO: rules for the other attributes?

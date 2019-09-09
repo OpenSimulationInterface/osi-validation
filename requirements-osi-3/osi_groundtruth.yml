@@ -1,0 +1,8 @@
+GroundTruth:
+  version:
+  timestamp:
+  host_vehicle_id:
+    - refers: MovingObject
+  environmental_conditions:
+  country_code:
+    - is_iso_country_code:

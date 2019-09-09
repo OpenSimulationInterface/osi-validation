@@ -9,7 +9,24 @@ import time
 import os
 import sqlite3
 
-from .osi_validation_rules import Severity
+import itertools
+import textwrap
+
+from functools import wraps
+from tabulate import tabulate
+import colorama
+
+from .osi_rules import Severity
+
+
+def log(func):
+    """Wrapper for logging function"""
+    @wraps(func)
+    def wrapper(self, timestamp, msg, *args, **kwargs):
+        if timestamp not in self.log_messages:
+            self.log_messages[timestamp] = []
+        return func(self, timestamp, msg, *args, **kwargs)
+    return wrapper
 
 
 class WarningFilter(logging.Filter):
@@ -45,6 +62,7 @@ class OSIValidatorLogger():
         self.logger.setLevel(logging.DEBUG if debug else logging.INFO)
         self._is_cli_output_set = False
         self.conn = None
+        self.dbname = None
 
     def init_cli_output(self, verbose):
         """Initialize the CLI output"""
@@ -72,8 +90,8 @@ class OSIValidatorLogger():
 
     def create_database(self, timestamp, output_path):
         """Create an SQLite database and set the table for logs"""
-        self.conn = sqlite3.connect(
-            os.path.join(output_path, f'logs_{timestamp}.db'))
+        self.dbname = os.path.join(output_path, f'logs_{timestamp}.db')
+        self.conn = sqlite3.connect(self.dbname)
 
         cursor = self.conn.cursor()
 
@@ -123,6 +141,7 @@ class OSIValidatorLogger():
         self.logger.addHandler(handler_error)
         self.logger.addHandler(handler_warning)
 
+    @log
     def debug(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python debug logger"""
         if self.debug_mode:
@@ -130,27 +149,38 @@ class OSIValidatorLogger():
         msg = "[TS " + str(timestamp) + "]" + msg
         return self.logger.debug(msg, *args, **kwargs)
 
+    @log
     def warning(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python warning logger"""
         self.log_messages[timestamp].append((30, timestamp, msg))
         msg = "[TS " + str(timestamp) + "]" + msg
         return self.logger.warning(msg, *args, **kwargs)
 
+    @log
     def error(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python error logger"""
         self.log_messages[timestamp].append((40, timestamp, msg))
         msg = "[TS " + str(timestamp) + "]" + msg
         return self.logger.error(msg, *args, **kwargs)
 
-    def info(self, timestamp, msg, pass_to_logger=True, *args, **kwargs):
+    @log
+    def info(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python info logger"""
         if timestamp:
             self.log_messages[timestamp].append((20, timestamp, msg))
-        if pass_to_logger:
+        if kwargs.get("pass_to_logger"):
             return self.logger.info(msg, *args, **kwargs)
+        return 0
 
-    def flush(self, log_queue=None, timestamp=None):
-        """Flush the ouput to the database"""
+    def flush(self, log_queue=None, timestamp=None, from_id=None):
+        """Flush the ouput to the database
+
+        :param log_queue: list of tuple of messages that have to be flushed
+        :param timestamp: if not None, only the timestamp given will be flushed
+        :param from_id: if None, the timestamp will be in millisecond,
+                        otherwhise it will be the id of the timestamp according
+                        to the lookup table given in this parameter
+        """
 
         # Open a new cursor
         cursor = self.conn.cursor()
@@ -159,6 +189,10 @@ class OSIValidatorLogger():
             log_tuples = self.log_messages[timestamp]
         elif log_queue is not None:
             log_tuples = log_queue
+
+        if from_id:
+            for tuple_id, log_tuple in enumerate(log_queue):
+                log_queue[tuple_id][1] = from_id[log_tuple[1]]
 
         cursor.executemany("INSERT INTO logs VALUES (?, ?, ?)", log_tuples)
 
@@ -174,8 +208,77 @@ class OSIValidatorLogger():
             del self.log_messages
             self.log_messages = dict()
 
+    def synthetize_results_from_sqlite(self):
+        """Aggregate the sqlite log and output a synthetized version of the
+        result"""
+        def ranges(i):
+            group = itertools.groupby(
+                enumerate(i), lambda x_y: x_y[1] - x_y[0])
+            for _, second in group:
+                second = list(second)
+                yield second[0][1], second[-1][1]
+
+        def format_ranges(ran):
+            if ran[0] == ran[1]:
+                return str(ran[0])
+            return f"[{ran[0]}, {ran[1]}]"
+
+        def process_timestamps(distinct_messages):
+            results = []
+            cursor = conn.cursor()
+            for message in distinct_messages:
+                cursor.execute(
+                    """SELECT DISTINCT timestamp
+                       FROM logs
+                       WHERE message = ?
+                       ORDER BY timestamp""",
+                    message
+                )
+
+                timestamps = list(map(first_elt, cursor.fetchall()))
+                ts_ranges = ", ".join(map(format_ranges, ranges(timestamps)))
+                results.append([wrapper_ranges.fill(ts_ranges),
+                                wrapper.fill(first_elt(message))])
+            return results
+
+        def first_elt(iterable):
+            return iterable[0]
+
+        wrapper_ranges = textwrap.TextWrapper(width=40)
+        wrapper = textwrap.TextWrapper(width=200)
+
+        conn = self.conn
+
+        cursor_warn = conn.cursor()
+        distinct_messages_w = cursor_warn.execute(
+            'SELECT DISTINCT message FROM logs WHERE severity = 30')
+        cursor_error = conn.cursor()
+        distinct_messages_e = cursor_error.execute(
+            'SELECT DISTINCT message FROM logs WHERE severity = 40')
+
+        conn.commit()
+
+        colorama.init()
+
+        print()
+        print_synthesis("Errors", "RED",
+                        process_timestamps(distinct_messages_e))
+        print()
+        print_synthesis("Warnings", "YELLOW",
+                        process_timestamps(distinct_messages_w))
+
+
+def print_synthesis(title, color, ranges_messages_table):
+    """Print the (range, messages) table in a nice way, precessed with title and
+    the number of messages"""
+    headers = ["Ranges of timestamps", "Message"]
+    print(getattr(colorama.Fore, color) + title + " (" +
+          str(len(ranges_messages_table)) + ") " + colorama.Style.RESET_ALL)
+    print(tabulate(ranges_messages_table, headers=headers))
+
 
 SEVERITY = {
+    Severity.INFO: 'info',
     Severity.ERROR: 'error',
     Severity.WARN: 'warning'
 }

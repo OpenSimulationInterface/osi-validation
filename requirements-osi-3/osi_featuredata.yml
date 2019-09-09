@@ -1,0 +1,114 @@
+FeatureData:
+  version:
+SensorDetectionHeader:
+  measurement_time:
+  cycle_counter:
+    - is_greater_than_or_equal_to: 0
+  mounting_position:
+  mounting_position_rmse:
+  data_qualifier:
+  number_of_valid_detection:
+    - is_greater_than_or_equal_to: 0
+  sensor_id:
+
+RadarDetectionData:
+  header:
+  detection:
+
+RadarDetection:
+  existence_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  object_id:
+    - refers: DetectedObject
+  position:
+  position_rmse:
+  radial_velocity:
+    - is_greater_than_or_equal_to: 0
+  radial_velocity_rmse:
+    - is_greater_than_or_equal_to: 0
+  rcs:
+  snr:
+  point_target_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  ambiguity_id: # TODO
+
+LidarDetectionData:
+  header:
+
+LidarDetection:
+  existence_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  object_id:
+    - refers: DetectedObject
+  position:
+  position_rmse:
+  height:
+    - is_greater_than_or_equal_to: 0
+  height_rmse:
+    - is_greater_than_or_equal_to: 0
+  intensity:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 100
+  free_space_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  reflectivity: # TODO
+
+UltrasonicDetectionData:
+  header:
+
+UltrasonicDetection:
+  existence_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  object_id:
+    - refers: DetectedObject
+  distance:
+    - is_greater_than_or_equal_to: 0
+
+UltrasonicIndirectDetection:
+  existence_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  object_id:
+    - refers: DetectedObject
+  ellipsoid_radial:
+  ellipsoid_axial:
+  receiver_id:
+  receiver_origin:
+
+CameraDetectionSpecificHeader:
+  number_of_valid_points:
+    - is_greater_than_or_equal_to: 0
+
+CameraDetectionData:
+  header:
+  specific_header:
+  detection:
+
+CameraDetection:
+  existence_probability: 
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  object_id:
+    - refers: DetectedObject
+  time_difference:
+  image_shape_type:
+  shape_classification_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  color_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  number_of_points:
+    - is_greater_than_or_equal_to: 0
+
+CameraPoint:
+  existence_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  point:
+  point_rmse:

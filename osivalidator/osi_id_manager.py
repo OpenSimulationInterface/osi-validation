@@ -5,6 +5,7 @@ and unicity according to the OSI KPIs.
 
 from collections import Counter
 
+
 class OSIIDManager:
     """Manage the ID of OSI Messages for verification of unicity and references
     """
@@ -46,8 +47,7 @@ class OSIIDManager:
         Condition is a function that will be applied on the found object if the
         reference is resolved
         """
-        self._references.append(
-            (referer, identifier, expected_type, condition))
+        self._references.append((referer, identifier, expected_type, condition))
 
     def resolve_unicity(self, timestamp):
         """Check for double ID"""
@@ -78,13 +78,16 @@ class OSIIDManager:
     def resolve_references(self, timestamp):
         """Check if references are compliant"""
         for reference in self._references:
-            _, identifier, expected_type, condition = reference
+            referer, identifier, expected_type, condition = reference
             try:
-                found_object = next(filter(lambda o, et=expected_type: type(
-                    o).__name__ == et, self._index[identifier]))
-            except StopIteration:
+                found_object = next(filter(
+                    lambda o, et=expected_type: type(o).__name__ == et,
+                    self._index[identifier]))
+            except (StopIteration, KeyError):
                 self.logger.error(
-                    timestamp, f'Reference unresolved: {expected_type} ' +
+                    timestamp,
+                    f'Reference unresolved: {referer.DESCRIPTOR.name} ' +
+                    f'to {expected_type} ' +
                     f'(ID: {identifier})')
             else:
                 self.logger.debug(

@@ -1,0 +1,7 @@
+[submodule "open-simulation-interface"]
+	path = open-simulation-interface
+	url = https://github.com/OpenSimulationInterface/open-simulation-interface.git
+	branch = master
+[submodule "proto2cpp"]
+	path = proto2cpp
+	url = https://github.com/OpenSimulationInterface/proto2cpp.git

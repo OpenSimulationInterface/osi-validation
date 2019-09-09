@@ -1,0 +1,11 @@
+SensorView:
+  version:
+  timestamp:
+  sensor_id:
+    - is_global_unique:
+  mounting_position:
+  mounting_position_rmse:
+  host_vehicle_data:
+  global_ground_truth:
+  host_vehicle_id:
+    - refers: 'MovingObject'

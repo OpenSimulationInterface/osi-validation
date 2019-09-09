@@ -4,39 +4,33 @@ Main class and entry point of the OSI Validator.
 
 import argparse
 import os
-from collections import namedtuple
 from multiprocessing import Pool, Manager
-from time import time
-import tracemalloc
 
 from progress.bar import Bar
-from google.protobuf.json_format import MessageToDict
 
-from .osi_validation_rules import OSIValidationRules
-from .osi_validator_logger import OSIValidatorLogger
-from .osi_id_manager import OSIIDManager
-from .osi_data_container import OSIDataContainer
-from .osi_rules_checker import OSIRulesChecker
+from osivalidator.osi_rules import OSIRules
+from osivalidator.osi_validator_logger import OSIValidatorLogger
+from osivalidator.osi_scenario import OSIScenario
+from osivalidator.osi_rules_checker import OSIRulesChecker
 
 
 def command_line_arguments():
     """ Define and handle command line interface """
 
-    dir_path = os.path.dirname(os.path.realpath(__file__))
+    dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
     parser = argparse.ArgumentParser(
         description='Validate data defined at the input',
         prog='osivalidator')
+    parser.add_argument('data',
+                        help='Path to the file with OSI-serialized data.',
+                        type=str)
     parser.add_argument('--rules', '-r',
                         help='Directory with text files containig rules. ',
-                        default=os.path.join(dir_path,'requirements-osi-3'),
+                        default=os.path.join(dir_path, 'requirements-osi-3'),
                         type=str)
-    parser.add_argument('--data', '-d',
-                        help='Path to the file with OSI-serialized data.',
-                        type=str,
-                        required=True)
     parser.add_argument('--type', '-t',
-                        help='Name of the message type used to serialize data.',
+                        help='Name of the type used to serialize data.',
                         choices=['SensorView', 'GroundTruth', 'SensorData'],
                         default='SensorView',
                         type=str,
@@ -55,61 +49,61 @@ def command_line_arguments():
                         help='Set the debug mode to ON.',
                         action="store_true")
     parser.add_argument('--verbose',
-                        help='Set the verbose mode to ON (display in console).',
+                        help='Set the verbose mode to ON.',
                         action="store_true")
 
     # Handle comand line arguments
     return parser.parse_args()
 
+
 MANAGER = Manager()
 LOGS = MANAGER.list()
-BLAST_SIZE = 500
+BLAST_SIZE = 2000
 MESSAGE_TYPE = MANAGER.Value("s", "")
 TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
-VALIDATION_RULES = OSIValidationRules()
-LANES_HASHES = MANAGER.list()
+VALIDATION_RULES = OSIRules()
+DATA = OSIScenario()
+ID_TO_TS = MANAGER.dict()
 BAR_SUFFIX = '%(index)d/%(max)d [%(elapsed_td)s]'
 BAR = Bar('', suffix=BAR_SUFFIX)
+MESSAGE_CACHE = MANAGER.dict()
+
 
 def main():
     """Main method"""
 
-    tracemalloc.start()
-
-    start_time = time()
     # Handling of command line arguments
-    arguments = command_line_arguments()
+    args = command_line_arguments()
 
     # Set message type
-    MESSAGE_TYPE.value = arguments.type
+    MESSAGE_TYPE.value = args.type
 
     # Instanciate Logger
     print("Instanciate logger")
-    directory = arguments.output
+    directory = args.output
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    LOGGER.init(arguments.debug, arguments.verbose, directory)
+    LOGGER.init(args.debug, args.verbose, directory)
 
     # Read data
-    LOGGER.info(None, "Read data")
-    data_container = OSIDataContainer()
-    data_container.from_file(arguments.data, arguments.type)
+    print("Read data")
+    DATA.from_file(path=args.data, type_name=args.type,
+                   max_index=args.timesteps)
 
     # Collect Validation Rules
-    LOGGER.info(None, "Collect validation rules")
-    VALIDATION_RULES.from_yaml_directory(arguments.rules)
-
+    print("Collect validation rules")
+    # VALIDATION_RULES.from_xml_doxygen()
+    VALIDATION_RULES.from_yaml_directory(args.rules)
 
     # Pass all timesteps or the number specified
-    if arguments.timesteps != -1:
-        max_timestep = arguments.timesteps
+    if args.timesteps != -1:
+        max_timestep = args.timesteps
         LOGGER.info(None, f"Pass the {max_timestep} first timesteps")
     else:
         LOGGER.info(None, "Pass all timesteps")
-        max_timestep = len(data_container.data)
-
+        max_timestep = DATA.timestep_count
 
     # Dividing in several blast to not overload the memory
     max_timestep_blast = 0
@@ -127,31 +121,28 @@ def main():
         max_timestep_blast += BLAST_SIZE
         first_of_blast = (max_timestep_blast-BLAST_SIZE)
         last_of_blast = min(max_timestep_blast, max_timestep)
-        # LOGGER.info(None, f"Blast to {last_of_blast}")
+
+        # Cache messages
+        DATA.cache_messages_in_index_range(first_of_blast, last_of_blast)
+        MESSAGE_CACHE.update(DATA.message_cache)
 
         # Launch computation
-        
-        pool.map(
-            process_timestep,
-            data_container.data[first_of_blast:last_of_blast]
-        )
-        
-        # for i in range(first_of_blast, last_of_blast):
-        #     process_timestep(data_container.data[i])
-        # print()
-        # LOGGER.info(None, "Flush the logs into database")
+        # TODO Change this to parallel processing
+        for i in range(first_of_blast, last_of_blast):
+            process_timestep(i)
+        # pool.map(process_timestep, range(first_of_blast, last_of_blast))
+
         LOGGER.flush(LOGS)
 
-        # LOGGER.info(None, "Clean memory")
+        MESSAGE_CACHE.clear()
         close_pool(pool)
 
     BAR.finish()
 
     # Grab major OSI version
 
-    # Elapsed time
-    elapsed_time = time() - start_time
-    LOGGER.info(None, f"Elapsed time: {elapsed_time}")
+    # Synthetize
+    LOGGER.synthetize_results_from_sqlite()
 
 
 def close_pool(pool):
@@ -161,52 +152,29 @@ def close_pool(pool):
     pool.join()
 
 
-def process_timestep(message):
+def process_timestep(timestep):
     """Process one timestep"""
-    # Instanciate rules checker
-    current_ground_truth_dict = \
-        MessageToDict(
-            message.global_ground_truth,
-            preserving_proto_field_name=True,
-            use_integers_for_enums=True)
+    message = MESSAGE_CACHE[timestep]
+    rule_checker = OSIRulesChecker(LOGGER)
+    timestamp = rule_checker.set_timestamp(message.value.timestamp, timestep)
+    ID_TO_TS[timestep] = timestamp
 
-    lane_hash = \
-        hash(current_ground_truth_dict['lane_boundary'].__repr__())
-
-    ignore_lanes = lane_hash in LANES_HASHES
-    id_manager = OSIIDManager(LOGGER)
-    rule_checker = OSIRulesChecker(
-        VALIDATION_RULES,LOGGER, id_manager, ignore_lanes)
-    timestamp = rule_checker.set_timestamp(message.timestamp)
-    LOGGER.log_messages[timestamp] = []
-    LOGGER.debug_messages[timestamp] = []
+    LOGGER.log_messages[timestep] = []
+    LOGGER.debug_messages[timestep] = []
     LOGGER.info(None, f'Analyze message of timestamp {timestamp}', False)
-    if ignore_lanes:
-        LOGGER.info(timestamp, f'Ignoring lanes (Hash: {lane_hash})', False)
-    else:
-        LOGGER.info(timestamp, f'Checking lanes (Hash: {lane_hash})', False)
-
 
     # Check if timestamp already exists
     if timestamp in TIMESTAMP_ANALYZED:
-        LOGGER.error(timestamp, f"Timestamp already exists")
+        LOGGER.error(timestep, f"Timestamp already exists")
     TIMESTAMP_ANALYZED.append(timestamp)
-
-    fake_field_descriptor = namedtuple('fake_field_descriptor', ['name'])
-    fake_field_descriptor.name = MESSAGE_TYPE.value
 
     BAR.goto(len(TIMESTAMP_ANALYZED))
 
     # Check common rules
-    rule_checker.check_message(
-        [(fake_field_descriptor, message)],
-        rule_checker.rules.nested_types[MESSAGE_TYPE.value],
-        id_manager=id_manager)
+    getattr(rule_checker, 'is_valid')(
+        message, VALIDATION_RULES.get_rules().get_type(MESSAGE_TYPE.value))
 
-    LOGS.extend(LOGGER.log_messages[timestamp])
-
-    if not ignore_lanes:
-        LANES_HASHES.append(lane_hash)
+    LOGS.extend(LOGGER.log_messages[timestep])
 
 
 if __name__ == "__main__":

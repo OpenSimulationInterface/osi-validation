@@ -1,0 +1,83 @@
+Lane:
+  id:
+    - is_global_unique:
+  classification:
+  Classification:
+    type:
+    is_host_vehicle_lane:
+    left_adjacent_lane_id:
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
+    right_adjacent_lane_id:
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
+    right_lane_boundary_id:
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
+    left_lane_boundary_id:
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
+    free_lane_boundary_id:
+      - check_if:
+        - is_different: 4
+          target: this.type
+        do_check:
+        - is_set:
+    road_condition:
+    LanePairing:
+      antecessor_lane_id:
+        - refers: Lane
+      successor_lane_id:
+        - refers: Lane
+    RoadCondition:
+      surface_temperature:
+        - is_greater_than_or_equal_to: 0
+      surface_water_film:
+        - is_greater_than_or_equal_to: 0
+      surface_freezing_point:
+        - is_greater_than_or_equal_to: 0
+      surface_ice:
+        - is_greater_than_or_equal_to: 0
+      surface_roughness:
+        - is_greater_than_or_equal_to: 0
+      surface_texture:
+LaneBoundary:
+  id:
+    - is_global_unique:
+  boundary_line:
+    - last_element:
+        width:
+          - is_equal: 0.13
+
+        height:
+          - is_equal: 0.13
+
+#    - first_element:
+#        width:
+#        height:
+#        width:
+#          - last_element:
+#        height:
+#          - is_equal: 0.13
+#            target: this.height
+  classification:
+  BoundaryPoint:
+    position:
+  Classification:
+    type:
+    color:
+    limiting_structure_id:
+      - refers: StationaryObject
+    

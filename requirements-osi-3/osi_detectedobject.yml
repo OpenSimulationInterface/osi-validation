@@ -1,0 +1,42 @@
+DetectedItemHeader:
+  tracking_id:
+  ground_truth_id:
+  existence_probability:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  age:
+  measurement_state:
+  
+DetectedStationaryObject:
+  header:
+  base:
+  base_rsme:
+  CandidateStationaryObject:
+    probability:
+      - is_greater_than_or_equal_to: 0
+      - is_less_than_or_equal_to: 1
+
+DetectedMovingObject:
+  header:
+  base:
+  base_rsme:
+  reference_point:
+  movement_state:
+  percentage_side_lane_left:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 100
+  percentage_side_lane_right:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 100
+  radar_specifics: # TODO
+  lidar_specifics: # TODO
+  camera_specifics: # TODO
+  ultrasonic_specifics: # TODO
+  CandidateMovingObject:
+    probability:
+      - is_greater_than_or_equal_to: 0
+      - is_less_than_or_equal_to: 1
+    type:
+    vehicle_classification:
+    head_pose:
+    upper_body_pose:

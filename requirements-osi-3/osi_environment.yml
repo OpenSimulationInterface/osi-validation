@@ -1,0 +1,18 @@
+EnvironmentalConditions:
+  ambient_illumination:
+  time_of_day:
+  atmospheric_pressure:
+    - is_greater_than_or_equal_to: 80000
+    - is_less_than_or_equal_to: 120000
+  temperature:
+    - is_greater_than_or_equal_to: 170
+    - is_less_than_or_equal_to: 340
+  relative_humidity:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 100
+  precipitation:
+  fog:
+  TimeOfDay:
+    seconds_since_midnight:
+      - is_greater_than_or_equal_to: 0
+      - is_less_than: 86400

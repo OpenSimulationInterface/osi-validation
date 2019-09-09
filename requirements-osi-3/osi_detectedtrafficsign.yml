@@ -1,0 +1,18 @@
+DetectedTrafficSign:
+  header:
+  main_sign:
+  DetectedMainSign:
+    base:
+    base_rsme:
+    geometry:
+    CandidateMainSign:
+      probability:
+        - is_greater_than_or_equal_to: 0
+        - is_less_than_or_equal_to: 1
+  DetectedSupplementarySign:
+    base:
+    base_rsme:
+    CandidateSupplementarySign:
+      probability:
+        - is_greater_than_or_equal_to: 0
+        - is_less_than_or_equal_to: 1

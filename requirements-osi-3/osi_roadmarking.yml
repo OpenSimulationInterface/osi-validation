@@ -1,0 +1,32 @@
+RoadMarking:
+  id:
+    - is_global_unique:
+  base:
+  classification:
+  Classification:
+    type:
+    traffic_main_sign_type:
+      - is_optional:
+      - check_if:
+        - is_greater_than_or_equal_to: 2
+          target: this.type
+        - is_less_than_or_equal_to: 4
+          target: this.type
+        do_check:
+        - is_set:
+    monochrome_color:
+      - check_if:
+        - is_equal: 2
+          target: this.type
+        do_check:
+        - is_set:
+      - check_if:
+        - is_equal: 1
+          target: this.monochrome_color
+        do_check:
+        - is_set:
+    value: # TODO: when is it necessary to put a value?
+    value_text: # TODO: when is it necessary to put a value?
+    assigned_lane_id:
+      - refers: Lane
+    is_out_of_service:
