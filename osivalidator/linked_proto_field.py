@@ -1,6 +1,6 @@
 """
 This class describe a wrapper on protobuf fields that add a link
-with parent message and bind message to some additional informations.
+with parent message and bind message to some additional information.
 """
 
 from google.protobuf.message import Message
@@ -12,11 +12,11 @@ from .osi_rules import ProtoMessagePath
 class LinkedProtoField:
     """
     This class describe a wrapper on protobuf fields that add a link
-    with parent message and bind message to some additional informations.
+    with parent message and bind message to some additional information.
 
     The Protobuf's RepeatedCompositeContainer that describes repeated field are
     replaced with Python lists.
-    The field informations (parent message and field name) for the repeated
+    The field information (parent message and field name) for the repeated
     field are here bounded to each element of the list.
     """
 

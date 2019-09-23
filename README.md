@@ -47,7 +47,7 @@ Clone repository proto2cpp:
 
 ```git clone https://github.com/OpenSimulationInterface/proto2cpp.git```
 
-Install virutal environment:
+Install virtual environment:
 
 ```sudo apt-get install virtualenv```
 

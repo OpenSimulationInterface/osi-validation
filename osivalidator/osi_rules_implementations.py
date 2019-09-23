@@ -196,7 +196,7 @@ def is_global_unique(self, field, rule):
 def refers(self, field, rule):
     """Add a reference to another message by ID.
 
-    :param params: Type name of the refered object (string)
+    :param params: Type name of the referred object (string)
     """
     expected_type = rule.params
 

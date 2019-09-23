@@ -79,8 +79,8 @@ def main():
     # Set message type
     MESSAGE_TYPE.value = args.type
 
-    # Instanciate Logger
-    print("Instanciate logger")
+    # Instantiate Logger
+    print("Instantiate logger")
     directory = args.output
     if not os.path.exists(directory):
         os.makedirs(directory)
