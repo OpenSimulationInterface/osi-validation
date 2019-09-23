@@ -312,7 +312,7 @@ class Rule(OSIRuleNode):
             sys.stderr.write(self.verb + ' rule does not exist\n')
 
     def from_dict(self, rule_dict: dict):
-        """Instanciate Rule object from a dictionary"""
+        """Instantiate Rule object from a dictionary"""
         try:
             (verb, params), *extra_params = rule_dict.items()
             self.verb = verb
@@ -353,7 +353,7 @@ class Rule(OSIRuleNode):
 
 
 class Severity(Enum):
-    """Descript the severity of the raised error if a rule does not comply."""
+    """Description of the severity of the raised error if a rule does not comply."""
     INFO = 20
     WARN = 30
     ERROR = 40

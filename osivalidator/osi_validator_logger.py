@@ -83,7 +83,7 @@ class OSIValidatorLogger():
         self._is_cli_output_set = True
 
     def init(self, debug, verbose, output_path, files=False):
-        """Initialize the OSI Validator Logger. Useful to reinit the object."""
+        """Initialize the OSI Validator Logger. Useful to reinitialize the object."""
         self.debug_mode = debug
         self.init_logging_storage(files, output_path)
         self.init_cli_output(verbose)
@@ -173,12 +173,12 @@ class OSIValidatorLogger():
         return 0
 
     def flush(self, log_queue=None, timestamp=None, from_id=None):
-        """Flush the ouput to the database
+        """Flush the output to the database
 
         :param log_queue: list of tuple of messages that have to be flushed
         :param timestamp: if not None, only the timestamp given will be flushed
         :param from_id: if None, the timestamp will be in millisecond,
-                        otherwhise it will be the id of the timestamp according
+                        otherwise it will be the id of the timestamp according
                         to the lookup table given in this parameter
         """
 
