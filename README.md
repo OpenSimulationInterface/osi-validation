@@ -14,7 +14,7 @@ usage: osivalidator [-h] [--rules RULES] --data DATA
 Validate data defined at the input
 
 optional arguments:
---help, -h                                      Show this help message and exit
+--help, -h                                      Show this help message and exit.
 --rules RULES, -r RULES                         Directory with text files containig rules.
 --data DATA, -d DATA                            Path to the file with OSI-serialized data.
 --type {SensorView,GroundTruth,SensorData},     Name of the message type used to serialize data.
@@ -92,7 +92,3 @@ Clone repository proto2cpp:
 Install:
 
 ```sudo pip3 install .```
-
-
-
-
