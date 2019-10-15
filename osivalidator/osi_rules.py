@@ -259,16 +259,27 @@ class FieldRules(OSIRuleNode):
                 self.add_rule(rule)
 
     def add_rule(self, rule):
-        """Add a new rule of verb rule to a field with the parameters params.
-        rule can also be a dictionary containing one key (the verb) with one
-        value (the parameters).
+        """Add a new rule to a field with the parameters.
+        For example:
+
+        .. code-block:: python
+
+            self.add_rule(Rule(verb="is_less_than_or_equal_to", params=2))
+
+        The rule can also be a dictionary containing one key (the rule verb) with one
+        value (the parameter).
+        For example:
+
+        .. code-block:: python
+
+            self.add_rule({"is_less_than_or_equal_to": 2})
         """
         rule.path = self.path.child_path(rule.verb)
         rule.root = self.root
         self.rules[rule.verb] = rule
 
     def has_rule(self, rule):
-        """Check if a field has the rule `rule`"""
+        """Check if a field has the rule ``rule``"""
         return rule in self.rules
 
     def list_rules(self):

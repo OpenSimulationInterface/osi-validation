@@ -104,7 +104,7 @@ class LinkedProtoField:
 
     def has_field(self, field_name):
         """
-        Check if a protobuf message message have an attribute/field even if this
+        Check if a protobuf message have an attribute/field even if this
         is a repeated field.
 
         If it is a repeated field, this function returns false if there is no

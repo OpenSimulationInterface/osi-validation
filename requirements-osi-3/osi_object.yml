@@ -1,6 +1,6 @@
 StationaryObject:
   id:
-    - is_global_unique:
+    - is_globally_unique:
   base:
   classification:
   Classification:
@@ -11,19 +11,19 @@ StationaryObject:
 
 MovingObject:
   id:
-    - is_global_unique:
+    - is_globally_unique:
   base:
   type:
   assigned_lane_id:
   vehicle_attributes:
     - check_if:
-      - is_equal: 2
+      - is_equal_to: 2
         target: this.type
       do_check:
       - is_set:
   vehicle_classification:
     - check_if:
-      - is_equal: 2
+      - is_equal_to: 2
         target: this.type
       do_check:
       - is_set:
@@ -51,7 +51,7 @@ MovingObject:
     trailer_id:
       - is_optional:
       - check_if:
-        - is_equal: true
+        - is_equal_to: true
           target: this.has_trailer
         do_check:
         - is_set:

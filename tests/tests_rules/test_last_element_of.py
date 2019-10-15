@@ -62,8 +62,8 @@ class TestFirstElement(unittest.TestCase):
         container.add_type_from_path(ProtoMessagePath(['Vector3d']))
 
         rule = Rule(verb="last_element",
-                    params={'width': [{'is_equal': 0.14}],
-                            'height': [{'is_equal': 0.13}]},
+                    params={'width': [{'is_equal_to': 0.14}],
+                            'height': [{'is_equal_to': 0.13}]},
                     path=proto_path,
                     extra_params=dict(),
                     field_name='boundary_line')
@@ -79,8 +79,8 @@ class TestFirstElement(unittest.TestCase):
         container.add_type_from_path(ProtoMessagePath(['Vector3d']))
 
         rule = Rule(verb="last_element",
-                    params={'width': [{'is_equal': 0.11}],
-                            'height': [{'is_equal': 0.13}]},
+                    params={'width': [{'is_equal_to': 0.11}],
+                            'height': [{'is_equal_to': 0.13}]},
                     path=proto_path,
                     extra_params=dict(),
                     field_name='boundary_line')

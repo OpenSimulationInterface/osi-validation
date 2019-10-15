@@ -1,5 +1,5 @@
 """
-Module that contain OSIDataContainer class to handle and manager OSI scenarios
+Module that contains OSIDataContainer class to handle and manage OSI scenarios.
 """
 from collections import deque
 import time
@@ -138,7 +138,7 @@ class OSIScenario:
     def get_message_by_index(self, index):
         """
         Get a message by its index. Try first to get it from the cache made
-        by the method `cache_messages_in_index_range`.
+        by the method ``cache_messages_in_index_range``.
         """
         message = self.message_cache.get(index, None)
 
@@ -155,6 +155,8 @@ class OSIScenario:
             self.message_offsets[index] - SEPARATOR_LENGTH
         serialized_message = self.scenario_file.read(message_length)
 
+        print("Serialized message: ", serialized_message)
+
         message = MESSAGES_TYPE[self.type_name]()
         message.ParseFromString(serialized_message)
 
@@ -162,8 +164,7 @@ class OSIScenario:
 
     def get_messages_in_index_range(self, begin, end):
         """
-        Yield an iterator over messages of indexes between begin and end non
-        included.
+        Yield an iterator over messages of indexes between begin and end included.
         """
         if self.show_progress:
             progress_bar = Bar(max=end-begin)
@@ -205,7 +206,7 @@ class OSIScenario:
     def cache_messages_in_index_range(self, begin, end):
         """
         Put all messages from index begin to index end in the cache. Then the
-        method `get_message_by_index` can access to it in a faster way.
+        method ``get_message_by_index`` can access to it in a faster way.
 
         Using this method again clear the last cache and replace it with a new
         one.

@@ -1,6 +1,6 @@
 TrafficLight:
   id:
-    - is_global_unique:
+    - is_globally_unique:
   base:
   classification:
   Classification:
@@ -10,5 +10,5 @@ TrafficLight:
     counter:
       - is_greater_than_or_equal_to: 0
     assigned_line_id:
-      - refers: Lane
+      - refers_to: Lane
     is_out_of_service:

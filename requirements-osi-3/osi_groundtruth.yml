@@ -2,7 +2,7 @@ GroundTruth:
   version:
   timestamp:
   host_vehicle_id:
-    - refers: MovingObject
+    - refers_to: MovingObject
   environmental_conditions:
   country_code:
     - is_iso_country_code:

@@ -4,7 +4,7 @@ TrafficSignValue:
 
 TrafficSign:
   id:
-    - is_global_unique:
+    - is_globally_unique:
   main_sign:
   MainSign:
     base:
@@ -14,7 +14,7 @@ TrafficSign:
       type:
       value: # TODO: does not require it?
       assigned_lane_id:
-        - refers: Lane
+        - refers_to: Lane
       vertically_mirrored:
       is_out_of_service:
 
@@ -26,9 +26,9 @@ TrafficSign:
       type:
       value: # TODO: does not require it?
       assigned_lane_id:
-        - refers: Lane
+        - refers_to: Lane
       is_out_of_service:
       Arrow:
         lane_id:
-          - refers: Lane
+          - refers_to: Lane
         direction:

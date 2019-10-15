@@ -149,35 +149,35 @@ def is_greater_than(self, field, rule):
 
 
 @rule_implementation
-def is_equal(self, field, rule):
+def is_equal_to(self, field, rule):
     """Check if a number equals the parameter.
 
     :param params: the equality to check (float or bool)
 
     Example:
     ```
-    - is_equal: 1
+    - is_equal_to: 1
     ```
     """
     return field.value == rule.params
 
 
 @rule_implementation
-def is_different(self, field, rule):
+def is_different_to(self, field, rule):
     """Check if a number is different from the parameter.
 
     :param params: the inequality to check (float or bool)
 
     Example:
     ```
-    - is_different: 1
+    - is_different_to: 1
     ```
     """
     return field.value != rule.params
 
 
 @rule_implementation
-def is_global_unique(self, field, rule):
+def is_globally_unique(self, field, rule):
     """Register an ID in the OSI ID manager to later perform a ID
     consistency validation.
 
@@ -193,7 +193,7 @@ def is_global_unique(self, field, rule):
 
 
 @rule_implementation
-def refers(self, field, rule):
+def refers_to(self, field, rule):
     """Add a reference to another message by ID.
 
     :param params: Type name of the referred object (string)
