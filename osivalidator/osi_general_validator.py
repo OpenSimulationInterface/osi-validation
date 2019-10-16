@@ -133,13 +133,24 @@ def main():
         if args.parallel:
             # Launch parallel computation
             # Recreate the pool
-            pool = Pool()
-            pool.map(process_timestep, range(first_of_blast, last_of_blast))                      
-            close_pool(pool)
+            try:                
+                pool = Pool()
+                pool.map(process_timestep, range(first_of_blast, last_of_blast)) 
+
+            except Exception as e:
+                print(str(e))
+
+            finally:
+                close_pool(pool)
+                print("Closed pool!") 
         else:
             # Launch sequential computation
-            for i in range(first_of_blast, last_of_blast):
-                process_timestep(i)
+            try:
+                for i in range(first_of_blast, last_of_blast):
+                    process_timestep(i)
+                    
+            except Exception as e:
+                print(str(e))
 
         LOGGER.flush(LOGS)  
         MESSAGE_CACHE.clear()
