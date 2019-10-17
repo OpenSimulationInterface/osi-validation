@@ -1,6 +1,6 @@
 Occupant:
   id:
-    - is_global_unique:
+    - is_globally_unique:
   classification:
   Classification:
     is_driver:

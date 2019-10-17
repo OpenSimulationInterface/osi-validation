@@ -1,5 +1,5 @@
 """
-This class describe a wrapper on protobuf fields that add a link
+This class describes a wrapper on protobuf fields that add a link
 with parent message and bind message to some additional information.
 """
 
@@ -11,7 +11,7 @@ from .osi_rules import ProtoMessagePath
 
 class LinkedProtoField:
     """
-    This class describe a wrapper on protobuf fields that add a link
+    This class describes a wrapper on protobuf fields that add a link
     with parent message and bind message to some additional information.
 
     The Protobuf's RepeatedCompositeContainer that describes repeated field are
@@ -104,7 +104,7 @@ class LinkedProtoField:
 
     def has_field(self, field_name):
         """
-        Check if a protobuf message message have an attribute/field even if this
+        Check if a protobuf message has an attribute/field even if this
         is a repeated field.
 
         If it is a repeated field, this function returns false if there is no

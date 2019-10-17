@@ -17,10 +17,6 @@ class TestDataContainer(unittest.TestCase):
         self.odc.scenario_file.close()
         del self.odc
 
-    def test_get_message_by_index(self):
-        for index in range(self.MESSAGE_LENGTH):
-            self.odc.get_message_by_index(index)
-
     def test_get_messages_in_index_range(self):
         for _ in self.odc.get_messages_in_index_range(0, self.MESSAGE_LENGTH):
             pass

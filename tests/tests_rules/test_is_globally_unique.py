@@ -29,22 +29,22 @@ class TestIsGlobalUnique(unittest.TestCase):
         del self.linked_sid
         del self.linked_sid2
 
-    def test_comply_is_global_unique(self):
+    def test_comply_is_globally_unique(self):
         """
         Test if the ID Manager has unique indices
         """
         container = TypeRulesContainer()
-        proto_path = ProtoMessagePath(['SensorView', 'sensor_id', 'is_global_unique'])
+        proto_path = ProtoMessagePath(['SensorView', 'sensor_id', 'is_globally_unique'])
         container.add_type_from_path(proto_path)
 
-        rule = Rule(verb='is_global_unique',
+        rule = Rule(verb='is_globally_unique',
                     field_name='sensor_id',
                     extra_params=dict(),
                     path=proto_path)
         rule.root = container
-        self.FRC.is_global_unique(self.linked_sid, rule)
-        self.FRC.is_global_unique(self.linked_sid2, rule)
-        self.FRC.is_global_unique(self.linked_sid2, rule)
+        self.FRC.is_globally_unique(self.linked_sid, rule)
+        self.FRC.is_globally_unique(self.linked_sid2, rule)
+        self.FRC.is_globally_unique(self.linked_sid2, rule)
         index_dict = self.FRC.id_manager._index
         self.assertEqual(2, len(index_dict))
 

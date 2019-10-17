@@ -48,8 +48,13 @@ def command_line_arguments():
     parser.add_argument('--debug',
                         help='Set the debug mode to ON.',
                         action="store_true")
-    parser.add_argument('--verbose',
+    parser.add_argument('--verbose', '-v',
                         help='Set the verbose mode to ON.',
+                        action="store_true")
+    parser.add_argument('--parallel', '-p',
+                        help='Set parallel mode to ON.',
+                        default=False,
+                        required=False,
                         action="store_true")
 
     # Handle comand line arguments
@@ -114,8 +119,7 @@ def main():
         # Clear log queue
         LOGS[:] = []
 
-        # Recreate the pool
-        pool = Pool()
+        
 
         # Increment the max-timestep to analyze
         max_timestep_blast += BLAST_SIZE
@@ -126,16 +130,30 @@ def main():
         DATA.cache_messages_in_index_range(first_of_blast, last_of_blast)
         MESSAGE_CACHE.update(DATA.message_cache)
 
-        # Launch computation
-        # TODO Change this to parallel processing
-        for i in range(first_of_blast, last_of_blast):
-            process_timestep(i)
-        # pool.map(process_timestep, range(first_of_blast, last_of_blast))
+        if args.parallel:
+            # Launch parallel computation
+            # Recreate the pool
+            try:                
+                pool = Pool()
+                pool.map(process_timestep, range(first_of_blast, last_of_blast)) 
 
-        LOGGER.flush(LOGS)
+            except Exception as e:
+                print(str(e))
 
+            finally:
+                close_pool(pool)
+                print("Closed pool!") 
+        else:
+            # Launch sequential computation
+            try:
+                for i in range(first_of_blast, last_of_blast):
+                    process_timestep(i)
+                    
+            except Exception as e:
+                print(str(e))
+
+        LOGGER.flush(LOGS)  
         MESSAGE_CACHE.clear()
-        close_pool(pool)
 
     BAR.finish()
 

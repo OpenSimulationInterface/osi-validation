@@ -20,7 +20,7 @@ RadarDetection:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
   object_id:
-    - refers: DetectedObject
+    - refers_to: DetectedObject
   position:
   position_rmse:
   radial_velocity:
@@ -42,7 +42,7 @@ LidarDetection:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
   object_id:
-    - refers: DetectedObject
+    - refers_to: DetectedObject
   position:
   position_rmse:
   height:
@@ -65,7 +65,7 @@ UltrasonicDetection:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
   object_id:
-    - refers: DetectedObject
+    - refers_to: DetectedObject
   distance:
     - is_greater_than_or_equal_to: 0
 
@@ -74,7 +74,7 @@ UltrasonicIndirectDetection:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
   object_id:
-    - refers: DetectedObject
+    - refers_to: DetectedObject
   ellipsoid_radial:
   ellipsoid_axial:
   receiver_id:
@@ -94,7 +94,7 @@ CameraDetection:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 1
   object_id:
-    - refers: DetectedObject
+    - refers_to: DetectedObject
   time_difference:
   image_shape_type:
   shape_classification_probability:

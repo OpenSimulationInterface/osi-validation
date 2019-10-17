@@ -9,7 +9,7 @@ from osi3.osi_groundtruth_pb2 import GroundTruth
 from osivalidator.osi_rules import Rule, ProtoMessagePath, TypeRulesContainer
 
 
-class TestRefers(unittest.TestCase):
+class TestRefersTo(unittest.TestCase):
 
     def setUp(self):
         self.FRC = OSIRulesChecker()
@@ -39,23 +39,23 @@ class TestRefers(unittest.TestCase):
         del self.linked_hvid1
         del self.linked_hvid2
 
-    def test_comply_refers(self):
+    def test_comply_refers_to(self):
         """
         Check if the message object is referenced correctly
         """
         container = TypeRulesContainer()
-        proto_path = ProtoMessagePath(['GroundTruth', 'host_vehicle_id', 'refers'])
+        proto_path = ProtoMessagePath(['GroundTruth', 'host_vehicle_id', 'refers_to'])
         container.add_type_from_path(proto_path)
 
-        rule = Rule(verb="refers",
+        rule = Rule(verb="refers_to",
                     params='MovingObject',
                     extra_params=dict(),
                     path=proto_path,
                     field_name='host_vehicle_id')
         rule.root = container
-        self.FRC.refers(self.linked_hvid1, rule)
-        self.FRC.refers(self.linked_hvid2, rule)
-        self.FRC.refers(self.linked_hvid1, rule)
+        self.FRC.refers_to(self.linked_hvid1, rule)
+        self.FRC.refers_to(self.linked_hvid2, rule)
+        self.FRC.refers_to(self.linked_hvid1, rule)
 
         references_list = self.FRC.id_manager._references
 
