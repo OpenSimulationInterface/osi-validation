@@ -75,7 +75,7 @@ class OSIScenario:
         if self.show_progress:
             progress_bar = Bar(max=scenario_size)
             print("Retrieving message offsets in scenario file until " +
-                  str(max_index) + "...")
+                  str(max_index) + " ...")
         else:
             progress_bar = None
 

@@ -44,7 +44,7 @@ script:
     - cp -R requirements-osi-3 /home/travis/virtualenv/python3.6.7/lib/python3.6/site-packages/
 
     # Unzip data
-    - unzip data/small_test.zip -d data
+    - lzma -d data/small_test.txt.lzma
 
     # Check if rule syntax in osi is correct
     # - python test_cases.py
