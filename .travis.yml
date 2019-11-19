@@ -53,3 +53,6 @@ script:
 
     # Run validator on a small test
     - osivalidator data/small_test.txt.lzma
+    - osivalidator data/small_test.txt.lzma -p
+    - osivalidator data/small_test.osi.lzma -f osi
+    - osivalidator data/small_test.osi.lzma -f osi -p

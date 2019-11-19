@@ -56,8 +56,12 @@ def command_line_arguments():
                         default=False,
                         required=False,
                         action="store_true")
+    parser.add_argument('--format', '-f',
+                        help='Set the format type of the scenario.',
+                        default=None,
+                        type=str,
+                        required=False)
 
-    # Handle comand line arguments
     return parser.parse_args()
 
 
@@ -94,8 +98,7 @@ def main():
 
     # Read data
     print("Read data")
-    DATA.from_file(path=args.data, type_name=args.type,
-                   max_index=args.timesteps)
+    DATA.from_file(path=args.data, type_name=args.type, max_index=args.timesteps, format_type=args.format)
 
     # Collect Validation Rules
     print("Collect validation rules")
