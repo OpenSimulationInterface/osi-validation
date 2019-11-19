@@ -11,6 +11,8 @@ from progress.bar import Bar
 from osi3.osi_sensorview_pb2 import SensorView
 from osi3.osi_groundtruth_pb2 import GroundTruth
 from osi3.osi_sensordata_pb2 import SensorData
+import warnings
+warnings.simplefilter('default')
 
 from osivalidator.linked_proto_field import LinkedProtoField
 
@@ -66,6 +68,7 @@ class OSIScenario:
         self.format_type = format_type
 
         if self.format_type == 'separated':
+            warnings.warn("The separated trace files will be completely removed in the near future. Please convert them to *.osi files with the converter in the main OSI repository.", PendingDeprecationWarning)
             self.timestep_count = self.retrieve_message_offsets(max_index)
         else:
             self.timestep_count = self.retrieve_message()
