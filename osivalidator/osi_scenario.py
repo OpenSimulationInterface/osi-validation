@@ -65,7 +65,7 @@ class OSIScenario:
         self.type_name = type_name
         self.format_type = format_type
 
-        if self.format_type is None:
+        if self.format_type == 'separated':
             self.timestep_count = self.retrieve_message_offsets(max_index)
         else:
             self.timestep_count = self.retrieve_message()
@@ -216,7 +216,7 @@ class OSIScenario:
             progress_bar = None
 
 
-        if self.format_type is None:
+        if self.format_type  == 'separated':
             self.scenario_file.seek(self.message_offsets[begin])
             abs_first_offset = self.message_offsets[begin]
             abs_last_offset = self.message_offsets[end] \
@@ -244,7 +244,7 @@ class OSIScenario:
                 self.update_bar(progress_bar, rel_index)
                 yield LinkedProtoField(message, name=self.type_name)
 
-        elif self.format_type == 'osi':
+        elif self.format_type is None:
             self.scenario_file.seek(0)
             serialized_message = self.scenario_file.read()
             INT_LENGTH = len(struct.pack("L", 0))

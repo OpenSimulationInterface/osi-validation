@@ -52,7 +52,15 @@ script:
     - osivalidator -h
 
     # Run validator on a small test
-    - osivalidator data/small_test.txt.lzma
-    - osivalidator data/small_test.txt.lzma -p
-    - osivalidator data/small_test.osi.lzma -f osi
-    - osivalidator data/small_test.osi.lzma -f osi -p
+    - osivalidator data/small_test.osi.lzma
+    - osivalidator data/small_test.osi.lzma -p
+    - osivalidator data/small_test.txt.lzma -f separated
+    - osivalidator data/small_test.txt.lzma -f separated -p
+
+    # Decompress both traces and then run the validator again
+    - lzma -d data/small_test.osi.lzma
+    - lzma -d data/small_test.txt.lzma
+    - osivalidator data/small_test.osi
+    - osivalidator data/small_test.osi -p
+    - osivalidator data/small_test.txt -f separated
+    - osivalidator data/small_test.txt -f separated -p

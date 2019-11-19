@@ -5,24 +5,33 @@ OSI Validator checks the compliance of OSI messages with predefined [rules](http
 
 ## Usage
 
-```
-usage: osivalidator [-h] [--rules RULES] --data DATA
+```bash
+usage: osivalidator [-h] [--rules RULES]
                     [--type {SensorView,GroundTruth,SensorData}]
                     [--output OUTPUT] [--timesteps TIMESTEPS] [--debug]
-                    [--verbose]
+                    [--verbose] [--parallel] [--format {separated,None}]
+                    data
 
 Validate data defined at the input
 
+positional arguments:
+  data                  Path to the file with OSI-serialized data.
+
 optional arguments:
---help, -h                                      Show this help message and exit.
---rules RULES, -r RULES                         Directory with text files containig rules.
---data DATA, -d DATA                            Path to the file with OSI-serialized data.
---type {SensorView,GroundTruth,SensorData},     Name of the message type used to serialize data.
-    -t {SensorView,GroundTruth,SensorData}
---output OUTPUT, -o OUTPUT                      Output folder of the log files.
---timesteps TIMESTEPS                           Number of timesteps to analyze. If -1, all.
---debug                                         Set the debug mode to ON.
---verbose                                       Set the verbose mode to ON (display in console).
+  -h, --help            show this help message and exit
+  --rules RULES, -r RULES
+                        Directory with text files containig rules.
+  --type {SensorView,GroundTruth,SensorData}, -t {SensorView,GroundTruth,SensorData}
+                        Name of the type used to serialize data.
+  --output OUTPUT, -o OUTPUT
+                        Output folder of the log files.
+  --timesteps TIMESTEPS
+                        Number of timesteps to analyze. If -1, all.
+  --debug               Set the debug mode to ON.
+  --verbose, -v         Set the verbose mode to ON.
+  --parallel, -p        Set parallel mode to ON.
+  --format {separated,None}, -f {separated,None}
+                        Set the format type of the trace.
 ```
 
 ## Installation

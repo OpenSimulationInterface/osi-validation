@@ -57,7 +57,8 @@ def command_line_arguments():
                         required=False,
                         action="store_true")
     parser.add_argument('--format', '-f',
-                        help='Set the format type of the scenario.',
+                        help='Set the format type of the trace.',
+                        choices=['separated', None],
                         default=None,
                         type=str,
                         required=False)

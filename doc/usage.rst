@@ -5,31 +5,51 @@ Example
 ----------------
 After installation you can call the command ``osivalidator`` in your terminal which has the following usage:
 
-.. code-block:: text
+.. code-block:: bash
 
-    usage: osivalidator [-h] [--rules RULES] --data DATA
+    usage: osivalidator [-h] [--rules RULES]
                         [--type {SensorView,GroundTruth,SensorData}]
                         [--output OUTPUT] [--timesteps TIMESTEPS] [--debug]
-                        [--verbose]
+                        [--verbose] [--parallel] [--format {separated,None}]
+                        data
 
     Validate data defined at the input
 
-    optional arguments:
-    --help, -h                                      Show this help message and exit
-    --rules RULES, -r RULES                         Directory with text files containig rules.
-    --data DATA, -d DATA                            Path to the file with OSI-serialized data.
-    --type {SensorView,GroundTruth,SensorData},     Name of the message type used to serialize data.
-        -t {SensorView,GroundTruth,SensorData}  
-    --output OUTPUT, -o OUTPUT                      Output folder of the log files.
-    --timesteps TIMESTEPS                           Number of timesteps to analyze. If -1, all.
-    --debug                                         Set the debug mode to ON.
-    --verbose                                       Set the verbose mode to ON (display in console).
+    positional arguments:
+    data                  Path to the file with OSI-serialized data.
 
-To run the validation first you need to record an osi-message. Here we already have an osi-message which is called ``osi_message_test.txt``. To validate the osi-message you simply call ``osivalidator`` and provide the path to the stored osi-message which is here in the folder ``osi_message_data``:
+    optional arguments:
+    -h, --help            show this help message and exit
+    --rules RULES, -r RULES
+                            Directory with text files containig rules.
+    --type {SensorView,GroundTruth,SensorData}, -t {SensorView,GroundTruth,SensorData}
+                            Name of the type used to serialize data.
+    --output OUTPUT, -o OUTPUT
+                            Output folder of the log files.
+    --timesteps TIMESTEPS
+                            Number of timesteps to analyze. If -1, all.
+    --debug               Set the debug mode to ON.
+    --verbose, -v         Set the verbose mode to ON.
+    --parallel, -p        Set parallel mode to ON.
+    --format {separated,None}, -f {separated,None}
+                            Set the format type of the trace.
+
+To run the validation first you need an OSI trace file which consists of multiple OSI messages. 
+In the directory ``data`` we already have two OSI trace files provided which are called ``small_test.osi.lzma`` (a `lzma <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_ compressed trace file with length separation of OSI messages) and a ``small_test.txt.lzma`` (a `lzma <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_ compressed trace file with the ``$$__$$`` separator which in future will be depracted. Use the ``convert2OSI.py`` in the converter folder to convert from ``*.txt`` to ``*.osi`` files or from ``*.txt.lzma`` to ``*.osi.lzma``). 
+To validate the trace files you simply call ``osivalidator`` and provide the path to the trace:
 
 .. code-block:: text
 
-    osivalidator --data osi_message_data/osi_message_test.txt
+    osivalidator --data data/small_test.osi.lzma
+    osivalidator --data data/small_test.txt.lzma -f separated
+
+You can also validate the traces in parallel to increase the speed of the validation by providing ``-p`` flag:
+
+.. code-block:: text
+
+    osivalidator --data data/small_test.osi.lzma -p
+    osivalidator --data data/small_test.txt.lzma -f separated -p
+
 
 After successfully running the validation the following output is generated:
 
