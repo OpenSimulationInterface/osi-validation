@@ -1,7 +1,7 @@
 # OSI Validator
 [![Travis Build Status](https://travis-ci.org/OpenSimulationInterface/osi-validation.svg?branch=master)](https://travis-ci.org/OpenSimulationInterface/osi-validation)
 
-OSI Validator checks the compliance of OSI messages with predefined [rules](https://opensimulationinterface.github.io/osi-documentation/osi-validator/osivalidator.html#module-osivalidator.osi_rules_implementations). The full documentation on usage and customization of the rules is available [here](https://opensimulationinterface.github.io/osi-documentation/osi-validator/osivalidator-module.html).
+OSI Validator checks the compliance of OSI messages with predefined [rules](https://opensimulationinterface.github.io/osi-documentation/osi-validation/doc/osivalidator.html#module-osivalidator.osi_rules_implementations). The full documentation on the validator and customization of the rules is available [here](https://opensimulationinterface.github.io/osi-documentation/osi-validation/README.html).
 
 ## Usage
 
@@ -31,64 +31,29 @@ OSI Validator has been developed with Python 3.6 within a virtual environment on
 
 #### Local (recommended)
 
-Clone repository osi-validation:
-
-```git clone https://github.com/OpenSimulationInterface/osi-validation.git```
-
-Change directory:
-
-```cd osi-validation```
-
-Clone repository open-simulation-interface:
-
-```git clone https://github.com/OpenSimulationInterface/open-simulation-interface.git```
-
-Clone repository proto2cpp:
-
-```git clone https://github.com/OpenSimulationInterface/proto2cpp.git```
-
-Install virtual environment:
-
-```sudo apt-get install virtualenv```
-
-Create virtual environment:
-
-```virtualenv -p /usr/bin/python3 vpython```
-
-Activate your virtual environment:
-
-```source vpython/bin/activate```
-
-Install open-simulation-interface:
-
-```cd open-simulation-interface; pip install .```
-
-Install osi-validator:
-
-```cd ..; pip install .```
-
-Last step copy `requirements-osi-3` to `vpython/lib/python3.6/site-packages`
-
-```cp -R requirements-osi-3 vpython/lib/python3.6/site-packages/```
-
+```bash
+$ git clone https://github.com/OpenSimulationInterface/osi-validation.git
+$ cd osi-validation
+$ git clone https://github.com/OpenSimulationInterface/open-simulation-interface.git
+$ git clone https://github.com/OpenSimulationInterface/proto2cpp.git
+$ sudo apt-get install virtualenv
+$ virtualenv -p /usr/bin/python3 vpython
+$ source vpython/bin/activate
+$ cd open-simulation-interface
+$ pip install .
+$ cd ..
+$ pip install .
+```
 
 #### Global
-Clone repository osi-validation:
 
-```git clone https://github.com/OpenSimulationInterface/osi-validation.git```
-
-Change directory:
-
-```cd osi-validation```
-
-Clone repository open-simulation-interface:
-
-```git clone https://github.com/OpenSimulationInterface/open-simulation-interface.git```
-
-Clone repository proto2cpp:
-
-```git clone https://github.com/OpenSimulationInterface/proto2cpp.git```
-
-Install:
-
-```sudo pip3 install .```
+```bash
+$ git clone https://github.com/OpenSimulationInterface/osi-validation.git
+$ cd osi-validation
+$ git clone https://github.com/OpenSimulationInterface/proto2cpp.git
+$ git clone https://github.com/OpenSimulationInterface/open-simulation-interface.git
+$ cd open-simulation-interface
+$ sudo pip3 install .
+$ cd ..
+$ sudo pip3 install .
+```
