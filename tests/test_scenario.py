@@ -10,7 +10,7 @@ class TestDataContainer(unittest.TestCase):
     def setUp(self):
         self.MESSAGE_LENGTH = 15
         self.odc = OSIScenario()
-        self.odc.from_file(path="data/small_test.txt",
+        self.odc.from_file(path="data/small_test.txt.lzma",
                            type_name="SensorView")
 
     def tearDown(self):
@@ -20,6 +20,10 @@ class TestDataContainer(unittest.TestCase):
     def test_get_messages_in_index_range(self):
         for _ in self.odc.get_messages_in_index_range(0, self.MESSAGE_LENGTH):
             pass
+
+    def test_get_message_in_index(self):
+        self.odc.get_message_by_index(0)
+
 
     def test_cache_messages(self):
         self.odc.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)

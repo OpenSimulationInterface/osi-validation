@@ -40,11 +40,7 @@ script:
     - cd open-simulation-interface
     - pip install .
     - cd ..
-    - pip install .    
-    - cp -R requirements-osi-3 /home/travis/virtualenv/python3.6.7/lib/python3.6/site-packages/
-
-    # Unzip data
-    - lzma -d data/small_test.txt.lzma
+    - pip install .
 
     # Check if rule syntax in osi is correct
     # - python test_cases.py
@@ -56,4 +52,4 @@ script:
     - osivalidator -h
 
     # Run validator on a small test
-    - osivalidator data/small_test.txt
+    - osivalidator data/small_test.txt.lzma

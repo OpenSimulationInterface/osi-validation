@@ -142,7 +142,7 @@ def main():
 
             finally:
                 close_pool(pool)
-                print("Closed pool!") 
+                print("\nClosed pool!")
         else:
             # Launch sequential computation
             try:

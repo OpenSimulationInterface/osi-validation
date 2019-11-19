@@ -16,7 +16,7 @@ from functools import wraps
 from tabulate import tabulate
 import colorama
 
-from .osi_rules import Severity
+from osivalidator.osi_rules import Severity
 
 
 def log(func):

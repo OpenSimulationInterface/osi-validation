@@ -4,13 +4,14 @@ Module that contains OSIDataContainer class to handle and manage OSI scenarios.
 from collections import deque
 import time
 from multiprocessing import Manager
+import lzma
 
 from progress.bar import Bar
 from osi3.osi_sensorview_pb2 import SensorView
 from osi3.osi_groundtruth_pb2 import GroundTruth
 from osi3.osi_sensordata_pb2 import SensorData
 
-from .linked_proto_field import LinkedProtoField
+from osivalidator.linked_proto_field import LinkedProtoField
 
 SEPARATOR = b'$$__$$'
 SEPARATOR_LENGTH = len(SEPARATOR)
@@ -55,8 +56,11 @@ class OSIScenario:
 
     def from_file(self, path, type_name="SensorView", max_index=-1):
         """Import a scenario from a file"""
+        if path.lower().endswith(('.lzma', '.xz')):
+            self.scenario_file = lzma.open(path, "rb")
+        else:
+            self.scenario_file = open(path, "rb")
 
-        self.scenario_file = open(path, "rb")
         self.type_name = type_name
         self.timestep_count = self.retrieve_message_offsets(max_index)
 
@@ -145,20 +149,21 @@ class OSIScenario:
         if message is not None:
             return message
 
-        self.scenario_file.seek(self.message_offsets[index])
+        # self.scenario_file.seek(self.message_offsets[index])
 
-        message_end = self.message_offsets[index + 1] - SEPARATOR_LENGTH \
-            if index + 1 < len(self.message_offsets) \
-            else self.retrieved_scenario_size
+        # message_end = self.message_offsets[index + 1] - SEPARATOR_LENGTH \
+        #     if index + 1 < len(self.message_offsets) \
+        #     else self.retrieved_scenario_size
 
-        message_length = message_end - \
-            self.message_offsets[index] - SEPARATOR_LENGTH
-        serialized_message = self.scenario_file.read(message_length)
+        # message_length = message_end - \
+        #     self.message_offsets[index] - SEPARATOR_LENGTH
+        # serialized_message = self.scenario_file.read(message_length)
 
-        print("Serialized message: ", serialized_message)
+        # print("Serialized message: ", serialized_message)
 
-        message = MESSAGES_TYPE[self.type_name]()
-        message.ParseFromString(serialized_message)
+        # message = MESSAGES_TYPE[self.type_name]()
+        # message.ParseFromString(serialized_message)
+        message = next(self.get_messages_in_index_range(index, index+1))
 
         return LinkedProtoField(message, name=self.type_name)
 

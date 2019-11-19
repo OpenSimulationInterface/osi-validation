@@ -5,10 +5,10 @@ from an OSI scenario can comply.
 
 from types import MethodType
 
-from .osi_rules import Severity
-from .osi_validator_logger import SEVERITY, OSIValidatorLogger
-from .osi_id_manager import OSIIDManager
-from . import osi_rules_implementations as rule_implementations
+from osivalidator.osi_rules import Severity
+from osivalidator.osi_validator_logger import SEVERITY, OSIValidatorLogger
+from osivalidator.osi_id_manager import OSIIDManager
+import osivalidator.osi_rules_implementations as rule_implementations
 
 
 class OSIRulesChecker:
