@@ -35,7 +35,25 @@ After installation you can call the command ``osivalidator`` in your terminal wh
                             Set the format type of the trace.
 
 To run the validation first you need an OSI trace file which consists of multiple OSI messages. 
-In the directory ``data`` we already have two OSI trace files provided which are called ``small_test.osi.lzma`` (a `lzma <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_ compressed trace file with length separation of OSI messages) and a ``small_test.txt.lzma`` (a `lzma <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_ compressed trace file with the ``$$__$$`` separator which in future will be depracted. Use the ``convert2OSI.py`` of OSI repo to convert from ``*.txt`` to ``*.osi`` files or from ``*.txt.lzma`` to ``*.osi.lzma``). 
+In the directory ``data`` we already have two OSI trace files provided which are called ``small_test.osi.lzma`` (a `lzma <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_ compressed trace file with length separation of OSI messages) and a ``small_test.txt.lzma`` (a `lzma <https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm>`_ compressed trace file with the ``$$__$$`` separator which in future will be depracted. Use the ``txt2osi.py`` of the OSI repo in the format directory to convert from ``*.txt`` to ``*.osi`` files or from ``*.txt.lzma`` to ``*.osi.lzma``). See usage below:
+
+.. code-block:: bash
+
+    usage: txt2osi converter [-h] [--file FILE]
+                            [--type {SensorView,GroundTruth,SensorData}]
+                            [--output OUTPUT] [--compress]
+
+    Convert txt trace file to osi trace files.
+
+    optional arguments:
+    -h, --help            show this help message and exit
+    --file FILE, -f FILE  Path to the file with serialized data.
+    --type {SensorView,GroundTruth,SensorData}, -t {SensorView,GroundTruth,SensorData}
+                            Name of the type used to serialize data.
+    --output OUTPUT, -o OUTPUT
+                            Output name of the file.
+    --compress, -c        Compress the output to a lzma file.
+
 To validate the trace files you simply call ``osivalidator`` and provide the path to the trace:
 
 .. code-block:: text

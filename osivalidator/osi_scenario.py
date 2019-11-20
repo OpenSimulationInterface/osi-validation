@@ -95,13 +95,13 @@ class OSIScenario:
 
         self.scenario_file.seek(0)
         serialized_message = self.scenario_file.read()
-        INT_LENGTH = len(struct.pack("L", 0))
+        INT_LENGTH = len(struct.pack("<L", 0))
         message_length = 0
 
         i = 0
         while i < len(serialized_message):
             message = MESSAGES_TYPE[self.type_name]()
-            message_length = struct.unpack("L", serialized_message[i:INT_LENGTH+i])[0]
+            message_length = struct.unpack("<L", serialized_message[i:INT_LENGTH+i])[0]
             message.ParseFromString(serialized_message[i+INT_LENGTH:i+INT_LENGTH+message_length])
             i += message_length + INT_LENGTH
             self.message_offsets.append(message)
@@ -250,13 +250,13 @@ class OSIScenario:
         elif self.format_type is None:
             self.scenario_file.seek(0)
             serialized_message = self.scenario_file.read()
-            INT_LENGTH = len(struct.pack("L", 0))
+            INT_LENGTH = len(struct.pack("<L", 0))
             message_length = 0
 
             i = 0
             while i < len(serialized_message):
                 message = MESSAGES_TYPE[self.type_name]()
-                message_length = struct.unpack("L", serialized_message[i:INT_LENGTH+i])[0]
+                message_length = struct.unpack("<L", serialized_message[i:INT_LENGTH+i])[0]
                 message.ParseFromString(serialized_message[i+INT_LENGTH:i+INT_LENGTH+message_length])
                 i += message_length + INT_LENGTH
                 self.update_bar(progress_bar, i)
