@@ -11,7 +11,7 @@ class TestDataContainer(unittest.TestCase):
         self.MESSAGE_LENGTH = 15
         self.odc = OSIScenario()
         self.odc.from_file(path="data/small_test.txt.lzma",
-                           type_name="SensorView")
+                           type_name="SensorView", format_type='separated')
 
     def tearDown(self):
         self.odc.scenario_file.close()
