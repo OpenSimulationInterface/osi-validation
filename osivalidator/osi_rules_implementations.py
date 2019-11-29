@@ -8,8 +8,7 @@ its attributes and methods.
 
 from functools import wraps
 from iso3166 import countries
-
-from .osi_rules import MessageTypeRules, FieldRules, Severity, Rule
+from osivalidator.osi_rules import MessageTypeRules, FieldRules, Severity, Rule
 
 
 def add_default_rules_to_subfields(message, type_rules):

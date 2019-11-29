@@ -10,7 +10,7 @@ from progress.bar import Bar
 
 from osivalidator.osi_rules import OSIRules
 from osivalidator.osi_validator_logger import OSIValidatorLogger
-from osivalidator.osi_scenario import OSIScenario
+from osivalidator.osi_trace import OSITrace
 from osivalidator.osi_rules_checker import OSIRulesChecker
 
 
@@ -56,8 +56,13 @@ def command_line_arguments():
                         default=False,
                         required=False,
                         action="store_true")
+    parser.add_argument('--format', '-f',
+                        help='Set the format type of the trace.',
+                        choices=['separated', None],
+                        default=None,
+                        type=str,
+                        required=False)
 
-    # Handle comand line arguments
     return parser.parse_args()
 
 
@@ -68,7 +73,7 @@ MESSAGE_TYPE = MANAGER.Value("s", "")
 TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
 VALIDATION_RULES = OSIRules()
-DATA = OSIScenario()
+DATA = OSITrace()
 ID_TO_TS = MANAGER.dict()
 BAR_SUFFIX = '%(index)d/%(max)d [%(elapsed_td)s]'
 BAR = Bar('', suffix=BAR_SUFFIX)
@@ -94,8 +99,7 @@ def main():
 
     # Read data
     print("Read data")
-    DATA.from_file(path=args.data, type_name=args.type,
-                   max_index=args.timesteps)
+    DATA.from_file(path=args.data, type_name=args.type, max_index=args.timesteps, format_type=args.format)
 
     # Collect Validation Rules
     print("Collect validation rules")
@@ -142,7 +146,7 @@ def main():
 
             finally:
                 close_pool(pool)
-                print("Closed pool!") 
+                print("\nClosed pool!")
         else:
             # Launch sequential computation
             try:

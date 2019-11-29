@@ -10,7 +10,7 @@ from enum import Enum
 
 import ruamel.yaml as yaml
 
-from .osi_doxygen_xml import OSIDoxygenXML
+from osivalidator.osi_doxygen_xml import OSIDoxygenXML
 
 
 class OSIRules:
@@ -196,7 +196,7 @@ class TypeRulesContainer(OSIRuleNode):
         if isinstance(message_path, str):
             return self.nested_types[message_path]
 
-        sys.stderr.write('type must be ProtoMessagePath or str' + '\n')
+        sys.stderr.write('Type must be ProtoMessagePath or str' + '\n')
 
     def __getitem__(self, name):
         return self.nested_types[name]
@@ -317,7 +317,7 @@ class Rule(OSIRuleNode):
         if dictionary:
             self.from_dict(dictionary)
 
-        from . import osi_rules_implementations as rule_implementations
+        import osivalidator.osi_rules_implementations as rule_implementations
 
         if not hasattr(rule_implementations, self.verb):
             sys.stderr.write(self.verb + ' rule does not exist\n')

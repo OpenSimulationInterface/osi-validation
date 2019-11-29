@@ -6,7 +6,7 @@ with parent message and bind message to some additional information.
 from google.protobuf.message import Message
 from google.protobuf.json_format import MessageToDict
 
-from .osi_rules import ProtoMessagePath
+from osivalidator.osi_rules import ProtoMessagePath
 
 
 class LinkedProtoField:
