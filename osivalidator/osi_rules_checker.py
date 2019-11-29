@@ -1,6 +1,6 @@
 """
 This module contains all the rules which a message or an attribute of a message
-from an OSI scenario can comply.
+from an OSI trace can comply.
 """
 
 from types import MethodType

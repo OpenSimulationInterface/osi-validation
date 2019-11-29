@@ -56,14 +56,14 @@ In the directory ``data`` we already have two OSI trace files provided which are
 
 To validate the trace files you simply call ``osivalidator`` and provide the path to the trace:
 
-.. code-block:: text
+.. code-block:: bash
 
     osivalidator --data data/small_test.osi.lzma
     osivalidator --data data/small_test.txt.lzma -f separated
 
 You can also validate the traces in parallel to increase the speed of the validation by providing ``-p`` flag:
 
-.. code-block:: text
+.. code-block:: bash
 
     osivalidator --data data/small_test.osi.lzma -p
     osivalidator --data data/small_test.txt.lzma -f separated -p
@@ -71,7 +71,7 @@ You can also validate the traces in parallel to increase the speed of the valida
 
 After successfully running the validation the following output is generated:
 
-.. code-block:: text
+.. code-block:: bash
 
     Instanciate logger
     Read data
@@ -127,7 +127,7 @@ After successfully running the validation the following output is generated:
 
 The Output is a report of how many errors (here 27) and warnings (here 5) were found in the osi-message according to the defined rules. The rules can be found under the tag ``\rules`` in the \*.proto files from the `osi github <https://github.com/OpenSimulationInterface/open-simulation-interface>`_ or in the `requirements folder <https://github.com/OpenSimulationInterface/osi-validation/tree/master/requirements-osi-3>`_ from osi-validation as \*.yml files (for more information see :ref:`commenting`).  Currently an error is thrown when a field is not set. A warning is thrown when a field is set but do not comply with the defined rules. For each error and warning there is a description on which timestamp it was found, the path to the rule and the path to the osi-message. The general format is:
 
-.. code-block:: text
+.. code-block:: bash
 
     Errors (NUMBER_ERRORS) 
     Ranges of timestamps                Message

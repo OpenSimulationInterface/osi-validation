@@ -10,7 +10,7 @@ from progress.bar import Bar
 
 from osivalidator.osi_rules import OSIRules
 from osivalidator.osi_validator_logger import OSIValidatorLogger
-from osivalidator.osi_scenario import OSIScenario
+from osivalidator.osi_trace import OSITrace
 from osivalidator.osi_rules_checker import OSIRulesChecker
 
 
@@ -73,7 +73,7 @@ MESSAGE_TYPE = MANAGER.Value("s", "")
 TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
 VALIDATION_RULES = OSIRules()
-DATA = OSIScenario()
+DATA = OSITrace()
 ID_TO_TS = MANAGER.dict()
 BAR_SUFFIX = '%(index)d/%(max)d [%(elapsed_td)s]'
 BAR = Bar('', suffix=BAR_SUFFIX)

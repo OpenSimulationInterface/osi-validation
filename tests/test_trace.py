@@ -1,20 +1,20 @@
 """Module for test class of OSIValidationRules class"""
 
 import unittest
-from osivalidator.osi_scenario import OSIScenario
+from osivalidator.osi_trace import OSITrace
 
 
 class TestDataContainer(unittest.TestCase):
-    """Test class of OSIScenario class"""
+    """Test class of OSITrace class"""
 
     def setUp(self):
         self.MESSAGE_LENGTH = 15
-        self.odc = OSIScenario()
+        self.odc = OSITrace()
         self.odc.from_file(path="data/small_test.txt.lzma",
                            type_name="SensorView", format_type='separated')
 
     def tearDown(self):
-        self.odc.scenario_file.close()
+        self.odc.trace_file.close()
         del self.odc
 
     def test_get_messages_in_index_range(self):
@@ -23,7 +23,6 @@ class TestDataContainer(unittest.TestCase):
 
     def test_get_message_in_index(self):
         self.odc.get_message_by_index(0)
-
 
     def test_cache_messages(self):
         self.odc.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)
