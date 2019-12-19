@@ -17,25 +17,24 @@ before_install:
 install:
     # Install a recent version of the Protobuf
     - |
-        PROTOBUF_URL="https://github.com/google/protobuf/releases/download/v3.2.0/protobuf-cpp-3.2.0.tar.gz"
+        PROTOBUF_URL="https://github.com/google/protobuf/releases/download/v3.2.0/protobuf-python-3.2.0.tar.gz"
         if [ ! -f ${DEPS_DIR}/protobuf/install/bin/protoc ] ; then mkdir -p protobuf ; travis_retry wget --no-check-certificate --quiet -O - ${PROTOBUF_URL} | tar --strip-components=1 -xz -C protobuf ; cd protobuf ; ./configure --prefix=${DEPS_DIR}/protobuf/install ; make ; make install ; fi
         export PATH=${DEPS_DIR}/protobuf/install/bin:${PATH}
 
-    - sudo apt-get install python3-pip protobuf-compiler unzip
-    - pip install progress    
+    - sudo apt-get install python3-pip protobuf-compiler
 
 # Change directory back to default build directory.
 before_script:
     - cd "${TRAVIS_BUILD_DIR}"
 
-# Run the build script and generate documentation.
+# Run the build script
 script:
     # Debug
     - which python
     - python -m site
+    - protoc --version
 
     # Install osi-validation
-    - git submodule update --init
     - cd open-simulation-interface
     - pip install .
     - cd ..
