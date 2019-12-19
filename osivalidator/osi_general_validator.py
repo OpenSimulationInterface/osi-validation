@@ -68,7 +68,7 @@ def command_line_arguments():
 
 MANAGER = Manager()
 LOGS = MANAGER.list()
-BLAST_SIZE = 2000
+BLAST_SIZE = 500
 MESSAGE_TYPE = MANAGER.Value("s", "")
 TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
@@ -122,8 +122,6 @@ def main():
     while max_timestep_blast < max_timestep:
         # Clear log queue
         LOGS[:] = []
-
-        
 
         # Increment the max-timestep to analyze
         max_timestep_blast += BLAST_SIZE

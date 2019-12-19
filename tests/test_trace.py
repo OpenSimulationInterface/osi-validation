@@ -9,26 +9,68 @@ class TestDataContainer(unittest.TestCase):
 
     def setUp(self):
         self.MESSAGE_LENGTH = 15
-        self.odc = OSITrace()
-        self.odc.from_file(path="data/small_test.txt.lzma",
+        
+        self.txt = OSITrace()
+        self.osi = OSITrace()
+        self.osi_nobuffer = OSITrace(buffer_size=None)
+
+        self.txt.from_file(path="data/small_test.txt.lzma",
                            type_name="SensorView", format_type='separated')
+        self.osi.from_file(path="data/small_test.osi.lzma",
+                           type_name="SensorView")
+        self.osi_nobuffer.from_file(path="data/small_test.osi.lzma",
+                           type_name="SensorView")
 
     def tearDown(self):
-        self.odc.trace_file.close()
-        del self.odc
+        self.txt.trace_file.close()
+        del self.txt
+
+        self.osi.trace_file.close()
+        del self.osi
+
+        self.osi_nobuffer.trace_file.close()
+        del self.osi_nobuffer
 
     def test_get_messages_in_index_range(self):
-        for _ in self.odc.get_messages_in_index_range(0, self.MESSAGE_LENGTH):
+        """Test getting messages in range"""
+
+        for _ in self.txt.get_messages_in_index_range(0, self.MESSAGE_LENGTH):
+            pass
+
+        for _ in self.osi.get_messages_in_index_range(0, self.MESSAGE_LENGTH):
+            pass
+
+        for _ in self.osi_nobuffer.get_messages_in_index_range(0, self.MESSAGE_LENGTH):
             pass
 
     def test_get_message_in_index(self):
-        self.odc.get_message_by_index(0)
+        """Test getting messages by index"""
+
+        self.txt.get_message_by_index(0)
+        self.osi.get_message_by_index(0)
+        self.osi_nobuffer.get_message_by_index(0)
 
     def test_cache_messages(self):
-        self.odc.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)
+        """Test caching messages"""
+
+        self.txt.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)
+        self.osi.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)
+        self.osi_nobuffer.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)
 
     def test_accessing_cache_messages(self):
-        self.odc.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)
+        """Test accessing of cached messages"""
+
+        self.txt.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)
 
         for index in range(self.MESSAGE_LENGTH):
-            self.odc.get_message_by_index(index)
+            self.txt.get_message_by_index(index)
+
+        self.osi.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)
+
+        for index in range(self.MESSAGE_LENGTH):
+            self.osi.get_message_by_index(index)
+
+        self.osi_nobuffer.cache_messages_in_index_range(0, self.MESSAGE_LENGTH)
+
+        for index in range(self.MESSAGE_LENGTH):
+            self.osi_nobuffer.get_message_by_index(index)
