@@ -44,6 +44,8 @@ if __name__ == "__main__":
             'defusedxml',
             'colorama',
             'tabulate',
+            'progress',
+            'protobuf==3.9.1'
         ],
         dependency_links=[
             'git+https://github.com/OpenSimulationInterface/' +
