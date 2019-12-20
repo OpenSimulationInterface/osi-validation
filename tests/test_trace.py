@@ -10,9 +10,9 @@ class TestDataContainer(unittest.TestCase):
     def setUp(self):
         self.MESSAGE_LENGTH = 15
         
-        self.txt = OSITrace()
-        self.osi = OSITrace()
-        self.osi_nobuffer = OSITrace(buffer_size=None)
+        self.txt = OSITrace(buffer_size=1000000)
+        self.osi = OSITrace(buffer_size=1000000)
+        self.osi_nobuffer = OSITrace(buffer_size=0)
 
         self.txt.from_file(path="data/small_test.txt.lzma",
                            type_name="SensorView", format_type='separated')

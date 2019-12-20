@@ -13,6 +13,11 @@ from osivalidator.osi_validator_logger import OSIValidatorLogger
 from osivalidator.osi_trace import OSITrace
 from osivalidator.osi_rules_checker import OSIRulesChecker
 
+def check_positive_int(value):
+    ivalue = int(value)
+    if ivalue < 0:
+        raise argparse.ArgumentTypeError("%s is an invalid positive int value" % value)
+    return ivalue
 
 def command_line_arguments():
     """ Define and handle command line interface """
@@ -62,23 +67,30 @@ def command_line_arguments():
                         default=None,
                         type=str,
                         required=False)
+    parser.add_argument('--blast', '-bl',
+                        help='Set the in-memory storage count of OSI messages during validation.',
+                        default=500,
+                        type=check_positive_int,
+                        required=False)
+    parser.add_argument('--buffer', '-bu',
+                        help='Set the buffer size to retrieve OSI messages from trace file. Set it to 0 if you do not want to use buffering at all.',
+                        default=1000000,
+                        type=check_positive_int,
+                        required=False)
 
     return parser.parse_args()
 
 
 MANAGER = Manager()
 LOGS = MANAGER.list()
-BLAST_SIZE = 500
 MESSAGE_TYPE = MANAGER.Value("s", "")
 TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = OSIValidatorLogger()
 VALIDATION_RULES = OSIRules()
-DATA = OSITrace()
 ID_TO_TS = MANAGER.dict()
 BAR_SUFFIX = '%(index)d/%(max)d [%(elapsed_td)s]'
 BAR = Bar('', suffix=BAR_SUFFIX)
 MESSAGE_CACHE = MANAGER.dict()
-
 
 def main():
     """Main method"""
@@ -90,7 +102,7 @@ def main():
     MESSAGE_TYPE.value = args.type
 
     # Instantiate Logger
-    print("Instantiate logger")
+    print("Instantiate logger ...")
     directory = args.output
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -98,11 +110,12 @@ def main():
     LOGGER.init(args.debug, args.verbose, directory)
 
     # Read data
-    print("Read data")
+    print("Reading data ...")
+    DATA = OSITrace(buffer_size=args.buffer)
     DATA.from_file(path=args.data, type_name=args.type, max_index=args.timesteps, format_type=args.format)
 
     # Collect Validation Rules
-    print("Collect validation rules")
+    print("Collect validation rules ...")
     # VALIDATION_RULES.from_xml_doxygen()
     VALIDATION_RULES.from_yaml_directory(args.rules)
 
@@ -124,8 +137,8 @@ def main():
         LOGS[:] = []
 
         # Increment the max-timestep to analyze
-        max_timestep_blast += BLAST_SIZE
-        first_of_blast = (max_timestep_blast-BLAST_SIZE)
+        max_timestep_blast += args.blast
+        first_of_blast = (max_timestep_blast-args.blast)
         last_of_blast = min(max_timestep_blast, max_timestep)
 
         # Cache messages

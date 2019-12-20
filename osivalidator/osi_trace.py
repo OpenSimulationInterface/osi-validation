@@ -41,7 +41,7 @@ MESSAGES_TYPE = {
 class OSITrace:
     """This class wrap OSI data. It can import and decode OSI traces."""
 
-    def __init__(self, show_progress=True, path=None, type_name="SensorView", buffer_size=1000000):
+    def __init__(self, buffer_size, show_progress=True, path=None, type_name="SensorView"):
         self.trace_file = None
         self.message_offsets = None
         self.buffer_size = buffer_size
@@ -101,7 +101,7 @@ class OSITrace:
         counter = 0 # Counter is needed to enable correct buffer parsing of serialized messages
 
         # Check if user decided to use buffer
-        if self.buffer_size is not None and type(self.buffer_size)==int:
+        if self.buffer_size != 0 and type(self.buffer_size)==int:
 
             # Run while the end of file is not reached
             while not eof and message_offset < trace_size:
@@ -167,6 +167,10 @@ class OSITrace:
 
         if max_index == -1:
             max_index = float('inf')
+
+        # For $$__$$ separated trace files the buffersize needs to be greater than zero
+        if self.buffer_size == 0:
+            self.buffer_size = 1000000 # Make it backwards compatible
 
         if self.show_progress:
             progress_bar = Bar(max=trace_size)
