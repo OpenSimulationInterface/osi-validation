@@ -40,6 +40,9 @@ script:
     - cd ..
     - pip install .
 
+    # Generate parsed rules
+    python rules2yml.py -d rules
+
     # Check if rule syntax in osi is correct
     # - python test_cases.py
 
@@ -49,16 +52,30 @@ script:
     # Show validator usage
     - osivalidator -h
 
-    # Run validator on a small test
+    # Run validator on a small test with already existing rules
     - osivalidator data/small_test.osi.lzma
     - osivalidator data/small_test.osi.lzma -p
     - osivalidator data/small_test.txt.lzma -f separated
     - osivalidator data/small_test.txt.lzma -f separated -p
 
-    # Decompress both traces and then run the validator again
+    # Run validator on a small test with parsed rules
+    - osivalidator data/small_test.osi.lzma -r rules
+    - osivalidator data/small_test.osi.lzma -p -r rules
+    - osivalidator data/small_test.txt.lzma -f separated -r rules
+    - osivalidator data/small_test.txt.lzma -f separated -p -r rules
+
+    # Decompress both traces
     - lzma -d data/small_test.osi.lzma
     - lzma -d data/small_test.txt.lzma
+
+    # Run the validator on decompressed data
     - osivalidator data/small_test.osi
     - osivalidator data/small_test.osi -p
     - osivalidator data/small_test.txt -f separated
-    - osivalidator data/small_test.txt -f separated -p
+    - osivalidator data/small_test.txt -f separated -p    
+
+    # Run the validator on decompressed data with parsed rules
+    - osivalidator data/small_test.osi -r rules
+    - osivalidator data/small_test.osi -p -r rules
+    - osivalidator data/small_test.txt -f separated -r rules
+    - osivalidator data/small_test.txt -f separated -p -r rules
