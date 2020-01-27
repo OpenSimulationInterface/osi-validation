@@ -41,7 +41,7 @@ script:
     - pip install .
 
     # Generate parsed rules
-    python rules2yml.py -d rules
+    - python rules2yml.py -d rules
 
     # Check if rule syntax in osi is correct
     # - python test_cases.py
