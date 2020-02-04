@@ -46,9 +46,6 @@ script:
     # Check if rule syntax in osi is correct
     # - python test_cases.py
 
-    # Check rule correctness with unittests
-    - python -m unittest discover tests
-
     # Show validator usage
     - osivalidator -h
 
@@ -71,6 +68,9 @@ script:
     # Compress *.osi and *.txt with lzma
     - lzma -z data/small_test.txt
     - lzma -z data/small_test.osi
+
+    # Check rule correctness with unittests
+    - python -m unittest discover tests
 
     # Run validator on a small test with already existing rules
     - osivalidator data/small_test.osi.lzma
