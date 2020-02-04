@@ -56,17 +56,17 @@ script:
     - lzma -d data/small_test.txt.lzma
     - python open-simulation-interface/format/txt2osi.py -d data/small_test.txt
 
-     # Run the validator on decompressed data
-     - osivalidator data/small_test.osi
-     - osivalidator data/small_test.osi -p
-     - osivalidator data/small_test.txt -f separated
-     - osivalidator data/small_test.txt -f separated -p    
- 
-     # Run the validator on decompressed data with parsed rules
-     - osivalidator data/small_test.osi -r rules
-     - osivalidator data/small_test.osi -p -r rules
-     - osivalidator data/small_test.txt -f separated -r rules
-     - osivalidator data/small_test.txt -f separated -p -r rules
+    # Run the validator on decompressed data
+    - osivalidator data/small_test.osi
+    - osivalidator data/small_test.osi -p
+    - osivalidator data/small_test.txt -f separated
+    - osivalidator data/small_test.txt -f separated -p
+
+    # Run the validator on decompressed data with parsed rules
+    - osivalidator data/small_test.osi -r rules
+    - osivalidator data/small_test.osi -p -r rules
+    - osivalidator data/small_test.txt -f separated -r rules
+    - osivalidator data/small_test.txt -f separated -p -r rules
 
     # Compress *.osi and *.txt with lzma
     - lzma -z data/small_test.txt
