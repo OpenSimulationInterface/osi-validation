@@ -53,9 +53,6 @@ class OSITrace:
         self.show_progress = show_progress
         self.retrieved_trace_size = 0
 
-        if path is not None and type_name is not None:
-            self.from_file(path)
-
     # Open and Read text file
     def from_file(self, path, type_name="SensorView", max_index=-1, format_type=None):
         """Import a trace from a file"""
@@ -101,7 +98,7 @@ class OSITrace:
         counter = 0 # Counter is needed to enable correct buffer parsing of serialized messages
 
         # Check if user decided to use buffer
-        if self.buffer_size != 0 and type(self.buffer_size)==int:
+        if self.buffer_size != 0 and type(self.buffer_size) == int:
 
             # Run while the end of file is not reached
             while not eof and message_offset < trace_size:
@@ -114,8 +111,7 @@ class OSITrace:
                     message_length = struct.unpack("<L", serialized_message[message_offset-counter*self.buffer_size:self._int_length+message_offset-counter*self.buffer_size])[0]
 
                     # Get the message offset of the next message
-                    message_offset += message_length + self._int_length               
-
+                    message_offset += message_length + self._int_length
                     self.message_offsets.append(message_offset)
                     self.update_bar(progress_bar, message_offset)
                     before_tell = self.trace_file.tell()
@@ -123,11 +119,10 @@ class OSITrace:
                     after_tell = self.trace_file.tell()
                     eof = self.trace_file.tell() > self.buffer_size * (counter + 1)
                     
-                    # Check if the last INT (length=4) is found and then exit
-                    if after_tell - before_tell == self._int_length:
+                    # Check if reached end of file
+                    if self.trace_file.tell() == trace_size:
                         self.retrieved_trace_size = self.message_offsets[-1]
-                        self.message_offsets.pop() # Remove the last element since after that there is no message coming  
-                        self.trace_file.seek(trace_size) # Set the cursor to the end of the file
+                        self.message_offsets.pop() # Remove the last element since after that there is no message coming
                         break
 
                 while eof:
