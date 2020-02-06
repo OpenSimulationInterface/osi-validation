@@ -167,16 +167,14 @@ def main():
             except Exception as e:
                 print(str(e))
 
-        LOGGER.flush(LOGS)  
+        LOGGER.flush(LOGS)
         MESSAGE_CACHE.clear()
 
     BAR.finish()
-
-    # Grab major OSI version
+    DATA.trace_file.close()
 
     # Synthetize
     LOGGER.synthetize_results_from_sqlite()
-
 
 def close_pool(pool):
     """Cleanly close a pool to free the memory"""
