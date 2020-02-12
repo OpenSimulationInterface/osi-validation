@@ -36,7 +36,7 @@ if __name__ == "__main__":
         install_requires=[
             'iso3166',
             'ruamel.yaml',
-            'PyYaml',
+            'PyYaml==3.9.1',
             'asteval',
             'sphinx_rtd_theme',
             'recommonmark',
