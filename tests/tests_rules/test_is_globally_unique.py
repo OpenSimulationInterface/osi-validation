@@ -8,7 +8,6 @@ from osivalidator.osi_rules import Rule, TypeRulesContainer, ProtoMessagePath
 
 
 class TestIsGlobalUnique(unittest.TestCase):
-
     def setUp(self):
         self.FRC = OSIRulesChecker()
 
@@ -34,20 +33,18 @@ class TestIsGlobalUnique(unittest.TestCase):
         Test if the ID Manager has unique indices
         """
         container = TypeRulesContainer()
-        proto_path = ProtoMessagePath(['SensorView', 'sensor_id', 'is_globally_unique'])
+        proto_path = ProtoMessagePath(["SensorView", "sensor_id", "is_globally_unique"])
         container.add_type_from_path(proto_path)
 
-        rule = Rule(verb='is_globally_unique',
-                    field_name='sensor_id',
-                    extra_params=dict(),
-                    path=proto_path)
+        rule = Rule(
+            verb="is_globally_unique",
+            field_name="sensor_id",
+            extra_params=dict(),
+            path=proto_path,
+        )
         rule.root = container
         self.FRC.is_globally_unique(self.linked_sid, rule)
         self.FRC.is_globally_unique(self.linked_sid2, rule)
         self.FRC.is_globally_unique(self.linked_sid2, rule)
         index_dict = self.FRC.id_manager._index
         self.assertEqual(2, len(index_dict))
-
-
-
-

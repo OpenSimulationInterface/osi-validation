@@ -12,11 +12,12 @@ from osi3.osi_sensorview_pb2 import SensorView
 from osi3.osi_groundtruth_pb2 import GroundTruth
 from osi3.osi_sensordata_pb2 import SensorData
 import warnings
-warnings.simplefilter('default')
+
+warnings.simplefilter("default")
 
 from osivalidator.linked_proto_field import LinkedProtoField
 
-SEPARATOR = b'$$__$$'
+SEPARATOR = b"$$__$$"
 SEPARATOR_LENGTH = len(SEPARATOR)
 
 
@@ -34,14 +35,16 @@ def get_size_from_file_stream(file_object):
 MESSAGES_TYPE = {
     "SensorView": SensorView,
     "GroundTruth": GroundTruth,
-    "SensorData": SensorData
+    "SensorData": SensorData,
 }
 
 
 class OSITrace:
     """This class wrap OSI data. It can import and decode OSI traces."""
 
-    def __init__(self, buffer_size, show_progress=True, path=None, type_name="SensorView"):
+    def __init__(
+        self, buffer_size, show_progress=True, path=None, type_name="SensorView"
+    ):
         self.trace_file = None
         self.message_offsets = None
         self.buffer_size = buffer_size
@@ -56,7 +59,7 @@ class OSITrace:
     # Open and Read text file
     def from_file(self, path, type_name="SensorView", max_index=-1, format_type=None):
         """Import a trace from a file"""
-        if path.lower().endswith(('.lzma', '.xz')):
+        if path.lower().endswith((".lzma", ".xz")):
             self.trace_file = lzma.open(path, "rb")
         else:
             self.trace_file = open(path, "rb")
@@ -64,8 +67,11 @@ class OSITrace:
         self.type_name = type_name
         self.format_type = format_type
 
-        if self.format_type == 'separated':
-            warnings.warn("The separated trace files will be completely removed in the near future. Please convert them to *.osi files with the converter in the main OSI repository.", PendingDeprecationWarning)
+        if self.format_type == "separated":
+            warnings.warn(
+                "The separated trace files will be completely removed in the near future. Please convert them to *.osi files with the converter in the main OSI repository.",
+                PendingDeprecationWarning,
+            )
             self.timestep_count = self.retrieve_message_offsets(max_index)
         else:
             self.timestep_count = self.retrieve_message()
@@ -81,7 +87,11 @@ class OSITrace:
 
         if self.show_progress:
             progress_bar = Bar(max=trace_size)
-            print("Retrieving messages in osi trace file until " + str(trace_size) + " ...")
+            print(
+                "Retrieving messages in osi trace file until "
+                + str(trace_size)
+                + " ..."
+            )
         else:
             progress_bar = None
 
@@ -91,11 +101,11 @@ class OSITrace:
             start_time = time.time()
 
         self.trace_file.seek(0)
-            
+
         self.message_offsets = [0]
         message_offset = 0
-        message_length = 0  
-        counter = 0 # Counter is needed to enable correct buffer parsing of serialized messages
+        message_length = 0
+        counter = 0  # Counter is needed to enable correct buffer parsing of serialized messages
 
         # Check if user decided to use buffer
         if self.buffer_size != 0 and type(self.buffer_size) == int:
@@ -106,9 +116,17 @@ class OSITrace:
                 self.trace_file.seek(self.message_offsets[-1])
 
                 while not eof:
-                    
+
                     # Unpack the message size relative to the current buffer
-                    message_length = struct.unpack("<L", serialized_message[message_offset-counter*self.buffer_size:self._int_length+message_offset-counter*self.buffer_size])[0]
+                    message_length = struct.unpack(
+                        "<L",
+                        serialized_message[
+                            message_offset
+                            - counter * self.buffer_size : self._int_length
+                            + message_offset
+                            - counter * self.buffer_size
+                        ],
+                    )[0]
 
                     # Get the message offset of the next message
                     message_offset += message_length + self._int_length
@@ -118,26 +136,31 @@ class OSITrace:
                     self.trace_file.seek(message_offset)
                     after_tell = self.trace_file.tell()
                     eof = self.trace_file.tell() > self.buffer_size * (counter + 1)
-                    
+
                     # Check if reached end of file
                     if self.trace_file.tell() == trace_size:
                         self.retrieved_trace_size = self.message_offsets[-1]
-                        self.message_offsets.pop() # Remove the last element since after that there is no message coming
+                        self.message_offsets.pop()  # Remove the last element since after that there is no message coming
                         break
 
                 while eof:
 
                     # Counter increment and cursor placement update. The cursor is set absolute in the file.
-                    if message_offset >= len(serialized_message):                 
-                        self.update_bar(progress_bar, message_offset)   
-                        counter += 1     
-                        self.trace_file.seek(counter*self.buffer_size)            
+                    if message_offset >= len(serialized_message):
+                        self.update_bar(progress_bar, message_offset)
+                        counter += 1
+                        self.trace_file.seek(counter * self.buffer_size)
                         eof = False
 
         else:
             serialized_message = self.trace_file.read()
-            while message_offset < trace_size:            
-                message_length = struct.unpack("<L", serialized_message[message_offset:self._int_length+message_offset])[0]
+            while message_offset < trace_size:
+                message_length = struct.unpack(
+                    "<L",
+                    serialized_message[
+                        message_offset : self._int_length + message_offset
+                    ],
+                )[0]
                 message_offset += message_length + self._int_length
                 self.message_offsets.append(message_offset)
                 self.update_bar(progress_bar, message_offset)
@@ -147,7 +170,12 @@ class OSITrace:
 
         if self.show_progress:
             progress_bar.finish()
-            print(len(self.message_offsets), "messages has been discovered in", time.time() - start_time, "s")
+            print(
+                len(self.message_offsets),
+                "messages has been discovered in",
+                time.time() - start_time,
+                "s",
+            )
 
         return len(self.message_offsets)
 
@@ -161,15 +189,19 @@ class OSITrace:
         trace_size = get_size_from_file_stream(self.trace_file)
 
         if max_index == -1:
-            max_index = float('inf')
+            max_index = float("inf")
 
         # For $$__$$ separated trace files the buffersize needs to be greater than zero
         if self.buffer_size == 0:
-            self.buffer_size = 1000000 # Make it backwards compatible
+            self.buffer_size = 1000000  # Make it backwards compatible
 
         if self.show_progress:
             progress_bar = Bar(max=trace_size)
-            print("Retrieving message offsets in txt trace file until " + str(trace_size) + " ...")
+            print(
+                "Retrieving message offsets in txt trace file until "
+                + str(trace_size)
+                + " ..."
+            )
         else:
             progress_bar = None
 
@@ -201,7 +233,7 @@ class OSITrace:
             self.trace_file.seek(message_offset)
 
             while eof and found != -1:
-                buffer = buffer[found + SEPARATOR_LENGTH:]
+                buffer = buffer[found + SEPARATOR_LENGTH :]
                 found = buffer.find(SEPARATOR)
 
                 buffer_offset = trace_size - len(buffer)
@@ -222,7 +254,12 @@ class OSITrace:
 
         if self.show_progress:
             progress_bar.finish()
-            print(len(self.message_offsets), "messages has been discovered in", time.time() - start_time, "s")
+            print(
+                len(self.message_offsets),
+                "messages has been discovered in",
+                time.time() - start_time,
+                "s",
+            )
 
         return len(self.message_offsets)
 
@@ -236,7 +273,7 @@ class OSITrace:
         if message is not None:
             return message
 
-        message = next(self.get_messages_in_index_range(index, index+1))
+        message = next(self.get_messages_in_index_range(index, index + 1))
         return LinkedProtoField(message, name=self.type_name)
 
     def get_messages_in_index_range(self, begin, end):
@@ -251,19 +288,28 @@ class OSITrace:
 
         self.trace_file.seek(self.message_offsets[begin])
         abs_first_offset = self.message_offsets[begin]
-        abs_last_offset = self.message_offsets[end] \
-            if end < len(self.message_offsets) \
+        abs_last_offset = (
+            self.message_offsets[end]
+            if end < len(self.message_offsets)
             else self.retrieved_trace_size
+        )
 
-        rel_message_offsets = [abs_message_offset - abs_first_offset for abs_message_offset in self.message_offsets[begin:end]]
+        rel_message_offsets = [
+            abs_message_offset - abs_first_offset
+            for abs_message_offset in self.message_offsets[begin:end]
+        ]
 
-        if self.format_type  == 'separated':
+        if self.format_type == "separated":
             message_sequence_len = abs_last_offset - abs_first_offset - SEPARATOR_LENGTH
             serialized_messages_extract = self.trace_file.read(message_sequence_len)
 
             for rel_index, rel_message_offset in enumerate(rel_message_offsets):
                 rel_begin = rel_message_offset
-                rel_end = rel_message_offsets[rel_index + 1] - SEPARATOR_LENGTH if rel_index + 1 < len(rel_message_offsets) else message_sequence_len
+                rel_end = (
+                    rel_message_offsets[rel_index + 1] - SEPARATOR_LENGTH
+                    if rel_index + 1 < len(rel_message_offsets)
+                    else message_sequence_len
+                )
 
                 message = MESSAGES_TYPE[self.type_name]()
                 serialized_message = serialized_messages_extract[rel_begin:rel_end]
@@ -274,10 +320,14 @@ class OSITrace:
         elif self.format_type is None:
             message_sequence_len = abs_last_offset - abs_first_offset
             serialized_messages_extract = self.trace_file.read(message_sequence_len)
-            
+
             for rel_index, rel_message_offset in enumerate(rel_message_offsets):
                 rel_begin = rel_message_offset + self._int_length
-                rel_end = rel_message_offsets[rel_index + 1] - self._int_length if rel_index + 1 < len(rel_message_offsets) else message_sequence_len
+                rel_end = (
+                    rel_message_offsets[rel_index + 1] - self._int_length
+                    if rel_index + 1 < len(rel_message_offsets)
+                    else message_sequence_len
+                )
 
                 message = MESSAGES_TYPE[self.type_name]()
                 serialized_message = serialized_messages_extract[rel_begin:rel_end]
@@ -301,14 +351,17 @@ class OSITrace:
         one.
         """
         if self.show_progress:
-            print('\nCaching ...')
-        self.message_cache = self.manager.dict({
-            index + begin: message
-            for index, message
-            in enumerate(self.get_messages_in_index_range(begin, end))
-        })
+            print("\nCaching ...")
+        self.message_cache = self.manager.dict(
+            {
+                index + begin: message
+                for index, message in enumerate(
+                    self.get_messages_in_index_range(begin, end)
+                )
+            }
+        )
         if self.show_progress:
-            print('Caching done!')
+            print("Caching done!")
 
     def update_bar(self, progress_bar, new_index):
         if self.show_progress and progress_bar is not None:

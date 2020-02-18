@@ -41,36 +41,51 @@ class TestCheckIf(unittest.TestCase):
         self.VECTOR3D = LinkedProtoField(pb_VECTOR3D, "Vector3D")
 
     def test_comply1(self):
-        rule = Rule(verb="check_if", field_name='x',
-                    params=[{'is_equal_to': 3, 'target': 'this.y'}],
-                    extra_params={'do_check': [{'is_equal_to': 2}]})
+        rule = Rule(
+            verb="check_if",
+            field_name="x",
+            params=[{"is_equal_to": 3, "target": "this.y"}],
+            extra_params={"do_check": [{"is_equal_to": 2}]},
+        )
         compliance = self.FRC.check_if(self.VECTOR3D, rule)
         self.assertTrue(compliance)
 
     def test_comply2(self):
-        rule = Rule(verb="check_if", field_name='x',
-                    params=[{'is_equal_to': 2, 'target': 'this.y'}],
-                    extra_params={'do_check': [{'is_equal_to': 1}]})
+        rule = Rule(
+            verb="check_if",
+            field_name="x",
+            params=[{"is_equal_to": 2, "target": "this.y"}],
+            extra_params={"do_check": [{"is_equal_to": 1}]},
+        )
         compliance = self.FRC.check_if(self.VECTOR3D, rule)
         self.assertTrue(compliance)
 
     def test_comply_is_set(self):
-        rule = Rule(verb="check_if", field_name='x',
-                    params=[{'is_equal_to': 2, 'target': 'this.y'}],
-                    extra_params={'do_check': [{'is_set': None}]})
+        rule = Rule(
+            verb="check_if",
+            field_name="x",
+            params=[{"is_equal_to": 2, "target": "this.y"}],
+            extra_params={"do_check": [{"is_set": None}]},
+        )
         compliance = self.FRC.check_if(self.VECTOR3D, rule)
         self.assertTrue(compliance)
 
     def test_not_comply(self):
-        rule = Rule(verb="check_if", field_name='x',
-                    params=[{'is_equal_to': 2, 'target': 'this.y'}],
-                    extra_params={'do_check': [{'is_equal_to': 2}]})
+        rule = Rule(
+            verb="check_if",
+            field_name="x",
+            params=[{"is_equal_to": 2, "target": "this.y"}],
+            extra_params={"do_check": [{"is_equal_to": 2}]},
+        )
         compliance = self.FRC.check_if(self.VECTOR3D, rule)
         self.assertFalse(compliance)
 
     def test_not_comply_is_set_if(self):
-        rule = Rule(verb="check_if", field_name='z',
-                    params=[{'is_equal_to': 2, 'target': 'this.y'}],
-                    extra_params={'do_check': [{'is_set': None}]})
+        rule = Rule(
+            verb="check_if",
+            field_name="z",
+            params=[{"is_equal_to": 2, "target": "this.y"}],
+            extra_params={"do_check": [{"is_set": None}]},
+        )
         compliance = self.FRC.check_if(self.VECTOR3D, rule)
         self.assertFalse(compliance)

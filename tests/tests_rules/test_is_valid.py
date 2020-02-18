@@ -5,13 +5,18 @@ import unittest
 from osi3.osi_common_pb2 import Orientation3d
 
 from osivalidator.linked_proto_field import LinkedProtoField
-from osivalidator.osi_rules import Rule, TypeRulesContainer, ProtoMessagePath, MessageTypeRules, FieldRules
+from osivalidator.osi_rules import (
+    Rule,
+    TypeRulesContainer,
+    ProtoMessagePath,
+    MessageTypeRules,
+    FieldRules,
+)
 
 from osivalidator.osi_rules_checker import OSIRulesChecker
 
 
 class TestIsValid(unittest.TestCase):
-
     def setUp(self):
         self.FRC = OSIRulesChecker()
         orient3d = Orientation3d()
@@ -26,17 +31,31 @@ class TestIsValid(unittest.TestCase):
 
     def test_comply_is_valid(self):
         container = TypeRulesContainer()
-        proto_path = ProtoMessagePath(['Orientation3d', 'roll'])
+        proto_path = ProtoMessagePath(["Orientation3d", "roll"])
         container.add_type_from_path(proto_path)
 
         root_container = TypeRulesContainer()
-        root_path = ProtoMessagePath(['Orientation3d'])
+        root_path = ProtoMessagePath(["Orientation3d"])
         root_container.add_type_from_path(root_path)
 
-        rule1 = Rule(verb="is_greater_than", field_name='roll', params=0, path=proto_path, extra_params=dict())
-        rule2 = Rule(verb="is_less_than", field_name='roll', params=10, path=proto_path, extra_params=dict())
+        rule1 = Rule(
+            verb="is_greater_than",
+            field_name="roll",
+            params=0,
+            path=proto_path,
+            extra_params=dict(),
+        )
+        rule2 = Rule(
+            verb="is_less_than",
+            field_name="roll",
+            params=10,
+            path=proto_path,
+            extra_params=dict(),
+        )
 
-        rules = FieldRules("roll", rules=[rule1, rule2], path=proto_path, root=root_container)
+        rules = FieldRules(
+            "roll", rules=[rule1, rule2], path=proto_path, root=root_container
+        )
 
         rule = MessageTypeRules(name="Orientation3d")
         rule.add_field(rules)
@@ -51,17 +70,31 @@ class TestIsValid(unittest.TestCase):
 
     def test_comply_is_not_valid(self):
         container = TypeRulesContainer()
-        proto_path = ProtoMessagePath(['Orientation3d', 'roll'])
+        proto_path = ProtoMessagePath(["Orientation3d", "roll"])
         container.add_type_from_path(proto_path)
 
         root_container = TypeRulesContainer()
-        root_path = ProtoMessagePath(['Orientation3d'])
+        root_path = ProtoMessagePath(["Orientation3d"])
         root_container.add_type_from_path(root_path)
 
-        rule1 = Rule(verb="is_greater_than", field_name='roll', params=6, path=proto_path, extra_params=dict())
-        rule2 = Rule(verb="is_less_than", field_name='roll', params=10, path=proto_path, extra_params=dict())
+        rule1 = Rule(
+            verb="is_greater_than",
+            field_name="roll",
+            params=6,
+            path=proto_path,
+            extra_params=dict(),
+        )
+        rule2 = Rule(
+            verb="is_less_than",
+            field_name="roll",
+            params=10,
+            path=proto_path,
+            extra_params=dict(),
+        )
 
-        rules = FieldRules("roll", rules=[rule1, rule2], path=proto_path, root=root_container)
+        rules = FieldRules(
+            "roll", rules=[rule1, rule2], path=proto_path, root=root_container
+        )
 
         rule = MessageTypeRules(name="Orientation3d")
         rule.add_field(rules)

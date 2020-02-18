@@ -6,7 +6,7 @@
 
 
 # def main():
-    
+
 #     example_data_file = '/home/cszyszka/projects/osi/osi-validation/Data/overtake_right_straight_SensorView.txt'
 
 #     data_class = osi3.osi_sensorview_pb2.SensorView

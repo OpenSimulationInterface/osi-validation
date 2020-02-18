@@ -38,7 +38,7 @@ class OSIRulesChecker:
         elif isinstance(severity, str):
             severity_method = severity
         else:
-            raise TypeError('type not accepted: must be Severity enum or str')
+            raise TypeError("type not accepted: must be Severity enum or str")
 
         return getattr(self.logger, severity_method)(self.timestamp, message)
 
@@ -53,8 +53,7 @@ class OSIRulesChecker:
         try:
             rule_method = getattr(self, rule.verb)
         except AttributeError:
-            raise AttributeError(
-                'Rule ' + rule.verb + ' not implemented yet\n')
+            raise AttributeError("Rule " + rule.verb + " not implemented yet\n")
 
         if rule.target is not None:
             parent_field = parent_field.query(rule.target, parent=True)

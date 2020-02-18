@@ -1,17 +1,18 @@
-# Open and Read text file 
+# Open and Read text file
 def read_text_data(file_name):
     """ Read data from file """
     with open(file_name, "rb") as f:
         data = f.read()
     return data
 
-# Search for separators 
+
+# Search for separators
 def separate_all_sections(encoded):
     """ Separate files based on  """
-    SEPARATOR = b'$$__$$'
+    SEPARATOR = b"$$__$$"
     start, end = 0, 0
 
-    is_finished = False 
+    is_finished = False
     while not is_finished:
         end = encoded.find(SEPARATOR, start)
 
@@ -19,11 +20,12 @@ def separate_all_sections(encoded):
         if end == -1:
             is_finished = True
             end = len(encoded)
-            
+
         if len(encoded[start:end]) == 0:
             break
         yield encoded[start:end]
         start = end + len(SEPARATOR)
+
 
 # Decode protobuff data
 def decode_data(encoded_data, data_class):

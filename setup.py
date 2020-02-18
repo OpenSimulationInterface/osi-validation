@@ -5,7 +5,7 @@ import glob
 
 import setuptools
 
-AUTHOR = 'Altran Germany / BMW'
+AUTHOR = "Altran Germany / BMW"
 
 if __name__ == "__main__":
     with open("README.md", "r") as fh:
@@ -26,35 +26,38 @@ if __name__ == "__main__":
             "Operating System :: OS Independent",
         ],
         data_files=[
-            ('open-simulation-interface',
-             glob.glob('open-simulation-interface/*.proto')),
-            ('proto2cpp', ['proto2cpp/proto2cpp.py']),
-            ('lib/python3.6/site-packages/requirements-osi-3',
-             glob.glob('requirements-osi-3/*.yml'))
+            (
+                "open-simulation-interface",
+                glob.glob("open-simulation-interface/*.proto"),
+            ),
+            ("proto2cpp", ["proto2cpp/proto2cpp.py"]),
+            (
+                "lib/python3.6/site-packages/requirements-osi-3",
+                glob.glob("requirements-osi-3/*.yml"),
+            ),
         ],
         include_package_data=True,
         install_requires=[
-            'iso3166',
-            'ruamel.yaml',
-            'PyYaml',
-            'asteval',
-            'sphinx_rtd_theme',
-            'recommonmark',
-            'open-simulation-interface',
-            'doxygen-interface',
-            'defusedxml',
-            'colorama',
-            'tabulate',
-            'progress',
-            'protobuf==3.9.1'
+            "iso3166",
+            "ruamel.yaml",
+            "PyYaml",
+            "asteval",
+            "sphinx_rtd_theme",
+            "recommonmark",
+            "open-simulation-interface",
+            "doxygen-interface",
+            "defusedxml",
+            "colorama",
+            "tabulate",
+            "progress",
+            "protobuf==3.9.1",
         ],
         dependency_links=[
-            'git+https://github.com/OpenSimulationInterface/' +
-            'open-simulation-interface.git' +
-            '@master#egg=open-simulation-interface',
+            "git+https://github.com/OpenSimulationInterface/"
+            + "open-simulation-interface.git"
+            + "@master#egg=open-simulation-interface",
         ],
         entry_points={
-            'console_scripts':
-                ['osivalidator=osivalidator.osi_general_validator:main'],
-        }
+            "console_scripts": ["osivalidator=osivalidator.osi_general_validator:main"],
+        },
     )

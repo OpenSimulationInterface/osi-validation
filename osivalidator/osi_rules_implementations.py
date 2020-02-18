@@ -15,18 +15,20 @@ def add_default_rules_to_subfields(message, type_rules):
     """Add default rules to fields of message fields (subfields)
     """
     for descriptor in message.all_field_descriptors:
-        field_rules = (type_rules.get_field(descriptor.name)
-                       if descriptor.name in type_rules.fields
-                       else type_rules.add_field(FieldRules(descriptor.name)))
+        field_rules = (
+            type_rules.get_field(descriptor.name)
+            if descriptor.name in type_rules.fields
+            else type_rules.add_field(FieldRules(descriptor.name))
+        )
 
         if descriptor.message_type:
-            field_rules.add_rule(Rule(verb='is_valid'))
+            field_rules.add_rule(Rule(verb="is_valid"))
 
-        is_set_severity = (Severity.WARN
-                           if field_rules.has_rule('is_optional')
-                           else Severity.ERROR)
+        is_set_severity = (
+            Severity.WARN if field_rules.has_rule("is_optional") else Severity.ERROR
+        )
 
-        field_rules.add_rule(Rule(verb='is_set', severity=is_set_severity))
+        field_rules.add_rule(Rule(verb="is_set", severity=is_set_severity))
 
 
 # DECORATORS
@@ -54,12 +56,13 @@ def rule_implementation(func):
     """Decorator to label rules method implementations
     """
     func.is_rule = True
+
     @wraps(func)
     def wrapper(self, field, rule, **kwargs):
         if isinstance(rule, FieldRules):
             rule = rule.rules[func.__name__]
 
-        if isinstance(field, list) and not getattr(func, 'repeated_selector', False):
+        if isinstance(field, list) and not getattr(func, "repeated_selector", False):
             result = all([func(self, unique_field, rule) for unique_field in field])
         else:
             result = func(self, field, rule, **kwargs)
@@ -69,9 +72,15 @@ def rule_implementation(func):
                 path = field[0].path
             else:
                 path = field.path
-            self.log(rule.severity, str(rule.path)
-                     + '(' + str(rule.params) + ')'
-                     + ' does not comply in ' + str(path))
+            self.log(
+                rule.severity,
+                str(rule.path)
+                + "("
+                + str(rule.params)
+                + ")"
+                + " does not comply in "
+                + str(path),
+            )
 
         return result
 
@@ -80,6 +89,7 @@ def rule_implementation(func):
 
 # RULES
 # TODO Refactor this code into a seperate class so it can be easy parsed by sphinx
+
 
 @rule_implementation
 def is_valid(self, field, rule):
@@ -234,14 +244,16 @@ def first_element(self, field, rule):
     # Convert parsed yaml file to dictonary rules
     nested_fields_rules_list = []
     for key_field, nested_rule in nested_fields_rules.items():
-        nested_rule[0].update({'target': 'this.'+key_field})
+        nested_rule[0].update({"target": "this." + key_field})
         nested_fields_rules_list.append(nested_rule[0])
 
     rules_checker_list = []
     for nested_fields_rule in nested_fields_rules_list:
-        statement_rule = Rule(dictionary=nested_fields_rule,
-                              field_name=rule.field_name,
-                              severity=Severity.ERROR)
+        statement_rule = Rule(
+            dictionary=nested_fields_rule,
+            field_name=rule.field_name,
+            severity=Severity.ERROR,
+        )
         statement_rule.path = rule.path.child_path(statement_rule.verb)
         statement_true = self.check_rule(field[0], statement_rule) and statement_true
         rules_checker_list.append(statement_true)
@@ -264,14 +276,16 @@ def last_element(self, field, rule):
     # Convert parsed yaml file to dictonary rules
     nested_fields_rules_list = []
     for key_field, nested_rule in nested_fields_rules.items():
-        nested_rule[0].update({'target': 'this.'+key_field})
+        nested_rule[0].update({"target": "this." + key_field})
         nested_fields_rules_list.append(nested_rule[0])
 
     rules_checker_list = []
     for nested_fields_rule in nested_fields_rules_list:
-        statement_rule = Rule(dictionary=nested_fields_rule,
-                              field_name=rule.field_name,
-                              severity=Severity.ERROR)
+        statement_rule = Rule(
+            dictionary=nested_fields_rule,
+            field_name=rule.field_name,
+            severity=Severity.ERROR,
+        )
         statement_rule.path = rule.path.child_path(statement_rule.verb)
         statement_true = self.check_rule(field[-1], statement_rule) and statement_true
         rules_checker_list.append(statement_true)
@@ -329,23 +343,31 @@ def check_if(self, field, rule):
 
     """
     statements = rule.params
-    do_checks = rule.extra_params['do_check']
+    do_checks = rule.extra_params["do_check"]
     statement_true = True
 
     # Check if all the statements are true
     for statement in statements:
-        statement_rule = Rule(dictionary=statement,
-                              field_name=rule.field_name,
-                              severity=Severity.INFO)
+        statement_rule = Rule(
+            dictionary=statement, field_name=rule.field_name, severity=Severity.INFO
+        )
         statement_rule.path = rule.path.child_path(statement_rule.verb)
-        statement_true = self.check_rule(
-            field, statement_rule) and statement_true
+        statement_true = self.check_rule(field, statement_rule) and statement_true
 
     # If the statements are true, check the do_check rules
     if not statement_true:
         return True
 
-    return all((self.check_rule(field, Rule(path=rule.path.child_path(next(iter(check.keys()))),
-                                            dictionary=check,
-                                            field_name=rule.field_name))
-                for check in do_checks))
+    return all(
+        (
+            self.check_rule(
+                field,
+                Rule(
+                    path=rule.path.child_path(next(iter(check.keys()))),
+                    dictionary=check,
+                    field_name=rule.field_name,
+                ),
+            )
+            for check in do_checks
+        )
+    )

@@ -9,17 +9,20 @@ class TestDataContainer(unittest.TestCase):
 
     def setUp(self):
         self.MESSAGE_LENGTH = 15
-        
+
         self.txt = OSITrace(buffer_size=1000000)
         self.osi = OSITrace(buffer_size=1000000)
         self.osi_nobuffer = OSITrace(buffer_size=0)
 
-        self.txt.from_file(path="data/small_test.txt.lzma",
-                           type_name="SensorView", format_type='separated')
-        self.osi.from_file(path="data/small_test.osi.lzma",
-                           type_name="SensorView")
-        self.osi_nobuffer.from_file(path="data/small_test.osi.lzma",
-                           type_name="SensorView")
+        self.txt.from_file(
+            path="data/small_test.txt.lzma",
+            type_name="SensorView",
+            format_type="separated",
+        )
+        self.osi.from_file(path="data/small_test.osi.lzma", type_name="SensorView")
+        self.osi_nobuffer.from_file(
+            path="data/small_test.osi.lzma", type_name="SensorView"
+        )
 
     def tearDown(self):
         self.txt.trace_file.close()

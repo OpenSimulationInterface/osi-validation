@@ -34,6 +34,10 @@ script:
     - python -m site
     - protoc --version
 
+    # Install black code formatter and check if it is applied
+    - pip install black
+    - black --check --exclude "(open-simulation-interface|proto2cpp)" .
+
     # Install osi-validation
     - cd open-simulation-interface
     - pip install .
