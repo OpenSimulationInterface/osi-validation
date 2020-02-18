@@ -132,9 +132,7 @@ class OSITrace:
                     message_offset += message_length + self._int_length
                     self.message_offsets.append(message_offset)
                     self.update_bar(progress_bar, message_offset)
-                    before_tell = self.trace_file.tell()
                     self.trace_file.seek(message_offset)
-                    after_tell = self.trace_file.tell()
                     eof = self.trace_file.tell() > self.buffer_size * (counter + 1)
 
                     # Check if reached end of file
