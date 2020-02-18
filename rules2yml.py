@@ -1,5 +1,4 @@
 import sys
-import unicodedata
 import argparse
 import re
 from glob import *
@@ -45,7 +44,6 @@ def gen_yml_rules(dir_name="rules"):
         with open(f"{dir_name}/{filename}.yml", "a") as yml_file:
             with open(file, "rt") as fin:
                 isEnum = False
-                enumName = ""
                 numMessage = 0
                 shiftCounter = False
                 saveStatement = ""
@@ -100,23 +98,12 @@ def gen_yml_rules(dir_name="rules"):
                                     r"\b[A-Z][a-zA-Z0-9]*\b",
                                     endOfLine[matchName.start() : matchName.end()],
                                 )
-                                enumName = (
-                                    convert(
-                                        endOfLine[matchName.start() : matchName.end()]
-                                    )
-                                    + "_"
-                                )
 
                         # Search for a closing brace.
                         matchClosingBrace = re.search("}", statement)
                         if isEnum is True and matchClosingBrace is not None:
                             isEnum = False
-                            enumName = ""
                             continue
-
-                        def convert(name):
-                            s1 = re.sub(r"(.)([A-Z][a-z]+)", r"\1_\2", name)
-                            return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s1).upper()
 
                         # Check if not inside an enum.
                         if isEnum is False:

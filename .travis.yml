@@ -40,7 +40,7 @@ script:
 
     # Install vulture and search for dead code with 100% confidence
     - pip install vulture
-    - vulture . --min-confidence 100
+    - vulture *.py tests/ osivalidator/ --min-confidence 100
 
     # Install osi-validation
     - cd open-simulation-interface
