@@ -34,6 +34,14 @@ script:
     - python -m site
     - protoc --version
 
+    # Install black code formatter and check if it is applied
+    - pip install black
+    - black --check --exclude "(open-simulation-interface|proto2cpp)" .
+
+    # Install vulture and search for dead code with 100% confidence
+    - pip install vulture
+    - vulture *.py tests/ osivalidator/ --min-confidence 100
+
     # Install osi-validation
     - cd open-simulation-interface
     - pip install .
@@ -42,9 +50,6 @@ script:
 
     # Generate parsed rules
     - python rules2yml.py -d rules
-
-    # Check if rule syntax in osi is correct
-    # - python test_cases.py
 
     # Show validator usage
     - osivalidator -h

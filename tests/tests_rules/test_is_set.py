@@ -28,7 +28,6 @@ from osi3.osi_common_pb2 import Orientation3d
 
 
 class TestIsSet(unittest.TestCase):
-
     def setUp(self):
         self.FRC = OSIRulesChecker()
 

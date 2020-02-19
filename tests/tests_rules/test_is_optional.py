@@ -19,7 +19,7 @@ class TestIsOptional(unittest.TestCase):
 
     def test_comply_is_optional(self):
         self.assertTrue(
-            self.FRC.is_optional(LinkedProtoField(value=1),
-                                 Rule(verb="is_optional", params=None)
-                                 )
+            self.FRC.is_optional(
+                LinkedProtoField(value=1), Rule(verb="is_optional", params=None)
+            )
         )

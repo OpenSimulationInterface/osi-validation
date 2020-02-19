@@ -21,11 +21,13 @@ from osivalidator.osi_rules import Severity
 
 def log(func):
     """Wrapper for logging function"""
+
     @wraps(func)
     def wrapper(self, timestamp, msg, *args, **kwargs):
         if timestamp not in self.log_messages:
             self.log_messages[timestamp] = []
         return func(self, timestamp, msg, *args, **kwargs)
+
     return wrapper
 
 
@@ -50,7 +52,7 @@ class InfoFilter(logging.Filter):
         return record.levelno == 20
 
 
-class OSIValidatorLogger():
+class OSIValidatorLogger:
     """Wrapper for the Python logger"""
 
     def __init__(self, debug=False):
@@ -90,16 +92,18 @@ class OSIValidatorLogger():
 
     def create_database(self, timestamp, output_path):
         """Create an SQLite database and set the table for logs"""
-        self.dbname = os.path.join(output_path, f'logs_{timestamp}.db')
+        self.dbname = os.path.join(output_path, f"logs_{timestamp}.db")
         self.conn = sqlite3.connect(self.dbname)
 
         cursor = self.conn.cursor()
 
-        cursor.execute("""CREATE TABLE logs (
+        cursor.execute(
+            """CREATE TABLE logs (
             severity integer,
             timestamp integer,
             message text
-        )""")
+        )"""
+        )
 
         self.conn.commit()
         cursor.close()
@@ -119,12 +123,12 @@ class OSIValidatorLogger():
         warning_file_path = os.path.join(output_path, f"warn_{timestamp}.log")
 
         # Log errors in a file
-        handler_error = logging.FileHandler(
-            error_file_path, mode="a", encoding="utf-8")
+        handler_error = logging.FileHandler(error_file_path, mode="a", encoding="utf-8")
 
         # Log warnings in another file
         handler_warning = logging.FileHandler(
-            warning_file_path, mode="a", encoding="utf-8")
+            warning_file_path, mode="a", encoding="utf-8"
+        )
 
         # Set formatters
         handler_error.setFormatter(self.formatter)
@@ -211,9 +215,9 @@ class OSIValidatorLogger():
     def synthetize_results_from_sqlite(self):
         """Aggregate the sqlite log and output a synthetized version of the
         result"""
+
         def ranges(i):
-            group = itertools.groupby(
-                enumerate(i), lambda x_y: x_y[1] - x_y[0])
+            group = itertools.groupby(enumerate(i), lambda x_y: x_y[1] - x_y[0])
             for _, second in group:
                 second = list(second)
                 yield second[0][1], second[-1][1]
@@ -232,13 +236,14 @@ class OSIValidatorLogger():
                        FROM logs
                        WHERE message = ?
                        ORDER BY timestamp""",
-                    message
+                    message,
                 )
 
                 timestamps = list(map(first_elt, cursor.fetchall()))
                 ts_ranges = ", ".join(map(format_ranges, ranges(timestamps)))
-                results.append([wrapper_ranges.fill(ts_ranges),
-                                wrapper.fill(first_elt(message))])
+                results.append(
+                    [wrapper_ranges.fill(ts_ranges), wrapper.fill(first_elt(message))]
+                )
             return results
 
         def first_elt(iterable):
@@ -251,34 +256,36 @@ class OSIValidatorLogger():
 
         cursor_warn = conn.cursor()
         distinct_messages_w = cursor_warn.execute(
-            'SELECT DISTINCT message FROM logs WHERE severity = 30')
+            "SELECT DISTINCT message FROM logs WHERE severity = 30"
+        )
         cursor_error = conn.cursor()
         distinct_messages_e = cursor_error.execute(
-            'SELECT DISTINCT message FROM logs WHERE severity = 40')
+            "SELECT DISTINCT message FROM logs WHERE severity = 40"
+        )
 
         conn.commit()
 
         colorama.init()
 
         print()
-        print_synthesis("Errors", "RED",
-                        process_timestamps(distinct_messages_e))
+        print_synthesis("Errors", "RED", process_timestamps(distinct_messages_e))
         print()
-        print_synthesis("Warnings", "YELLOW",
-                        process_timestamps(distinct_messages_w))
+        print_synthesis("Warnings", "YELLOW", process_timestamps(distinct_messages_w))
 
 
 def print_synthesis(title, color, ranges_messages_table):
     """Print the (range, messages) table in a nice way, precessed with title and
     the number of messages"""
     headers = ["Ranges of timestamps", "Message"]
-    print(getattr(colorama.Fore, color) + title + " (" +
-          str(len(ranges_messages_table)) + ") " + colorama.Style.RESET_ALL)
+    print(
+        getattr(colorama.Fore, color)
+        + title
+        + " ("
+        + str(len(ranges_messages_table))
+        + ") "
+        + colorama.Style.RESET_ALL
+    )
     print(tabulate(ranges_messages_table, headers=headers))
 
 
-SEVERITY = {
-    Severity.INFO: 'info',
-    Severity.ERROR: 'error',
-    Severity.WARN: 'warning'
-}
+SEVERITY = {Severity.INFO: "info", Severity.ERROR: "error", Severity.WARN: "warning"}

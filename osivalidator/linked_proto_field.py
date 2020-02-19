@@ -93,8 +93,10 @@ class LinkedProtoField:
 
         field = getattr(self.value, field_name)
 
-        if (hasattr(self.value, 'DESCRIPTOR') and
-                self.value.DESCRIPTOR.fields_by_name[field_name].label == 3):
+        if (
+            hasattr(self.value, "DESCRIPTOR")
+            and self.value.DESCRIPTOR.fields_by_name[field_name].label == 3
+        ):
             return [
                 LinkedProtoField(u_field, parent=self, name=field_name)
                 for u_field in field

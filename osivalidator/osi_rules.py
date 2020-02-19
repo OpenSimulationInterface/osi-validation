@@ -24,30 +24,28 @@ class OSIRules:
 
         if not path:
             dir_path = dir_path = os.path.dirname(os.path.realpath(__file__))
-            path = os.path.join(dir_path, 'requirements-osi-3')
+            path = os.path.join(dir_path, "requirements-osi-3")
 
-        exts = ('.yml', '.yaml')
+        exts = (".yml", ".yaml")
         try:
             for filename in os.listdir(path):
-                if filename.startswith('osi_') and filename.endswith(exts):
+                if filename.startswith("osi_") and filename.endswith(exts):
                     self.from_yaml_file(os.path.join(path, filename))
 
         except FileNotFoundError:
-            print('Error while reading files OSI-rules. Exiting!')
+            print("Error while reading files OSI-rules. Exiting!")
 
     def from_yaml_file(self, path):
         """Import from a file
         """
         rules_file = open(path)
-        self.from_dict(rules_dict=yaml.load(
-            rules_file, Loader=yaml.SafeLoader))
+        self.from_dict(rules_dict=yaml.load(rules_file, Loader=yaml.SafeLoader))
         rules_file.close()
 
     def from_yaml(self, yaml_content):
         """Import from a string
         """
-        self.from_dict(rules_dict=yaml.load(
-            yaml_content, Loader=yaml.SafeLoader))
+        self.from_dict(rules_dict=yaml.load(yaml_content, Loader=yaml.SafeLoader))
 
     def from_xml_doxygen(self):
         """Parse the Doxygen XML documentation to get the rules
@@ -63,8 +61,7 @@ class OSIRules:
 
             message_t = self.rules.add_type_from_path(message_t_path)
             for field_rule in field_rules:
-                message_t.add_field(FieldRules(
-                    name=field_name, rules=field_rule))
+                message_t.add_field(FieldRules(name=field_name, rules=field_rule))
 
     def get_rules(self):
         """Return the rules
@@ -78,8 +75,7 @@ class OSIRules:
 
         for key, value in rules_dict.items():
             if key[0].isupper() and isinstance(value, dict):  # it's a nested type
-                new_message_t = rules_container.add_type(
-                    MessageTypeRules(name=key))
+                new_message_t = rules_container.add_type(MessageTypeRules(name=key))
                 if value is not None:
                     self.from_dict(value, new_message_t)
 
@@ -90,8 +86,8 @@ class OSIRules:
 
             elif value is not None:
                 sys.stderr.write(
-                    'must be dict or list, got '
-                    + type(rules_dict).__name__ + '\n')
+                    "must be dict or list, got " + type(rules_dict).__name__ + "\n"
+                )
 
 
 class ProtoMessagePath:
@@ -99,8 +95,7 @@ class ProtoMessagePath:
 
     def __init__(self, path=None):
         if path and not all(isinstance(component, str) for component in path):
-            sys.stderr.write(
-                'Path must be str list, found ' + str(path) + '\n')
+            sys.stderr.write("Path must be str list, found " + str(path) + "\n")
         self.path = deepcopy(path) or []
 
     def __repr__(self):
@@ -111,8 +106,11 @@ class ProtoMessagePath:
 
     def pretty_html(self):
         """Return a pretty html version of the message path"""
-        return ".".join(map(lambda l: "<b>"+l+"</b>", self.path[:-1])) \
-            + "." + self.path[-1]
+        return (
+            ".".join(map(lambda l: "<b>" + l + "</b>", self.path[:-1]))
+            + "."
+            + self.path[-1]
+        )
 
     def child_path(self, child):
         """Return a new path for the child"""
@@ -191,19 +189,20 @@ class TypeRulesContainer(OSIRuleNode):
                 try:
                     message_t = message_t.nested_types[component]
                 except KeyError:
-                    raise KeyError('Type not found: ' + str(message_path))
+                    raise KeyError("Type not found: " + str(message_path))
             return message_t
         if isinstance(message_path, str):
             return self.nested_types[message_path]
 
-        sys.stderr.write('Type must be ProtoMessagePath or str' + '\n')
+        sys.stderr.write("Type must be ProtoMessagePath or str" + "\n")
 
     def __getitem__(self, name):
         return self.nested_types[name]
 
     def __repr__(self):
-        return f'TypeContainer({len(self.nested_types)}):\n' + \
-               ','.join(map(str, self.nested_types))
+        return f"TypeContainer({len(self.nested_types)}):\n" + ",".join(
+            map(str, self.nested_types)
+        )
 
 
 class MessageTypeRules(TypeRulesContainer):
@@ -233,11 +232,12 @@ class MessageTypeRules(TypeRulesContainer):
         return self.get_field(field_name)
 
     def __repr__(self):
-        return f'{self.type_name}:' + \
-            f'MessageType({len(self.fields)}):{self.fields},' + \
-            f'Nested types({len(self.nested_types)})' + \
-            (':' + ','.join(self.nested_types.keys()) if self.nested_types
-             else '')
+        return (
+            f"{self.type_name}:"
+            + f"MessageType({len(self.fields)}):{self.fields},"
+            + f"Nested types({len(self.nested_types)})"
+            + (":" + ",".join(self.nested_types.keys()) if self.nested_types else "")
+        )
 
 
 class FieldRules(OSIRuleNode):
@@ -320,7 +320,7 @@ class Rule(OSIRuleNode):
         import osivalidator.osi_rules_implementations as rule_implementations
 
         if not hasattr(rule_implementations, self.verb):
-            sys.stderr.write(self.verb + ' rule does not exist\n')
+            sys.stderr.write(self.verb + " rule does not exist\n")
 
     def from_dict(self, rule_dict: dict):
         """Instantiate Rule object from a dictionary"""
@@ -329,12 +329,11 @@ class Rule(OSIRuleNode):
             self.verb = verb
             self.params = params
             self.extra_params = dict(extra_params)
-            self.target = self.extra_params.pop('target', None)
+            self.target = self.extra_params.pop("target", None)
 
             return True
         except AttributeError:
-            sys.stderr.write(
-                'rule must be YAML mapping, got: ' + str(rule_dict) + '\n')
+            sys.stderr.write("rule must be YAML mapping, got: " + str(rule_dict) + "\n")
         return False
 
     @property
@@ -344,7 +343,7 @@ class Rule(OSIRuleNode):
     @property
     def targeted_field(self):
         if self.target:
-            return self.target.split('.')[-1]
+            return self.target.split(".")[-1]
         return self.field_name
 
     @path.setter
@@ -359,12 +358,16 @@ class Rule(OSIRuleNode):
         return f"{self.verb}({self.params}) target={self.target}"
 
     def __eq__(self, other):
-        return (self.verb == other.verb and self.params == other.params
-                and self.severity == other.severity)
+        return (
+            self.verb == other.verb
+            and self.params == other.params
+            and self.severity == other.severity
+        )
 
 
 class Severity(Enum):
     """Description of the severity of the raised error if a rule does not comply."""
+
     INFO = 20
     WARN = 30
     ERROR = 40
