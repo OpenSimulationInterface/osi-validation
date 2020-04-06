@@ -16,11 +16,17 @@ class TestDataContainer(unittest.TestCase):
         self.osi_nobuffer = OSITrace(buffer_size=0)
 
         self.txt.from_file(
-            path="data/small_test.txt.lzma",
-            type_name="SensorView",
+            path="data/small_test.txt.lzma", type_name="SensorView",
         )
         subprocess.call(["lzma", "-d", "data/small_test.txt.lzma"])
-        subprocess.call(["python3", "open-simulation-interface/format/txt2osi.py", "-d", "data/small_test.txt"])
+        subprocess.call(
+            [
+                "python3",
+                "open-simulation-interface/format/txt2osi.py",
+                "-d",
+                "data/small_test.txt",
+            ]
+        )
         subprocess.call(["lzma", "-z", "data/small_test.osi"])
         subprocess.call(["lzma", "-z", "data/small_test.txt"])
         self.osi.from_file(path="data/small_test.osi.lzma", type_name="SensorView")

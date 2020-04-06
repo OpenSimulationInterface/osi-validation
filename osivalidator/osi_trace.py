@@ -42,9 +42,7 @@ MESSAGES_TYPE = {
 class OSITrace:
     """This class wrap OSI data. It can import and decode OSI traces."""
 
-    def __init__(
-        self, buffer_size, show_progress=True, type_name="SensorView"
-    ):
+    def __init__(self, buffer_size, show_progress=True, type_name="SensorView"):
         self.trace_file = None
         self.message_offsets = None
         self.buffer_size = buffer_size
@@ -334,7 +332,9 @@ class OSITrace:
                 yield LinkedProtoField(message, name=self.type_name)
 
         else:
-            raise Exception(f"The defined file format {self.path.split('/')[-1]} does not exist.")
+            raise Exception(
+                f"The defined file format {self.path.split('/')[-1]} does not exist."
+            )
 
         if self.show_progress:
             self.update_bar(progress_bar, progress_bar.max)

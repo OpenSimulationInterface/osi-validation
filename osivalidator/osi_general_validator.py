@@ -138,11 +138,7 @@ def main():
     # Read data
     print("Reading data ...")
     DATA = OSITrace(buffer_size=args.buffer)
-    DATA.from_file(
-        path=args.data,
-        type_name=args.type,
-        max_index=args.timesteps
-    )
+    DATA.from_file(path=args.data, type_name=args.type, max_index=args.timesteps)
 
     # Collect Validation Rules
     print("Collect validation rules ...")
