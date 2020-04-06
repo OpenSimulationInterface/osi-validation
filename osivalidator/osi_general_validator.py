@@ -141,8 +141,7 @@ def main():
     DATA.from_file(
         path=args.data,
         type_name=args.type,
-        max_index=args.timesteps,
-        format_type=args.format,
+        max_index=args.timesteps
     )
 
     # Collect Validation Rules
