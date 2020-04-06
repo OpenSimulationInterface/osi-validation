@@ -2,6 +2,7 @@
 
 import unittest
 from osivalidator.osi_trace import OSITrace
+import subprocess
 
 
 class TestDataContainer(unittest.TestCase):
@@ -17,8 +18,11 @@ class TestDataContainer(unittest.TestCase):
         self.txt.from_file(
             path="data/small_test.txt.lzma",
             type_name="SensorView",
-            format_type="separated",
         )
+        subprocess.call(["lzma", "-d", "data/small_test.txt.lzma"])
+        subprocess.call(["python3", "open-simulation-interface/format/txt2osi.py", "-d", "data/small_test.txt"])
+        subprocess.call(["lzma", "-z", "data/small_test.osi"])
+        subprocess.call(["lzma", "-z", "data/small_test.txt"])
         self.osi.from_file(path="data/small_test.osi.lzma", type_name="SensorView")
         self.osi_nobuffer.from_file(
             path="data/small_test.osi.lzma", type_name="SensorView"
@@ -33,6 +37,9 @@ class TestDataContainer(unittest.TestCase):
 
         self.osi_nobuffer.trace_file.close()
         del self.osi_nobuffer
+
+        subprocess.call(["rm", "data/small_test.osi.lzma"])
+        subprocess.call(["rm", "data/small_test.osi"])
 
     def test_get_messages_in_index_range(self):
         """Test getting messages in range"""

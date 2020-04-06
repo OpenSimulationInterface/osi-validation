@@ -61,14 +61,14 @@ script:
     # Run the validator on decompressed data
     - osivalidator data/small_test.osi
     - osivalidator data/small_test.osi -p
-    - osivalidator data/small_test.txt -f separated
-    - osivalidator data/small_test.txt -f separated -p
+    - osivalidator data/small_test.txt
+    - osivalidator data/small_test.txt -p
 
     # Run the validator on decompressed data with parsed rules
     - osivalidator data/small_test.osi -r rules
     - osivalidator data/small_test.osi -p -r rules
-    - osivalidator data/small_test.txt -f separated -r rules
-    - osivalidator data/small_test.txt -f separated -p -r rules
+    - osivalidator data/small_test.txt -r rules
+    - osivalidator data/small_test.txt -p -r rules
 
     # Compress *.osi and *.txt with lzma
     - lzma -z data/small_test.txt
@@ -80,11 +80,11 @@ script:
     # Run validator on a small test with already existing rules
     - osivalidator data/small_test.osi.lzma
     - osivalidator data/small_test.osi.lzma -p
-    - osivalidator data/small_test.txt.lzma -f separated
-    - osivalidator data/small_test.txt.lzma -f separated -p
+    - osivalidator data/small_test.txt.lzma
+    - osivalidator data/small_test.txt.lzma -p
 
     # Run validator on a small test with parsed rules
     - osivalidator data/small_test.osi.lzma -r rules
     - osivalidator data/small_test.osi.lzma -p -r rules
-    - osivalidator data/small_test.txt.lzma -f separated -r rules
-    - osivalidator data/small_test.txt.lzma -f separated -p -r rules
+    - osivalidator data/small_test.txt.lzma -r rules
+    - osivalidator data/small_test.txt.lzma -p -r rules
