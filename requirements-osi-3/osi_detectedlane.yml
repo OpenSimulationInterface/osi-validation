@@ -1,12 +1,21 @@
 DetectedLane:
   header:
+  candidate:
   CandidateLane:
+    probability:
+      - is_less_than_or_equal_to: 1
+      - is_greater_than_or_equal_to: 0
+    classification:
+DetectedLaneBoundary:
+  header:
+  candidate:
+  boundary_line:
+  boundary_line_rmse:
+  boundary_line_confidences:
+    - is_greater_than_or_equal_to: 0
+    - is_less_than_or_equal_to: 1
+  CandidateLaneBoundary:
     probability:
       - is_greater_than_or_equal_to: 0
       - is_less_than_or_equal_to: 1
     classification:
-
-DetectedLaneBoundary:
-  header:
-  boundary_line:
-    position:

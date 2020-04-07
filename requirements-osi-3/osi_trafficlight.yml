@@ -9,6 +9,6 @@ TrafficLight:
     mode:
     counter:
       - is_greater_than_or_equal_to: 0
-    assigned_line_id:
+    assigned_lane_id:
       - refers_to: Lane
     is_out_of_service:

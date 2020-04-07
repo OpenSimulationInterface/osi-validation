@@ -3,6 +3,16 @@ GroundTruth:
   timestamp:
   host_vehicle_id:
     - refers_to: MovingObject
+  stationary_object:
+  moving_object:
+  traffic_sign:
+  traffic_light:
+  road_marking:
+  lane_boundary:
+  lane:
+  occupant:
   environmental_conditions:
   country_code:
     - is_iso_country_code:
+  proj_string:
+  map_reference:

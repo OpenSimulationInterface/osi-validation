@@ -1,8 +1,10 @@
 DetectedRoadMarking:
   header:
   base:
-  base_rsme:
+  base_rmse:
+  candidate:
   CandidateRoadMarking:
     probability:
-      - is_greater_than_or_equal_to: 0
       - is_less_than_or_equal_to: 1
+      - is_greater_than_or_equal_to: 0
+    classification:

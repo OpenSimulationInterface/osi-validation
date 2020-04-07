@@ -9,3 +9,33 @@ SensorView:
   global_ground_truth:
   host_vehicle_id:
     - refers_to: 'MovingObject'
+  generic_sensor_view:
+  radar_sensor_view:
+  lidar_sensor_view:
+  camera_sensor_view:
+  ultrasonic_sensor_view:
+GenericSensorView:
+  view_configuration:
+RadarSensorView:
+  view_configuration:
+  reflection:
+  Reflection:
+    signal_strength:
+    time_of_flight:
+    doppler_shift:
+    source_horizontal_angle:
+    source_vertical_angle:
+LidarSensorView:
+  view_configuration:
+  reflection:
+  Reflection:
+    signal_strength:
+    time_of_flight:
+    doppler_shift:
+    normal_to_surface:
+    object_id:
+CameraSensorView:
+  view_configuration:
+  image_data:
+UltrasonicSensorView:
+  view_configuration:

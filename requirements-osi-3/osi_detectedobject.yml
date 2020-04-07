@@ -6,20 +6,21 @@ DetectedItemHeader:
     - is_less_than_or_equal_to: 1
   age:
   measurement_state:
-  
+  sensor_id:
 DetectedStationaryObject:
   header:
   base:
-  base_rsme:
+  base_rmse:
+  candidate:
   CandidateStationaryObject:
     probability:
       - is_greater_than_or_equal_to: 0
       - is_less_than_or_equal_to: 1
-
+    classification:
 DetectedMovingObject:
   header:
   base:
-  base_rsme:
+  base_rmse:
   reference_point:
   movement_state:
   percentage_side_lane_left:
@@ -28,10 +29,11 @@ DetectedMovingObject:
   percentage_side_lane_right:
     - is_greater_than_or_equal_to: 0
     - is_less_than_or_equal_to: 100
-  radar_specifics: # TODO
-  lidar_specifics: # TODO
-  camera_specifics: # TODO
-  ultrasonic_specifics: # TODO
+  candidate:
+  radar_specifics:
+  lidar_specifics:
+  camera_specifics:
+  ultrasonic_specifics:
   CandidateMovingObject:
     probability:
       - is_greater_than_or_equal_to: 0

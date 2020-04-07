@@ -2,12 +2,30 @@ DetectedEntityHeader:
   measurement_time:
   cycle_counter:
   data_qualifier:
-
 SensorData:
   version:
   timestamp:
+  host_vehicle_location:
+  host_vehicle_location_rmse:
   sensor_id:
   mounting_position:
   mounting_position_rmse:
   sensor_view:
-# TODO: rules for the other attributes?
+  last_measurement_time:
+  stationary_object_header:
+  stationary_object:
+  moving_object_header:
+  moving_object:
+  traffic_sign_header:
+  traffic_sign:
+  traffic_light_header:
+  traffic_light:
+  road_marking_header:
+  road_marking:
+  lane_boundary_header:
+  lane_boundary:
+  lane_header:
+  lane:
+  occupant_header:
+  occupant:
+  feature_data:
