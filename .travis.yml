@@ -54,6 +54,9 @@ script:
     # Show validator usage
     - osivalidator -h
 
+    # Check rule correctness with unittests
+    - python -m unittest discover tests
+
     # Convert decompress small_test.txt and convert to small_test.osi
     - lzma -d data/small_test.txt.lzma
     - python open-simulation-interface/format/txt2osi.py -d data/small_test.txt
@@ -73,9 +76,6 @@ script:
     # Compress *.osi and *.txt with lzma
     - lzma -z data/small_test.txt
     - lzma -z data/small_test.osi
-
-    # Check rule correctness with unittests
-    - python -m unittest discover tests
 
     # Run validator on a small test with already existing rules
     - osivalidator data/small_test.osi.lzma
