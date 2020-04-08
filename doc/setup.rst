@@ -99,13 +99,13 @@ Create virtual environment:
 
 .. code-block:: bash
 
-    virtualenv -p /usr/bin/python3 vpython
+    virtualenv -p /usr/bin/python3 venv
 
 Activate your virtual environment:
 
 .. code-block:: bash
 
-    source vpython/bin/activate
+    source venv/bin/activate
 
 Install open-simulation-interface:
 
