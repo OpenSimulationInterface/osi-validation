@@ -42,9 +42,7 @@ MESSAGES_TYPE = {
 class OSITrace:
     """This class wrap OSI data. It can import and decode OSI traces."""
 
-    def __init__(
-        self, buffer_size, show_progress=True, path=None, type_name="SensorView"
-    ):
+    def __init__(self, buffer_size, show_progress=True, type_name="SensorView"):
         self.trace_file = None
         self.message_offsets = None
         self.buffer_size = buffer_size
@@ -57,17 +55,17 @@ class OSITrace:
         self.retrieved_trace_size = 0
 
     # Open and Read text file
-    def from_file(self, path, type_name="SensorView", max_index=-1, format_type=None):
+    def from_file(self, path, type_name="SensorView", max_index=-1):
         """Import a trace from a file"""
-        if path.lower().endswith((".lzma", ".xz")):
-            self.trace_file = lzma.open(path, "rb")
+        self.path = path
+        if self.path.lower().endswith((".lzma", ".xz")):
+            self.trace_file = lzma.open(self.path, "rb")
         else:
-            self.trace_file = open(path, "rb")
+            self.trace_file = open(self.path, "rb")
 
         self.type_name = type_name
-        self.format_type = format_type
 
-        if self.format_type == "separated":
+        if self.path.lower().endswith((".txt.lzma", ".txt.xz", ".txt")):
             warnings.warn(
                 "The separated trace files will be completely removed in the near future. Please convert them to *.osi files with the converter in the main OSI repository.",
                 PendingDeprecationWarning,
@@ -297,7 +295,7 @@ class OSITrace:
             for abs_message_offset in self.message_offsets[begin:end]
         ]
 
-        if self.format_type == "separated":
+        if self.path.lower().endswith((".txt.lzma", ".txt.xz", ".txt")):
             message_sequence_len = abs_last_offset - abs_first_offset - SEPARATOR_LENGTH
             serialized_messages_extract = self.trace_file.read(message_sequence_len)
 
@@ -315,7 +313,7 @@ class OSITrace:
                 self.update_bar(progress_bar, rel_index)
                 yield LinkedProtoField(message, name=self.type_name)
 
-        elif self.format_type is None:
+        elif self.path.lower().endswith((".osi.lzma", ".osi.xz", ".osi")):
             message_sequence_len = abs_last_offset - abs_first_offset
             serialized_messages_extract = self.trace_file.read(message_sequence_len)
 
@@ -334,7 +332,9 @@ class OSITrace:
                 yield LinkedProtoField(message, name=self.type_name)
 
         else:
-            raise Exception(f"The defined format {self.format_type} does not exist.")
+            raise Exception(
+                f"The defined file format {self.path.split('/')[-1]} does not exist."
+            )
 
         if self.show_progress:
             self.update_bar(progress_bar, progress_bar.max)

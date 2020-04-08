@@ -1,6 +1,7 @@
 EnvironmentalConditions:
   ambient_illumination:
   time_of_day:
+  unix_timestamp:
   atmospheric_pressure:
     - is_greater_than_or_equal_to: 80000
     - is_less_than_or_equal_to: 120000

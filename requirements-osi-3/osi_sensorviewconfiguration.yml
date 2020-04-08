@@ -10,14 +10,17 @@ SensorViewConfiguration:
   update_cycle_time:
   update_cycle_offset:
   simulation_start_time:
-  
+  generic_sensor_view_configuration:
+  radar_sensor_view_configuration:
+  lidar_sensor_view_configuration:
+  camera_sensor_view_configuration:
+  ultrasonic_sensor_view_configuration:
 GenericSensorViewConfiguration:
   sensor_id:
   mounting_position:
   mounting_position_rmse:
   field_of_view_horizontal:
   field_of_view_vertical:
-
 RadarSensorViewConfiguration:
   sensor_id:
   mounting_position:
@@ -38,7 +41,6 @@ RadarSensorViewConfiguration:
     horizontal_angle:
     vertical_angle:
     response:
-
 LidarSensorViewConfiguration:
   sensor_id:
   mounting_position:
@@ -55,7 +57,8 @@ LidarSensorViewConfiguration:
     - is_greater_than_or_equal_to: 0
   num_of_pixels:
     - is_greater_than_or_equal_to: 1
-  
+  directions:
+  timings:
 CameraSensorViewConfiguration:
   sensor_id:
   mounting_position:
@@ -68,8 +71,6 @@ CameraSensorViewConfiguration:
     - is_greater_than_or_equal_to: 1
   channel_format:
     - is_greater_than_or_equal_to: 1
-
-
 UltrasonicSensorViewConfiguration:
   sensor_id:
   mounting_position:
