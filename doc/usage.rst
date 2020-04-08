@@ -267,6 +267,7 @@ This is because at least one message field does not comply to the rules like:
 
     [0, 498], [500, 998], [1000, 1498],       GroundTruth.country_code.is_set(None) does not comply in SensorView.global_ground_truth
     [1500, 1998], [2000, 2498], [2500, 2716]
+    499, 999, 1499, 1999, 2499, 2717          GroundTruth.country_code.is_iso_country_code(None) does not comply in SensorView.global_ground_truth.country_code
 
 In the rules (``osi_groundtruth.yml``) we defined (\*.yml files follow the same structure as \*.proto file in OSI):
 
@@ -276,7 +277,9 @@ In the rules (``osi_groundtruth.yml``) we defined (\*.yml files follow the same 
         country_code:
             - is_iso_country_code:
 
-This means if the field is not in the `ISO country code <https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes>`_ format an error will be thrown making ``SensorView.global_ground_truth`` invalid because ``SensorView.global_ground_truth.country_code`` is not set correctly. The incorrectness is appearing in the intervals between message frame 0 and message frame 498 but not in message frame 499. That is why you see split frame messages like this [0, 498], [500, 998].
+This means if the field is not in the `ISO country code <https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes>`_ format an error will be thrown making ``SensorView.global_ground_truth`` invalid because ``SensorView.global_ground_truth.country_code`` is not set. 
+The incorrectness is appearing in the intervals between message frame 0 and message frame 498 but not in message frame 499. In the message frame 499 the ``GroundTruth.country_code`` is set but do not comply to the ``is_iso_country_code`` rule. 
+That is why you see split frame messages like this [0, 498], [500, 998] for not set and 499 for is not ISO country code.
 Note that ``GroundTruth.country_code`` refers to the same path as ``SensorView.global_ground_truth.country_code``. 
 The SensorView part is cut due to better readability.
 
@@ -367,7 +370,7 @@ The validation output reads for the other fields the same way as for the example
 Custom Rules
 --------------
 
-Currently the rules below exist:
+Currently the following rules exist:
 
 .. code-block:: python
     
@@ -407,3 +410,5 @@ These rules can be added manually to the rules \*.yml files like in the example 
             seconds_since_midnight:
             - is_greater_than_or_equal_to: 0
             - is_less_than: 86400
+
+Further custom rules can be implemented into the osi-validator (see `rules implementation <https://opensimulationinterface.github.io/osi-documentation/osi-validation/doc/osivalidator.html#module-osivalidator.osi_rules_implementations>`_ for more).
