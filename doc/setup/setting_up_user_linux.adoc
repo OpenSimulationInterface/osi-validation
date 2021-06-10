@@ -1,11 +1,45 @@
 = Setting up OSI Validator for users on Linux
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Et malesuada fames ac turpis egestas.
-Mauris pharetra et ultrices neque ornare aenean euismod elementum nisi.
-Nulla facilisi morbi tempus iaculis urna id. Justo eget magna fermentum iaculis.
-Sed augue lacus viverra vitae congue eu.
-Velit ut tortor pretium viverra suspendisse.
-Amet commodo nulla facilisi nullam vehicula ipsum a.
-Nibh nisl condimentum id venenatis a.
-Diam vel quam elementum pulvinar etiam non quam lacus suspendisse.
+The following setup is recommended for people who want to use OSI Validator.
+
+**Prerequisites**
+
+* You have cloned the OSI Validator repository and its submodules.
+* You have installed _pip_.
+
+**Steps**
+
+. Open a command line interpreter.
+. Change to the OSI Validator repository.
++
+[source]
+----
+cd osi-validation
+----
++
+. Install Open Simulation Interface from the submodule.
++
+[source]
+----
+pip install ./open-simulation-interface
+----
++
+. Install OSI Validator
++
+[source]
+----
+sudo pip3 install .
+----
+
+**Results**
+
+You have installed OSI Validator.
+
+**What to do next**
+
+Run OSI Validator on the example trace file:
+
+[source]
+----
+osivalidator -d trace.osi
+----

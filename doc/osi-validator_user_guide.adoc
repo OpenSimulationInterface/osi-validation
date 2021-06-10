@@ -30,9 +30,9 @@ include::./setup/setting_up_user_linux.adoc[leveloffset=+2]
 
 include::./setup/setting_up_dev_linux.adoc[leveloffset=+2]
 
-include::./setup/setting_up_user_windows.adoc[leveloffset=+2]
+//include::./setup/setting_up_user_windows.adoc[leveloffset=+2]
 
-include::./setup/setting_up_dev_windows.adoc[leveloffset=+2]
+//include::./setup/setting_up_dev_windows.adoc[leveloffset=+2]
 
 include::./setup/compiling.adoc[leveloffset=+2]
 

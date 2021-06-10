@@ -1,11 +1,35 @@
 = Compiling OSI Validator
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Et malesuada fames ac turpis egestas.
-Mauris pharetra et ultrices neque ornare aenean euismod elementum nisi.
-Nulla facilisi morbi tempus iaculis urna id. Justo eget magna fermentum iaculis.
-Sed augue lacus viverra vitae congue eu.
-Velit ut tortor pretium viverra suspendisse.
-Amet commodo nulla facilisi nullam vehicula ipsum a.
-Nibh nisl condimentum id venenatis a.
-Diam vel quam elementum pulvinar etiam non quam lacus suspendisse.
+After the installation of all the dependencies it is possible to compile the osi-validator into one binary file (size ~ 9.1 Mb) for easier distribution and usage
+
+**Prerequisites**
+
+* You have cloned the OSI Validator repository and its submodules.
+* You have installed _pyinstaller_.
+* You have installed all dependencies.
+
+**Steps**
+
+. Open a command line interpreter.
+. Change to the OSI Validator repository.
++
+[source]
+----
+cd osi-validation
+----
++
+. Compile OSI Validator.
++
+[source]
+----
+pyinstaller osivalidator/osi_general_validator.py --onefile
+----
+
+**Results**
+
+OSI Validator is being compiled.
+The binary is located in the `dist` directory.
+
+**What to do next**
+
+Use the binary the same way you would use the command line interface.

@@ -1,11 +1,56 @@
 = Setting up OSI Validator for developers on Linux
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Et malesuada fames ac turpis egestas.
-Mauris pharetra et ultrices neque ornare aenean euismod elementum nisi.
-Nulla facilisi morbi tempus iaculis urna id. Justo eget magna fermentum iaculis.
-Sed augue lacus viverra vitae congue eu.
-Velit ut tortor pretium viverra suspendisse.
-Amet commodo nulla facilisi nullam vehicula ipsum a.
-Nibh nisl condimentum id venenatis a.
-Diam vel quam elementum pulvinar etiam non quam lacus suspendisse.
+The following setup is recommended for people who want to contribute to OSI Validator.
+The setup uses a virtual environment.
+
+**Prerequisites**
+
+* You have cloned the OSI Validator repository and its submodules.
+* You have installed _virtualenv_.
+* You have installed _pip_.
+
+**Steps**
+
+. Open a command line interpreter.
+. Change to the OSI Validator repository.
++
+[source]
+----
+cd osi-validation
+----
++
+. Create a new virtual environment _myvenv_.
++
+[source]
+----
+virtualenv -p /usr/bin/python3 myvenv
+----
++
+. Activate the virtual environment.
++
+[source]
+----
+virtualenv -p /usr/bin/python3 myvenv
+----
++
+. Install Open Simulation Interface from the submodule..
++
+[source]
+----
+pip install ./open-simulation-interface
+----
+
+**Results**
+
+You have installed OSI Validator.
+
+**What to do next**
+
+Run OSI Validator on the example trace file:
+
+[source]
+----
+python osivalidator/osi_general_validator.py -d trace.osi
+----
+
+By running OSI Validator this way, you do not need to reinstall the application when you made changes to the code.
