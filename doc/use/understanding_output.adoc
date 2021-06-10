@@ -1,11 +1,65 @@
 = Understanding OSI Validator output
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Et malesuada fames ac turpis egestas.
-Mauris pharetra et ultrices neque ornare aenean euismod elementum nisi.
-Nulla facilisi morbi tempus iaculis urna id. Justo eget magna fermentum iaculis.
-Sed augue lacus viverra vitae congue eu.
-Velit ut tortor pretium viverra suspendisse.
-Amet commodo nulla facilisi nullam vehicula ipsum a.
-Nibh nisl condimentum id venenatis a.
-Diam vel quam elementum pulvinar etiam non quam lacus suspendisse.
+The OSI Validator output is a report of how many errors and warnings were found in the OSI messages of a trace file.
+The report is based on the rules in the rules directory.
+
+Currently an error is thrown when a message is not valid or the fields inside the message are not set.
+A warning is thrown for everything concerning IDs.
+Every error and warning contains a timestamp, the path to the rule and the path to the OSI message.
+
+The fields are checked in a depth-first-search (DFS) traversal manner.
+The validation starts with the top-level message and goes into depth if the message is set.
+If a message is not set, it is indicated by `is_set(None)` and the search does not continue into depth.
+
+**Format**
+
+The errors are structured as follows:
+
+[source]
+----
+Errors (NUMBER_ERRORS)
+Ranges of timestamps                  Message
+------------------------------------  --------------------------------------------------------------
+[<START_TIMESTAMP>, <END_TIMESTAMP>]  <PATH_TO_RULE>(<VALUE>) does not comply in <PATH_TO_OSI_FIELD>
+----
+
+The warnings are structured as follows:
+
+[source]
+----
+Warnings (NUMBER_WARNINGS)
+Ranges of timestamps                Message
+----------------------------------  -----------------------------------------------
+[<START_TIMESTAMP, END_TIMESTAMP>]  Several objects of type <TYPE> have the ID <ID>
+----
+
+**Example**
+
+The following rule is defined in `osi_environment.yml`:
+
+[source]
+----
+EnvironmentalConditions:
+
+[...]
+
+    atmospheric_pressure:
+        - is_greater_than_or_equal_to: 80000
+        - is_less_than_or_equal_to: 120000
+
+[...]
+----
+
+The rule states that `EnvironmentalConditions.atmospheric_pressure` shall be between 80000 Pa and 120000 Pa.
+
+In a trace file, `EnvironmentalConditions.atmospheric_pressure` is set to zero between message frame 0 and message frame 500 and message frame 1500 and message frame 2717.
+If this trace file is validated, OSI Validator generates the following error:
+
+[source]
+----
+[...]
+
+[0, 500], [1500, 2717]  EnvironmentalConditions.atmospheric_pressure.is_greater_than_or_equal_to(80000) does not comply in SensorView.global_ground_truth.environmental_conditions.atmospheric_pressure
+
+[...]
+----

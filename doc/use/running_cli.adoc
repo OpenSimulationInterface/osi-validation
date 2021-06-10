@@ -1,11 +1,35 @@
 = Running OSI Validator from the command line
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Et malesuada fames ac turpis egestas.
-Mauris pharetra et ultrices neque ornare aenean euismod elementum nisi.
-Nulla facilisi morbi tempus iaculis urna id. Justo eget magna fermentum iaculis.
-Sed augue lacus viverra vitae congue eu.
-Velit ut tortor pretium viverra suspendisse.
-Amet commodo nulla facilisi nullam vehicula ipsum a.
-Nibh nisl condimentum id venenatis a.
-Diam vel quam elementum pulvinar etiam non quam lacus suspendisse.
+OSI Validator is run from the command line.
+
+**Prerequisites**
+
+* You have installed OSI Validator.
+* You have an OSI trace file in .osi-format. 
+OSI provides scripts for converting OSI trace file.
+* You have generated a rule directory if you want to validate trace files with rules defined in the comments of *.proto files.
+
+**Steps**
+
+. Open a command line interpreter.
+. Validate the trace file, setting flags or passing parameters to the command if necessary. 
+** If you simply want to validate the trace file, execute the following command.
++
+[source]
+----
+osivalidator -d <trace.osi>
+----
++
+* If you are contributing to OSI Validator and want to test changes made to OSI Validator, execute the following command in the OSI Validator repository.
++
+[source]
+----
+python osivalidator/osi_general_validator.py -d <trace.osi>
+----
++
+By running OSI Validator this way, you do not need to reinstall the application when you made changes to the code.
+
+**Results**
+
+OSI Validator validates `<trace.osi>`.
+The results of the validation are displayed in the Terminal.

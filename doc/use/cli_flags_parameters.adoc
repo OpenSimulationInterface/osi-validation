@@ -1,11 +1,53 @@
-= OSI validator command flags and parameters
+= OSI Validator command flags and parameters
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Et malesuada fames ac turpis egestas.
-Mauris pharetra et ultrices neque ornare aenean euismod elementum nisi.
-Nulla facilisi morbi tempus iaculis urna id. Justo eget magna fermentum iaculis.
-Sed augue lacus viverra vitae congue eu.
-Velit ut tortor pretium viverra suspendisse.
-Amet commodo nulla facilisi nullam vehicula ipsum a.
-Nibh nisl condimentum id venenatis a.
-Diam vel quam elementum pulvinar etiam non quam lacus suspendisse.
+OSI Validator is a command-line application.
+You can modify the behavior by setting flags and passing parameters
+
+**Syntax**
+
+[source]
+----
+osivalidator [-h]
+             [--rules RULES]
+             [--type {SensorView,GroundTruth,SensorData}]
+             [--output OUTPUT]
+             [--timesteps TIMESTEPS]
+             [--debug]
+             [--verbose]
+             [--parallel]
+             [--format {separated,None}]
+             [--blast BLAST]
+             [--buffer BUFFER]
+             data
+----
+
+**Positional arguments**
+
+`data`::
+Path to the trace file with OSI-serialized data.
+
+**Optional arguments**
+
+`-h, --help`::
+Show help message and exit.
+`--rules RULES`, `-r RULES`::
+Directory with text files containing rules.
+`--type {SensorView,GroundTruth,SensorData}`, `-t {SensorView,GroundTruth,SensorData}`::
+Name of the type used to serialize data.
+`--output OUTPUT`, `-o OUTPUT`::
+Output folder of the log files.
+`--timesteps TIMESTEPS`::
+Number of timesteps to analyze. If -1, all.
+`--debug`::
+Set the debug mode to ON.
+`--verbose`, `-v`::
+Set the verbose mode to ON.
+`--parallel`, `-p`::
+Set parallel mode to ON.
+`--format {separated,None}`, `-f {separated,None}`::
+Set the format type of the trace.
+`--blast BLAST`, `-bl BLAST`::
+Set the in-memory storage count of OSI messages during validation.
+`--buffer BUFFER`, `-bu BUFFER`::
+Set the buffer size to retrieve OSI messages from trace file.
+Set it to 0 if you do not want to use buffering at all.

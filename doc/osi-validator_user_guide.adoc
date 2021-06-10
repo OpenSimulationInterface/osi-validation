@@ -40,7 +40,7 @@ include::./setup/compiling.adoc[leveloffset=+2]
 
 include::./use/running_cli.adoc[leveloffset=+2]
 
-include::./use/understanding_output.adoc[leveloffset=+2]
+//include::./use/understanding_output.adoc[leveloffset=+2]
 
 include::./use/cli_flags_parameters.adoc[leveloffset=+2]
 
