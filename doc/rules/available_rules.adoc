@@ -1,11 +1,30 @@
 = Available rules
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Et malesuada fames ac turpis egestas.
-Mauris pharetra et ultrices neque ornare aenean euismod elementum nisi.
-Nulla facilisi morbi tempus iaculis urna id. Justo eget magna fermentum iaculis.
-Sed augue lacus viverra vitae congue eu.
-Velit ut tortor pretium viverra suspendisse.
-Amet commodo nulla facilisi nullam vehicula ipsum a.
-Nibh nisl condimentum id venenatis a.
-Diam vel quam elementum pulvinar etiam non quam lacus suspendisse.
+The following rules are available.
+For more details about the implementation of the rules, refer to `_osi-validation_/osivalidator/osi_rules_implementations.py`.
+
+`is_greater_than`::
+Check if a number is greater than the given number.
+`is_greater_than_or_equal_to`::
+Check if a number is greater than or equal to the given number.
+`is_less_than_or_equal_to`::
+Check if a number is less than or equal to the given number.
+`is_less_than`::
+Check if a number is less than the given number.
+`is_equal`::
+Check if a number equal to the given number.
+`is_different`::
+Check if a number is different from the given number.
+`is_globally_unique`::
+Register an ID in the OSI ID manager to later perform an ID consistency validation.
+Must be set to an ID.
+`refers_to`::
+Add a reference to another message by ID.
+`is_iso_country_code`::
+Check if a string is a ISO country code.
+`first_element: {_rules_}`::
+Check rules for the first message of a repeated field.
+`last_element: {_rules_}`::
+Check rules for the last message of a repeated field.
+`check_if: [{_statement_}, {do_check: {_rules_}}]`::
+Check rules if statement is true.

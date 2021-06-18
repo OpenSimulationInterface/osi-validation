@@ -1,11 +1,30 @@
 = File structure
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Et malesuada fames ac turpis egestas.
-Mauris pharetra et ultrices neque ornare aenean euismod elementum nisi.
-Nulla facilisi morbi tempus iaculis urna id. Justo eget magna fermentum iaculis.
-Sed augue lacus viverra vitae congue eu.
-Velit ut tortor pretium viverra suspendisse.
-Amet commodo nulla facilisi nullam vehicula ipsum a.
-Nibh nisl condimentum id venenatis a.
-Diam vel quam elementum pulvinar etiam non quam lacus suspendisse.
+Rules are contained in *.yml-files in the directory `requirements-osi-3/`.
+The organization of the files in this folder follows the architecture of OSI for consistency.
+
+Each root at the top level represents a root message type.
+The children of each root message represent fields or submessages.
+Fields use lowercase, submessages use CamelCase.
+Each field has a sequence of rules that apply to that specific field. 
+Each rule starts with a hyphen followed by a space character.
+
+**Example**
+
+Below you can see an example of the `osi_detectedlane.yml` rule file.
+The rules affect the definitions in `osi_detectedlane.proto`:
+`DetectedLane` has a field called `header`.
+`CandidateLane` is a submessage of `DetectedLane`.
+The rules state that `probability` of `CandidateLane` is always between 0 and 1.
+
+[source]
+----
+DetectedLane:
+  header:
+  CandidateLane:
+    probability:
+      - is_greater_than_or_equal_to: 0
+      - is_less_than_or_equal_to: 1
+    classification:
+
+----

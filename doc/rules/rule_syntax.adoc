@@ -1,11 +1,19 @@
 = Rule syntax
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-Et malesuada fames ac turpis egestas.
-Mauris pharetra et ultrices neque ornare aenean euismod elementum nisi.
-Nulla facilisi morbi tempus iaculis urna id. Justo eget magna fermentum iaculis.
-Sed augue lacus viverra vitae congue eu.
-Velit ut tortor pretium viverra suspendisse.
-Amet commodo nulla facilisi nullam vehicula ipsum a.
-Nibh nisl condimentum id venenatis a.
-Diam vel quam elementum pulvinar etiam non quam lacus suspendisse.
+Each rule starts with a hyphen followed by a space character.
+Rules can have parameters.
+If a rule has parameters, it is written as a _mapping_, a scalar followed by a colon.
+The exact nature of the parameters depends on the rule.
+For example, the rule `is_greater_than_or_equal_to` accepts a double, while `check_if` accepts a list of dictionaries with mappings.
+
+The following code shows some examples of valid rules.
+
+[source]
+----
+- is_iso_country_code:
+- is_greater_than_or_equal_to: 0.0
+- is_equal: 1
+- refers_to: Lane
+- first_element: {is_equal: 0.13, is_greater_than: 0.13}
+- check_if: [{is_equal: 2, is_greater_than: 3, target: this.y}, {do_check: {is_equal: 1, is_less_than: 3}]
+----
