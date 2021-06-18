@@ -6,7 +6,7 @@ OSI Validator is run from the command line.
 
 * You have installed OSI Validator.
 * You have an OSI trace file in .osi-format. 
-OSI provides scripts for converting OSI trace file.
+OSI provides scripts for converting OSI trace files.
 * You have generated a rule directory if you want to validate trace files with rules defined in the comments of *.proto files.
 
 **Steps**
