@@ -45,12 +45,11 @@ if __name__ == "__main__":
             "sphinx_rtd_theme",
             "recommonmark",
             "open-simulation-interface",
-            "doxygen-interface",
             "defusedxml",
             "colorama",
             "tabulate",
             "progress",
-            "protobuf==3.9.1",
+            "protobuf",
         ],
         dependency_links=[
             "git+https://github.com/OpenSimulationInterface/"

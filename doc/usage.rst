@@ -367,6 +367,32 @@ The validation output reads for the other fields the same way as for the example
         [0, 2717]                                 StationaryObject.base.is_valid(None) does not comply in SensorView.global_ground_truth.stationary_object.base
             [0, 2717]                                 BaseStationary.base_polygon.is_set(None) does not comply in SensorView.global_ground_truth.stationary_object.base
 
+Writing an OSI trace file
+--------------------------
+
+As already mentioned in the example, the OSI validator works with OSI trace files, which are a collection of, to byte code, serialized OSI messages. Upon start, the
+OSI validator splits the trace file into the individual messages and validates them. This splitting is done slightly different for
+the two allowed trace file formats .txt and .osi.
+
+For a .txt trace file, the osi validator splits the messages by searching ``$$__$$`` separators within the file. To generate a valid
+.txt trace file the file therefore has to start with a serialized OSI message, followed by a ``$$__$$`` separator (Note that the last message
+also has to be followed by a separator!). Schematically, a .txt trace file would look like this:
+
+.. code-block:: bash
+
+    [OSI Message]$$__$$[OSI Message]$$__$$[OSI Message]$$__$$...$$__$$
+
+The .osi trace files are quite similar, but instead of a separator at the end of each message, each message is preceded by a 4-byte 
+integer (in byte code) that contains the length (in byte) of the following serialized OSI message. So a .osi trace file would look
+like this:
+
+.. code-block:: bash
+
+    [integer 1250 in byte][1250 byte long osi message][integer 3000 in byte][3000 byte long osi message]....
+
+It has to be ensured that the validated trace files follow this convention, otherwise the OSI validator will not be able to
+validate them correctly.
+
 Custom Rules
 --------------
 

@@ -320,7 +320,7 @@ class OSITrace:
             for rel_index, rel_message_offset in enumerate(rel_message_offsets):
                 rel_begin = rel_message_offset + self._int_length
                 rel_end = (
-                    rel_message_offsets[rel_index + 1] - self._int_length
+                    rel_message_offsets[rel_index + 1]
                     if rel_index + 1 < len(rel_message_offsets)
                     else message_sequence_len
                 )
