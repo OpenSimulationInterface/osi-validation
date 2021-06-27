@@ -49,7 +49,7 @@ if __name__ == "__main__":
             "colorama",
             "tabulate",
             "progress",
-            "protobuf==3.9.1",
+            "protobuf",
         ],
         dependency_links=[
             "git+https://github.com/OpenSimulationInterface/"
