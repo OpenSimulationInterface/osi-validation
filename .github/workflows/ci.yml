@@ -1,0 +1,104 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - master
+      - v*
+
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install linter dependencies
+      run: |
+        pip install black
+        pip install vulture
+
+    - name: Check with black
+      run: black --check --exclude "(open-simulation-interface|proto2cpp)" .
+
+    - name: Check with vulture
+      run: vulture *.py tests/ osivalidator/ --min-confidence 100
+
+  build-osi-validator:
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ubuntu-latest]
+        python-version: [3.6, 3.7, 3.8, 3.9]
+
+    name: "🐍 ${{ matrix.python-version  }} • ${{ matrix.runs-on }}"
+    runs-on: ${{ matrix.runs-on }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install software dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        sudo apt-get update -y
+        sudo apt-get install python3-pip protobuf-compiler
+        pip install open-simulation-interface
+        pip install .
+
+    - name: Run tests
+      shell: bash
+      run: python -m unittest discover tests
+
+    - name: Show usage osi-validator
+      shell: bash
+      run: osivalidator -h
+
+    - name: Generate rules
+      shell: bash
+      run: python open-simulation-interface/rules2yml.py -d rules
+
+    - name: Run validator with different options
+      shell: bash
+      run: |
+        lzma -d data/small_test.txt.lzma
+        python open-simulation-interface/format/txt2osi.py -d data/small_test.txt
+
+        osivalidator data/small_test.osi
+        osivalidator data/small_test.osi -p
+        osivalidator data/small_test.txt
+        osivalidator data/small_test.txt -p
+
+        osivalidator data/small_test.osi -r rules
+        osivalidator data/small_test.osi -p -r rules
+        osivalidator data/small_test.txt -r rules
+        osivalidator data/small_test.txt -p -r rules
+
+        lzma -z data/small_test.txt
+        lzma -z data/small_test.osi
+
+        osivalidator data/small_test.osi.lzma
+        osivalidator data/small_test.osi.lzma -p
+        osivalidator data/small_test.txt.lzma
+        osivalidator data/small_test.txt.lzma -p
+
+        osivalidator data/small_test.osi.lzma -r rules
+        osivalidator data/small_test.osi.lzma -p -r rules
+        osivalidator data/small_test.txt.lzma -r rules
+        osivalidator data/small_test.txt.lzma -p -r rules
