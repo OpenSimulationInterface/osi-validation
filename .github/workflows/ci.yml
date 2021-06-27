@@ -48,6 +48,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Checkout submodules
+      uses: textbook/git-checkout-submodule-action@master
+      with:
+        remote: true
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -59,9 +64,7 @@ jobs:
         python -m pip install --upgrade pip
         sudo apt-get update -y
         sudo apt-get install python3-pip protobuf-compiler
-        cd open-simulation-interface
-        pip install .
-        cd ..
+        pip install open-simulation-interface
         pip install .
 
     - name: Run tests
