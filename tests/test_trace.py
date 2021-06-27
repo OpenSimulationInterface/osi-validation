@@ -16,10 +16,9 @@ class TestDataContainer(unittest.TestCase):
         self.osi_nobuffer = OSITrace(buffer_size=0)
 
         self.txt.from_file(
-            path="data/small_test.txt.lzma",
+            path="data/small_test.txt",
             type_name="SensorView",
         )
-        subprocess.call(["lzma", "-d", "data/small_test.txt.lzma"])
         subprocess.call(
             [
                 "python3",
@@ -47,6 +46,7 @@ class TestDataContainer(unittest.TestCase):
 
         subprocess.call(["rm", "data/small_test.osi.lzma"])
         subprocess.call(["rm", "data/small_test.osi"])
+        subprocess.call(["lzma", "-d", "data/small_test.txt.lzma"])
 
     def test_get_messages_in_index_range(self):
         """Test getting messages in range"""

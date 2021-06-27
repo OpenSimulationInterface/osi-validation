@@ -76,11 +76,11 @@ jobs:
         protoc --version
         osivalidator --help
 
-    - name: Test lzma decompression and compression
+    - name: Test lzma compression and decompression
       shell: bash
       run: |
-        lzma -d data/small_test.txt.lzma
         lzma -z data/small_test.txt
+        lzma -d data/small_test.txt.lzma
 
     - name: Run tests
       shell: bash
@@ -93,7 +93,6 @@ jobs:
     - name: Run validator with different options
       shell: bash
       run: |
-        lzma -d data/small_test.txt.lzma
         python open-simulation-interface/format/txt2osi.py -d data/small_test.txt
 
         osivalidator data/small_test.osi
