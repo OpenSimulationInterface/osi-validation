@@ -14,13 +14,13 @@ from osivalidator.osi_doxygen_xml import OSIDoxygenXML
 
 
 class OSIRules:
-    """ This class collects validation rules """
+    """This class collects validation rules"""
 
     def __init__(self):
         self.rules = TypeRulesContainer()
 
     def from_yaml_directory(self, path=None):
-        """ Collect validation rules found in the directory. """
+        """Collect validation rules found in the directory."""
 
         if not path:
             dir_path = dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -36,20 +36,17 @@ class OSIRules:
             print("Error while reading files OSI-rules. Exiting!")
 
     def from_yaml_file(self, path):
-        """Import from a file
-        """
+        """Import from a file"""
         rules_file = open(path)
         self.from_dict(rules_dict=yaml.load(rules_file, Loader=yaml.SafeLoader))
         rules_file.close()
 
     def from_yaml(self, yaml_content):
-        """Import from a string
-        """
+        """Import from a string"""
         self.from_dict(rules_dict=yaml.load(yaml_content, Loader=yaml.SafeLoader))
 
     def from_xml_doxygen(self):
-        """Parse the Doxygen XML documentation to get the rules
-        """
+        """Parse the Doxygen XML documentation to get the rules"""
         dox_xml = OSIDoxygenXML()
         dox_xml.generate_osi_doxygen_xml()
         rules = dox_xml.parse_rules()
@@ -64,8 +61,7 @@ class OSIRules:
                 message_t.add_field(FieldRules(name=field_name, rules=field_rule))
 
     def get_rules(self):
-        """Return the rules
-        """
+        """Return the rules"""
         return self.rules
 
     def from_dict(self, rules_dict=None, rules_container=None):
@@ -287,8 +283,7 @@ class FieldRules(OSIRuleNode):
         return self.rules
 
     def get_rule(self, verb):
-        """Return the rule object for the verb rule_verb in this field.
-        """
+        """Return the rule object for the verb rule_verb in this field."""
         return self.rules[verb]
 
     def __getitem__(self, verb):

@@ -38,7 +38,7 @@ class TestValidationRules(unittest.TestCase):
         self.assertEqual(path.path, typecontainer.path.path)
 
     def test_parse_yaml(self):
-        """ Test the YAML parsing"""
+        """Test the YAML parsing"""
         raw = """
         HostVehicleData:
             location:

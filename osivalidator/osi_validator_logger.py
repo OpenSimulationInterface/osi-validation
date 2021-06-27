@@ -109,8 +109,7 @@ class OSIValidatorLogger:
         cursor.close()
 
     def init_logging_storage(self, files, output_path):
-        """Initialize (create or set handler) for the specified logging storage
-        """
+        """Initialize (create or set handler) for the specified logging storage"""
         timestamp = time.time()
         if files:
             self._init_logging_to_files(timestamp, output_path)

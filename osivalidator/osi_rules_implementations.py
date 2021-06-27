@@ -12,8 +12,7 @@ from osivalidator.osi_rules import MessageTypeRules, FieldRules, Severity, Rule
 
 
 def add_default_rules_to_subfields(message, type_rules):
-    """Add default rules to fields of message fields (subfields)
-    """
+    """Add default rules to fields of message fields (subfields)"""
     for descriptor in message.all_field_descriptors:
         field_rules = (
             type_rules.get_field(descriptor.name)
@@ -46,15 +45,13 @@ def pre_check(func):
 
 
 def repeated_selector(func):
-    """Decorator for selector-rules that take
-    """
+    """Decorator for selector-rules that take"""
     func.repeated_selector = True
     return func
 
 
 def rule_implementation(func):
-    """Decorator to label rules method implementations
-    """
+    """Decorator to label rules method implementations"""
     func.is_rule = True
 
     @wraps(func)

@@ -7,7 +7,7 @@ import yaml
 
 
 def command_line_arguments():
-    """ Define and handle command line interface """
+    """Define and handle command line interface"""
 
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
