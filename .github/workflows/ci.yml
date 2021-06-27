@@ -59,7 +59,9 @@ jobs:
         python -m pip install --upgrade pip
         sudo apt-get update -y
         sudo apt-get install python3-pip protobuf-compiler
-        pip install open-simulation-interface
+        cd open-simulation-interface
+        pip install .
+        cd ..
         pip install .
 
     - name: Run tests
