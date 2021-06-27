@@ -10,8 +10,6 @@ from enum import Enum
 
 import ruamel.yaml as yaml
 
-from osivalidator.osi_doxygen_xml import OSIDoxygenXML
-
 
 class OSIRules:
     """This class collects validation rules"""
@@ -44,21 +42,6 @@ class OSIRules:
     def from_yaml(self, yaml_content):
         """Import from a string"""
         self.from_dict(rules_dict=yaml.load(yaml_content, Loader=yaml.SafeLoader))
-
-    def from_xml_doxygen(self):
-        """Parse the Doxygen XML documentation to get the rules"""
-        dox_xml = OSIDoxygenXML()
-        dox_xml.generate_osi_doxygen_xml()
-        rules = dox_xml.parse_rules()
-
-        for field_rules_tuple in rules:
-            message_t_path = field_rules_tuple[0][:-1]
-            field_name = field_rules_tuple[0][-1]
-            field_rules = field_rules_tuple[1]
-
-            message_t = self.rules.add_type_from_path(message_t_path)
-            for field_rule in field_rules:
-                message_t.add_field(FieldRules(name=field_name, rules=field_rule))
 
     def get_rules(self):
         """Return the rules"""

@@ -45,7 +45,6 @@ if __name__ == "__main__":
             "sphinx_rtd_theme",
             "recommonmark",
             "open-simulation-interface",
-            "doxygen-interface",
             "defusedxml",
             "colorama",
             "tabulate",
