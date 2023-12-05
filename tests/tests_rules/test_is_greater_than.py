@@ -8,7 +8,7 @@ from osivalidator.osi_rules import Rule
 
 
 class TestIsGreaterThan(unittest.TestCase):
-    """ Test for rule is_greater_than """
+    """Test for rule is_greater_than"""
 
     def setUp(self):
         self.FRC = OSIRulesChecker()
@@ -17,7 +17,6 @@ class TestIsGreaterThan(unittest.TestCase):
         del self.FRC
 
     def test_comply_greater(self):
-
         field_params_rule_params = [
             [2, 1],
             [0, -1],
@@ -58,7 +57,6 @@ class TestIsGreaterThan(unittest.TestCase):
                 )
 
     def test_not_comply_equal(self):
-
         field_params_rule_params = [[3, 3], [0, 0], [-1, -1], [-1.5, -1.5], [2.3, 2.3]]
 
         for fr_param in field_params_rule_params:

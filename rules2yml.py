@@ -7,7 +7,7 @@ import yaml
 
 
 def command_line_arguments():
-    """ Define and handle command line interface """
+    """Define and handle command line interface"""
 
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -28,7 +28,6 @@ def command_line_arguments():
 
 
 def gen_yml_rules(dir_name="rules"):
-
     with open(r"open-simulation-interface/rules.yml") as file:
         rules_dict = yaml.load(file, Loader=yaml.FullLoader)
 
@@ -51,7 +50,6 @@ def gen_yml_rules(dir_name="rules"):
 
                 for line in fin:
                     if file.find(".proto") != -1:
-
                         # Search for comment ("//").
                         matchComment = re.search("//", line)
                         if matchComment is not None:
@@ -165,7 +163,6 @@ def gen_yml_rules(dir_name="rules"):
 
                                         if shiftCounter:
                                             for rule in rules:
-
                                                 rule_list = rule.split()
                                                 # Check if syntax
                                                 if "check_if" in rule_list:

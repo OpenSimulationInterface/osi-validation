@@ -8,12 +8,16 @@ its attributes and methods.
 
 from functools import wraps
 from iso3166 import countries
-from osivalidator.osi_rules import MessageTypeRules, FieldRules, Severity, Rule
+from osivalidator.osi_rules import (
+    MessageTypeRules,
+    FieldRules,
+    Severity,
+    Rule,
+)
 
 
 def add_default_rules_to_subfields(message, type_rules):
-    """Add default rules to fields of message fields (subfields)
-    """
+    """Add default rules to fields of message fields (subfields)"""
     for descriptor in message.all_field_descriptors:
         field_rules = (
             type_rules.get_field(descriptor.name)
@@ -46,15 +50,13 @@ def pre_check(func):
 
 
 def repeated_selector(func):
-    """Decorator for selector-rules that take
-    """
+    """Decorator for selector-rules that take"""
     func.repeated_selector = True
     return func
 
 
 def rule_implementation(func):
-    """Decorator to label rules method implementations
-    """
+    """Decorator to label rules method implementations"""
     func.is_rule = True
 
     @wraps(func)
@@ -90,6 +92,12 @@ def rule_implementation(func):
 # RULES
 # TODO Refactor this code into a seperate class so it can be easy parsed by sphinx
 
+# Special type matching for paths
+type_match = {
+    "moving_object.base": "BaseMoving",
+    "stationary_object.base": "BaseStationary",
+}
+
 
 @rule_implementation
 def is_valid(self, field, rule):
@@ -98,8 +106,18 @@ def is_valid(self, field, rule):
 
     :param params: none
     """
+    path_list = field.path.split(".")
+    type_structure = None
+    if len(path_list) > 2:
+        grandparent = path_list[-3]
+        parent = path_list[-2]
+        child = path_list[-1]
+        type_structure = type_match.get(grandparent + "." + parent)
+
+    if type_structure and child in rule.root.get_type(type_structure).nested_types:
+        subfield_rules = rule.root.get_type(type_structure).nested_types[child]
     # subfield_rules = rule.root.get_type(field.message_type)
-    if isinstance(rule, MessageTypeRules):
+    elif isinstance(rule, MessageTypeRules):
         subfield_rules = rule
     else:
         subfield_rules = rule.root.get_type(field.message_type)
@@ -110,7 +128,6 @@ def is_valid(self, field, rule):
 
     # loop over the fields in the rules
     for subfield_rules in subfield_rules.fields.values():
-
         for subfield_rule in subfield_rules.rules.values():
             result = self.check_rule(field, subfield_rule) and result
 

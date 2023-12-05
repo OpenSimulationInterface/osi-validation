@@ -8,23 +8,31 @@ import sys
 from copy import deepcopy
 from enum import Enum
 
-import ruamel.yaml as yaml
-
-from osivalidator.osi_doxygen_xml import OSIDoxygenXML
+from ruamel.yaml import YAML
+from pathlib import Path
 
 
 class OSIRules:
-    """ This class collects validation rules """
+    """This class collects validation rules"""
 
     def __init__(self):
         self.rules = TypeRulesContainer()
+        self.nested_fields = {
+            "dimension",
+            "position",
+            "velocity",
+            "acceleration",
+            "orientation",
+            "orientation_rate",
+            "orientation_acceleration",
+        }
 
     def from_yaml_directory(self, path=None):
-        """ Collect validation rules found in the directory. """
+        """Collect validation rules found in the directory."""
 
         if not path:
             dir_path = dir_path = os.path.dirname(os.path.realpath(__file__))
-            path = os.path.join(dir_path, "requirements-osi-3")
+            path = os.path.join(dir_path, "rules")
 
         exts = (".yml", ".yaml")
         try:
@@ -36,36 +44,17 @@ class OSIRules:
             print("Error while reading files OSI-rules. Exiting!")
 
     def from_yaml_file(self, path):
-        """Import from a file
-        """
-        rules_file = open(path)
-        self.from_dict(rules_dict=yaml.load(rules_file, Loader=yaml.SafeLoader))
-        rules_file.close()
+        """Import from a file"""
+        yaml = YAML(typ="safe")
+        self.from_dict(rules_dict=yaml.load(Path(path)))
 
     def from_yaml(self, yaml_content):
-        """Import from a string
-        """
-        self.from_dict(rules_dict=yaml.load(yaml_content, Loader=yaml.SafeLoader))
-
-    def from_xml_doxygen(self):
-        """Parse the Doxygen XML documentation to get the rules
-        """
-        dox_xml = OSIDoxygenXML()
-        dox_xml.generate_osi_doxygen_xml()
-        rules = dox_xml.parse_rules()
-
-        for field_rules_tuple in rules:
-            message_t_path = field_rules_tuple[0][:-1]
-            field_name = field_rules_tuple[0][-1]
-            field_rules = field_rules_tuple[1]
-
-            message_t = self.rules.add_type_from_path(message_t_path)
-            for field_rule in field_rules:
-                message_t.add_field(FieldRules(name=field_name, rules=field_rule))
+        """Import from a string"""
+        yaml = YAML(typ="safe")
+        self.from_dict(rules_dict=yaml.safe_load(yaml_content))
 
     def get_rules(self):
-        """Return the rules
-        """
+        """Return the rules"""
         return self.rules
 
     def from_dict(self, rules_dict=None, rules_container=None):
@@ -76,6 +65,14 @@ class OSIRules:
         for key, value in rules_dict.items():
             if key[0].isupper() and isinstance(value, dict):  # it's a nested type
                 new_message_t = rules_container.add_type(MessageTypeRules(name=key))
+                if value is not None:
+                    self.from_dict(value, new_message_t)
+
+            elif key in self.nested_fields and isinstance(value, dict):
+                new_message_t = rules_container.add_type(
+                    MessageTypeRules(name=key),
+                    path=f"{rules_container.type_name}.{key}",
+                )
                 if value is not None:
                     self.from_dict(value, new_message_t)
 
@@ -146,9 +143,13 @@ class TypeRulesContainer(OSIRuleNode):
         self.nested_types = nested_types or dict()
         self.root = root if root else self
 
-    def add_type(self, message_type):
+    def add_type(self, message_type, path=None):
         """Add a message type in the TypeContainer"""
-        message_type.path = self.path.child_path(message_type.type_name)
+        message_type.path = (
+            self.path.child_path(message_type.type_name)
+            if path is None
+            else ProtoMessagePath(path=path.split("."))
+        )
         message_type.root = self.root
         self.nested_types[message_type.type_name] = message_type
         return message_type
@@ -287,8 +288,7 @@ class FieldRules(OSIRuleNode):
         return self.rules
 
     def get_rule(self, verb):
-        """Return the rule object for the verb rule_verb in this field.
-        """
+        """Return the rule object for the verb rule_verb in this field."""
         return self.rules[verb]
 
     def __getitem__(self, verb):

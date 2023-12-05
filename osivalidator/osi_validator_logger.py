@@ -7,14 +7,12 @@ import logging
 import sys
 import time
 import os
-import sqlite3
 
 import itertools
 import textwrap
+from tabulate import tabulate
 
 from functools import wraps
-from tabulate import tabulate
-import colorama
 
 from osivalidator.osi_rules import Severity
 
@@ -90,32 +88,10 @@ class OSIValidatorLogger:
         self.init_logging_storage(files, output_path)
         self.init_cli_output(verbose)
 
-    def create_database(self, timestamp, output_path):
-        """Create an SQLite database and set the table for logs"""
-        self.dbname = os.path.join(output_path, f"logs_{timestamp}.db")
-        self.conn = sqlite3.connect(self.dbname)
-
-        cursor = self.conn.cursor()
-
-        cursor.execute(
-            """CREATE TABLE logs (
-            severity integer,
-            timestamp integer,
-            message text
-        )"""
-        )
-
-        self.conn.commit()
-        cursor.close()
-
     def init_logging_storage(self, files, output_path):
-        """Initialize (create or set handler) for the specified logging storage
-        """
+        """Initialize (create or set handler) for the specified logging storage"""
         timestamp = time.time()
-        if files:
-            self._init_logging_to_files(timestamp, output_path)
-        else:
-            self.create_database(timestamp, output_path)
+        self._init_logging_to_files(timestamp, output_path)
 
     def _init_logging_to_files(self, timestamp, output_path):
         # Add handlers for files
@@ -176,43 +152,7 @@ class OSIValidatorLogger:
             return self.logger.info(msg, *args, **kwargs)
         return 0
 
-    def flush(self, log_queue=None, timestamp=None, from_id=None):
-        """Flush the output to the database
-
-        :param log_queue: list of tuple of messages that have to be flushed
-        :param timestamp: if not None, only the timestamp given will be flushed
-        :param from_id: if None, the timestamp will be in millisecond,
-                        otherwise it will be the id of the timestamp according
-                        to the lookup table given in this parameter
-        """
-
-        # Open a new cursor
-        cursor = self.conn.cursor()
-
-        if timestamp is not None:
-            log_tuples = self.log_messages[timestamp]
-        elif log_queue is not None:
-            log_tuples = log_queue
-
-        if from_id:
-            for tuple_id, log_tuple in enumerate(log_queue):
-                log_queue[tuple_id][1] = from_id[log_tuple[1]]
-
-        cursor.executemany("INSERT INTO logs VALUES (?, ?, ?)", log_tuples)
-
-        # Commit to the database and close the cursor
-        self.conn.commit()
-        cursor.close()
-
-        if timestamp is not None:
-            del self.log_messages[timestamp]
-            if self.debug_mode:
-                del self.debug_messages[timestamp]
-        else:
-            del self.log_messages
-            self.log_messages = dict()
-
-    def synthetize_results_from_sqlite(self):
+    def synthetize_results(self, messages):
         """Aggregate the sqlite log and output a synthetized version of the
         result"""
 
@@ -229,63 +169,32 @@ class OSIValidatorLogger:
 
         def process_timestamps(distinct_messages):
             results = []
-            cursor = conn.cursor()
+            range_dict = {message[2]: [] for message in distinct_messages}
             for message in distinct_messages:
-                cursor.execute(
-                    """SELECT DISTINCT timestamp
-                       FROM logs
-                       WHERE message = ?
-                       ORDER BY timestamp""",
-                    message,
-                )
+                if not message[1] in range_dict[message[2]]:
+                    range_dict[message[2]].append(message[1])
 
-                timestamps = list(map(first_elt, cursor.fetchall()))
+            for message_key, timestamps in range_dict.items():
                 ts_ranges = ", ".join(map(format_ranges, ranges(timestamps)))
                 results.append(
-                    [wrapper_ranges.fill(ts_ranges), wrapper.fill(first_elt(message))]
+                    [wrapper_ranges.fill(ts_ranges), wrapper.fill(message_key)]
                 )
             return results
 
-        def first_elt(iterable):
-            return iterable[0]
-
         wrapper_ranges = textwrap.TextWrapper(width=40)
         wrapper = textwrap.TextWrapper(width=200)
-
-        conn = self.conn
-
-        cursor_warn = conn.cursor()
-        distinct_messages_w = cursor_warn.execute(
-            "SELECT DISTINCT message FROM logs WHERE severity = 30"
-        )
-        cursor_error = conn.cursor()
-        distinct_messages_e = cursor_error.execute(
-            "SELECT DISTINCT message FROM logs WHERE severity = 40"
-        )
-
-        conn.commit()
-
-        colorama.init()
-
-        print()
-        print_synthesis("Errors", "RED", process_timestamps(distinct_messages_e))
-        print()
-        print_synthesis("Warnings", "YELLOW", process_timestamps(distinct_messages_w))
+        return print_synthesis("Warnings", process_timestamps(messages))
 
 
-def print_synthesis(title, color, ranges_messages_table):
+def print_synthesis(title, ranges_messages_table):
     """Print the (range, messages) table in a nice way, precessed with title and
     the number of messages"""
     headers = ["Ranges of timestamps", "Message"]
-    print(
-        getattr(colorama.Fore, color)
-        + title
-        + " ("
-        + str(len(ranges_messages_table))
-        + ") "
-        + colorama.Style.RESET_ALL
-    )
-    print(tabulate(ranges_messages_table, headers=headers))
+    title_string = title + " (" + str(len(ranges_messages_table)) + ") "
+    table_string = tabulate(ranges_messages_table, headers=headers)
+    print(title_string)
+    print(table_string)
+    return title_string + "\n" + table_string
 
 
 SEVERITY = {Severity.INFO: "info", Severity.ERROR: "error", Severity.WARN: "warning"}

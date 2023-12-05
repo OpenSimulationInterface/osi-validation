@@ -6,7 +6,10 @@ from an OSI trace can comply.
 from types import MethodType
 
 from osivalidator.osi_rules import Severity
-from osivalidator.osi_validator_logger import SEVERITY, OSIValidatorLogger
+from osivalidator.osi_validator_logger import (
+    SEVERITY,
+    OSIValidatorLogger,
+)
 from osivalidator.osi_id_manager import OSIIDManager
 import osivalidator.osi_rules_implementations as rule_implementations
 

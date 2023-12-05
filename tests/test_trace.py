@@ -16,7 +16,8 @@ class TestDataContainer(unittest.TestCase):
         self.osi_nobuffer = OSITrace(buffer_size=0)
 
         self.txt.from_file(
-            path="data/small_test.txt.lzma", type_name="SensorView",
+            path="data/small_test.txt.lzma",
+            type_name="SensorView",
         )
         subprocess.call(["lzma", "-d", "data/small_test.txt.lzma"])
         subprocess.call(
