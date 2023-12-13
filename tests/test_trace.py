@@ -19,14 +19,6 @@ class TestDataContainer(unittest.TestCase):
             path="data/small_test.txt",
             type_name="SensorView",
         )
-        subprocess.call(
-            [
-                "python3",
-                "open-simulation-interface/format/txt2osi.py",
-                "-d",
-                "data/small_test.txt",
-            ]
-        )
         self.osi.from_file(path="data/small_test.osi", type_name="SensorView")
         self.osi_nobuffer.from_file(path="data/small_test.osi", type_name="SensorView")
 
