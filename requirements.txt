@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c31b53fd99af8ac244854ea0d6659ed1d8e757e59b7dd32afbcc19a9f71a4876
-size 168
+tqdm
+tabulate
+ruamel.yaml
+defusedxml
+protobuf==3.15.0
+git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@master#egg=open-simulation-interface
