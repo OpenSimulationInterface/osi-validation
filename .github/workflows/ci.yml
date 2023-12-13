@@ -22,14 +22,11 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Install linter and formatter dependencies
+    - name: Install black
       run: pip install black==23.11.0
 
     - name: Check black format 
       run:  black --check --diff --exclude "(open-simulation-interface|proto2cpp|venv)" .
-
-    - name: Install vulture
-      run: pip install black==23.11.0
 
     - name: Install vulture
       run: pip install vulture==2.10
@@ -59,9 +56,6 @@ jobs:
     - name: Install required protobuf version
       shell: bash
       run: |
-        PROTOBUF_URL="https://github.com/google/protobuf/releases/download/v3.2.0/protobuf-python-3.2.0.tar.gz"
-        if [ ! -f ${DEPS_DIR}/protobuf/install/bin/protoc ] ; then mkdir -p protobuf ; travis_retry wget --no-check-certificate --quiet -O - ${PROTOBUF_URL} | tar --strip-components=1 -xz -C protobuf ; cd protobuf ; ./configure --prefix=${DEPS_DIR}/protobuf/install ; make ; make install ; fi
-        export PATH=${DEPS_DIR}/protobuf/install/bin:${PATH}
         sudo apt-get install python3-pip protobuf-compiler
 
     - name: Install osi validator
@@ -81,3 +75,8 @@ jobs:
 
     - name: Check rule correctness with unittests
       run: python -m unittest discover tests
+
+    - name: Run osi-validator
+      run: |
+        osivalidator --data data/small_test.txt -r rules
+        osivalidator --date data/small_test.txt -r rules --parallel
