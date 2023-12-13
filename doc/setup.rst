@@ -59,12 +59,6 @@ After the compilation you can find the binary in the ``dist`` directory. You can
 
     ./dist/osi_general_validator --help
 
-Make sure to provide the path to the rules when validating trace files to avoid path errors:
-
-.. code-block:: bash
-
-    python rules2yml.py # Parse and generate rules folder
-    ./dist/osi_general_validator --rules rules data/small_test.txt.lzma
 
 Setup for linux developers
 ----------------------------
