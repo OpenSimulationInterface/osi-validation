@@ -3,7 +3,7 @@ import argparse
 import re
 from glob import *
 import os
-import yaml
+from ruamel.yaml import YAML
 
 
 def command_line_arguments():
@@ -29,7 +29,8 @@ def command_line_arguments():
 
 def gen_yml_rules(dir_name="rules"):
     with open(r"open-simulation-interface/rules.yml") as file:
-        rules_dict = yaml.load(file, Loader=yaml.FullLoader)
+        yaml = YAML(typ="safe")
+        rules_dict = yaml.load(file)
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
