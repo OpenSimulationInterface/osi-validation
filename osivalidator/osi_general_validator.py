@@ -8,63 +8,6 @@ from multiprocessing import Pool
 import pip
 import pkg_resources
 from functools import partial
-
-
-def installed(package):
-    """
-    The error status is 0. (bool(0) == False)
-    The success status is 1. (bool(1) == True)
-    """
-    print("Installing " + package)
-    try:
-        if hasattr(pip, "main"):
-            status_code = pip.main(["install", package])
-        else:
-            status_code = pip._internal.main(["install", package])
-        return not bool(status_code)
-    except:
-        return False
-
-
-def requirements_installed(requirement_path="requirements.txt"):
-    missing_requirements = []
-    try:
-        with open(requirement_path, "r") as requirements:
-            for requirement in requirements:
-                try:
-                    pkg_resources.require(requirement)
-                except Exception as e:
-                    requirement = requirement.replace("\n", "")
-                    missing_requirements.append(requirement)
-                    print(
-                        "... requirement {} was not found: {}\n".format(requirement, e)
-                    )
-        if len(missing_requirements) > 0:
-            success = True
-            for r in missing_requirements:
-                success = success and installed(r)
-            if success:
-                return True
-            print("Error: Could not install missing packages!\n")
-            return False
-        return True
-    except (OSError, IOError) as e:
-        print(
-            "Error opening requirements.txt: {}\n"
-            "Please make sure to install all the required packages before using the validator.\n"
-            "To install the requirements: 'pip3 install -r requirements.txt'\n".format(
-                e
-            )
-        )
-        return False
-
-
-# NOTE: Before calling the validator the requirements needed to be checked and installed locally
-# The requirements need to be install locally instead of the bazle cache because otherwise third party
-# packages cannot be invoked via pybind11 in C++
-if requirements_installed():
-    print("Requirements are installed!!")
-
 from tqdm import tqdm
 
 from osivalidator.osi_rules import OSIRules

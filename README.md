@@ -6,20 +6,14 @@ OSI Validator checks the compliance of OSI messages with predefined [rules](http
 ## Usage
 
 ```bash
-usage: osivalidator [-h] [--rules RULES]
-                    [--type {SensorView,GroundTruth,SensorData}]
-                    [--output OUTPUT] [--timesteps TIMESTEPS] [--debug]
-                    [--verbose] [--parallel] [--format {separated,None}]
+usage: osivalidator [-h] [--data DATA] [--rules RULES] [--type {SensorView,GroundTruth,SensorData}] [--output OUTPUT] [--timesteps TIMESTEPS] [--debug] [--verbose] [--parallel] [--format {separated,None}]
                     [--blast BLAST] [--buffer BUFFER]
-                    data
 
 Validate data defined at the input
 
-positional arguments:
-  data                  Path to the file with OSI-serialized data.
-
 optional arguments:
   -h, --help            show this help message and exit
+  --data DATA           Path to the file with OSI-serialized data.
   --rules RULES, -r RULES
                         Directory with text files containig rules.
   --type {SensorView,GroundTruth,SensorData}, -t {SensorView,GroundTruth,SensorData}
@@ -34,12 +28,9 @@ optional arguments:
   --format {separated,None}, -f {separated,None}
                         Set the format type of the trace.
   --blast BLAST, -bl BLAST
-                        Set the in-memory storage count of OSI messages during
-                        validation.
+                        Set the in-memory storage count of OSI messages during validation.
   --buffer BUFFER, -bu BUFFER
-                        Set the buffer size to retrieve OSI messages from
-                        trace file. Set it to 0 if you do not want to use
-                        buffering at all.
+                        Set the buffer size to retrieve OSI messages from trace file. Set it to 0 if you do not want to use buffering at all.
 ```
 
 ## Installation
@@ -66,16 +57,4 @@ $ source venv/bin/activate
 ```bash
 (venv) $ pip install pyinstaller
 (venv) $ pyinstaller osivalidator/osi_general_validator.py --onefile
-```
-
-#### Global
-
-```bash
-$ git clone https://github.com/OpenSimulationInterface/osi-validation.git
-$ cd osi-validation
-$ git submodule update --init
-$ cd open-simulation-interface
-$ sudo pip3 install .
-$ cd ..
-$ sudo pip3 install .
 ```

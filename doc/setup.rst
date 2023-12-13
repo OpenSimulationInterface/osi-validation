@@ -41,7 +41,7 @@ Now you can run the validator on an example trace file (``trace.osi``) by callin
 
 .. code-block:: bash
 
-    osivalidator -d trace.osi
+    osivalidator --data trace.osi
 
 OSI Validator Binary
 ~~~~~~~~~~~~~~~~~~~~~
@@ -57,14 +57,14 @@ After the compilation you can find the binary in the ``dist`` directory. You can
 
 .. code-block:: bash
 
-    ./dist/osi_general_validator -h
+    ./dist/osi_general_validator --help
 
 Make sure to provide the path to the rules when validating trace files to avoid path errors:
 
 .. code-block:: bash
 
     python rules2yml.py # Parse and generate rules folder
-    ./dist/osi_general_validator -r rules data/small_test.txt.lzma
+    ./dist/osi_general_validator --rules rules data/small_test.txt.lzma
 
 Setup for linux developers
 ----------------------------
@@ -118,7 +118,7 @@ Now you can run the validator on an example trace file (``trace.osi``) by callin
 
 .. code-block:: bash
 
-    python osivalidator/osi_general_validator.py -d trace.osi
+    python osivalidator/osi_general_validator.py --data trace.osi
 
 The advantage to call the osi-validator this way for developers is that you do not need to reinstall the application when you made changes to the code.
 

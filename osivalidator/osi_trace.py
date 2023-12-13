@@ -60,10 +60,6 @@ class OSITrace:
         self.type_name = type_name
 
         if self.path.lower().endswith((".txt")):
-            warnings.warn(
-                "The separated trace files will be completely removed in the near future. Please convert them to *.osi files with the converter in the main OSI repository.",
-                PendingDeprecationWarning,
-            )
             self.timestep_count = self.retrieve_message_offsets(max_index)
         else:
             self.timestep_count = self.retrieve_message()
