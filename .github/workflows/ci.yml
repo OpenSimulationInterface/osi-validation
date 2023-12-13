@@ -58,7 +58,7 @@ jobs:
     - name: Install required protobuf version
       shell: bash
       run: |
-        sudo apt-get install python3-pip protobuf-compiler
+        sudo apt-get install protobuf-compiler
 
     - name: Install osi validator
       shell: bash
@@ -67,7 +67,7 @@ jobs:
         python -m pip install --upgrade pip
         sudo apt-get update -y
         sudo apt-get install virtualenv
-        virtualenv -p /usr/bin/python3 venv
+        virtualenv -p /usr/bin/python venv
         source venv/bin/activate
         cd open-simulation-interface && pip install . && cd .. 
         pip install .
@@ -80,7 +80,9 @@ jobs:
         pip freeze
 
     - name: Generate parsed rules
-      run: python rules2yml.py -d rules
+      run: |
+        source venv/bin/activate
+        python rules2yml.py -d rules
 
     - name: Run osi-validator
       run: |
@@ -88,4 +90,6 @@ jobs:
         osivalidator --date data/small_test.txt -r rules --parallel
 
     - name: Check rule correctness with unittests
-      run: python -m unittest discover tests
+      run: |
+        source venv/bin/activate
+        python -m unittest discover tests
