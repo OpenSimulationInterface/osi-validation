@@ -82,7 +82,7 @@ jobs:
         source venv/bin/activate
         pip install .
         osivalidator --data data/small_test.txt -r rules
-        osivalidator --date data/small_test.txt -r rules --parallel
+        osivalidator --data data/small_test.txt -r rules --parallel
 
     - name: Check rule correctness with unittests
       run: |
