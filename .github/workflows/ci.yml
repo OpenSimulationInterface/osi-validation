@@ -47,6 +47,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+      lfs: true
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
@@ -64,7 +65,7 @@ jobs:
         git submodule update --init
         python -m pip install --upgrade pip
         sudo apt-get update -y
-        sudo apt-get install virtualenv git-lfs
+        sudo apt-get install virtualenv
         virtualenv -p /usr/bin/python3 venv
         source venv/bin/activate
         cd open-simulation-interface && pip install . && cd .. 
