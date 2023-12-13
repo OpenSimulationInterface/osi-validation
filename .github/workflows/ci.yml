@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install linter and formatter dependencies
+      run: pip install black==23.11.0
+
+    - name: Check black format 
+      run:  black --check --diff --exclude "(open-simulation-interface|proto2cpp|venv)" .
+
+    - name: Install vulture
+      run: pip install black==23.11.0
+
+    - name: Install vulture
+      run: pip install vulture==2.10
+
+    - name: Check dead code with vulture
+      run: vulture *.py tests/ osivalidator/ --min-confidence 100
+
+  build-validator:
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ubuntu-latest]
+        python-version: ['3.8']
+
+    name: "🐍 ${{ matrix.python-version  }} • ${{ matrix.runs-on }}"
+    runs-on: ${{ matrix.runs-on }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install required protobuf version
+      shell: bash
+      run: |
+        PROTOBUF_URL="https://github.com/google/protobuf/releases/download/v3.2.0/protobuf-python-3.2.0.tar.gz"
+        if [ ! -f ${DEPS_DIR}/protobuf/install/bin/protoc ] ; then mkdir -p protobuf ; travis_retry wget --no-check-certificate --quiet -O - ${PROTOBUF_URL} | tar --strip-components=1 -xz -C protobuf ; cd protobuf ; ./configure --prefix=${DEPS_DIR}/protobuf/install ; make ; make install ; fi
+        export PATH=${DEPS_DIR}/protobuf/install/bin:${PATH}
+        sudo apt-get install python3-pip protobuf-compiler
+
+    - name: Install osi validator
+      shell: bash
+      run: |
+        git submodule update --init
+        python -m pip install --upgrade pip
+        sudo apt-get update -y
+        sudo apt-get install virtualenv
+        virtualenv -p /usr/bin/python3 venv
+        source venv/bin/activate
+        cd open-simulation-interface && pip install . && cd .. 
+        pip install -r requirements.txt
+
+    - name: Generate parsed rules
+      run: python rules2yml.py -d rules
+
+    - name: Check rule correctness with unittests
+      run: python -m unittest discover tests
