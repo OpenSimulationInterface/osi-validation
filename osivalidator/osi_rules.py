@@ -51,7 +51,7 @@ class OSIRules:
     def from_yaml(self, yaml_content):
         """Import from a string"""
         yaml = YAML(typ="safe")
-        self.from_dict(rules_dict=yaml.safe_load(yaml_content))
+        self.from_dict(rules_dict=yaml.load(yaml_content))
 
     def get_rules(self):
         """Return the rules"""

@@ -192,7 +192,7 @@ def main():
         else:
             # Launch sequential computation
             try:
-                for i in range(first_of_blast, last_of_blast):
+                for i in tqdm(range(first_of_blast, last_of_blast)):
                     process_timestep(i, args.type)
 
             except Exception as e:
@@ -201,8 +201,7 @@ def main():
         MESSAGE_CACHE.clear()
 
     DATA.trace_file.close()
-
-    # return len(MESSAGE_CACHE)
+    display_results()
 
 
 def close_pool(pool):

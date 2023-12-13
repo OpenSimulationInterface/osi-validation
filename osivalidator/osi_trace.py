@@ -306,22 +306,19 @@ class OSITrace:
         elif self.path.lower().endswith((".osi")):
             message_sequence_len = abs_last_offset - abs_first_offset
             serialized_messages_extract = self.trace_file.read(message_sequence_len)
-
-            pbar = tqdm(rel_message_offsets)
-            for rel_index, rel_message_offset in enumerate(pbar):
-                pbar.set_description(
-                    f"Processing index {rel_index} with offset {rel_message_offset}"
-                )
-                rel_begin = rel_message_offset + self._int_length
-                rel_end = (
-                    rel_message_offsets[rel_index + 1] - self._int_length
-                    if rel_index + 1 < len(rel_message_offsets)
-                    else message_sequence_len
-                )
-
+            message_length = 0
+            i = 0
+            while i < len(serialized_messages_extract):
                 message = MESSAGES_TYPE[self.type_name]()
-                serialized_message = serialized_messages_extract[rel_begin:rel_end]
-                message.ParseFromString(serialized_message)
+                message_length = struct.unpack(
+                    "<L", serialized_messages_extract[i : self._int_length + i]
+                )[0]
+                message.ParseFromString(
+                    serialized_messages_extract[
+                        i + self._int_length : i + self._int_length + message_length
+                    ]
+                )
+                i += message_length + self._int_length
                 yield LinkedProtoField(message, name=self.type_name)
 
         else:

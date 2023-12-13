@@ -16,10 +16,9 @@ class TestDataContainer(unittest.TestCase):
         self.osi_nobuffer = OSITrace(buffer_size=0)
 
         self.txt.from_file(
-            path="data/small_test.txt.lzma",
+            path="data/small_test.txt",
             type_name="SensorView",
         )
-        subprocess.call(["lzma", "-d", "data/small_test.txt.lzma"])
         subprocess.call(
             [
                 "python3",
@@ -28,12 +27,8 @@ class TestDataContainer(unittest.TestCase):
                 "data/small_test.txt",
             ]
         )
-        subprocess.call(["lzma", "-z", "data/small_test.osi"])
-        subprocess.call(["lzma", "-z", "data/small_test.txt"])
-        self.osi.from_file(path="data/small_test.osi.lzma", type_name="SensorView")
-        self.osi_nobuffer.from_file(
-            path="data/small_test.osi.lzma", type_name="SensorView"
-        )
+        self.osi.from_file(path="data/small_test.osi", type_name="SensorView")
+        self.osi_nobuffer.from_file(path="data/small_test.osi", type_name="SensorView")
 
     def tearDown(self):
         self.txt.trace_file.close()
@@ -44,9 +39,6 @@ class TestDataContainer(unittest.TestCase):
 
         self.osi_nobuffer.trace_file.close()
         del self.osi_nobuffer
-
-        subprocess.call(["rm", "data/small_test.osi.lzma"])
-        subprocess.call(["rm", "data/small_test.osi"])
 
     def test_get_messages_in_index_range(self):
         """Test getting messages in range"""
