@@ -79,6 +79,7 @@ jobs:
 
     - name: Run osi-validator
       run: |
+        source venv/bin/activate
         pip install .
         osivalidator --data data/small_test.txt -r rules
         osivalidator --date data/small_test.txt -r rules --parallel
