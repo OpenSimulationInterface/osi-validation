@@ -70,14 +70,17 @@ jobs:
         virtualenv -p /usr/bin/python3 venv
         source venv/bin/activate
         cd open-simulation-interface && pip install . && cd .. 
+        pip install .
         pip install -r requirements.txt
+
+    - name: Debuggin env display
+      run: |
+        protoc --version
+        which python
+        pip freeze
 
     - name: Generate parsed rules
       run: python rules2yml.py -d rules
-
-    - name: Install osi-validator CLI
-      run: |
-        pip install .
 
     - name: Run osi-validator
       run: |
