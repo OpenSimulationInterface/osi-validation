@@ -207,7 +207,7 @@ After successfully running the validation the following output is generated:
 
 
 
-The Output is a report of how many errors (here 55) and warnings (here 7) were found in the osi-message according to the defined rules in your specified rules directory. The rules can be found under the tag ``\rules`` in the \*.proto files from the `osi github <https://github.com/OpenSimulationInterface/open-simulation-interface>`_ or in the `requirements folder <https://github.com/OpenSimulationInterface/osi-validation/tree/master/requirements-osi-3>`_ from osi-validation as \*.yml files (for more information see :ref:`commenting`).
+The Output is a report of how many errors (here 55) and warnings (here 7) were found in the osi-message according to the defined rules in your specified rules directory. The rules can be found under the tag ``\rules`` in the \*.proto files from the `osi github <https://github.com/OpenSimulationInterface/open-simulation-interface>`_ or in the `requirements folder <https://github.com/OpenSimulationInterface/osi-validation/tree/master/rules>`_ from osi-validation as \*.yml files (for more information see :ref:`commenting`).
 
 Currently an error is thrown when a message is not valid or the fields inside the message are not set. A warning is thrown everything concerning ids. For each error and warning there is a description on which timestamp it was found, the path to the rule and the path to the osi-message is provided. The general format is:
 

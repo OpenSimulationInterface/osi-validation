@@ -6,13 +6,13 @@ How to write rules
 Folder structure
 -----------------
 
-Currently the rules are contained in ``*.yml`` files in the folder `requirements-osi-3 <https://github.com/OpenSimulationInterface/osi-validation/tree/master/requirements-osi-3>`_. 
+Currently the rules are contained in ``*.yml`` files in the folder `rules <https://github.com/OpenSimulationInterface/osi-validation/tree/master/rules>`_. 
 The organization of the files in this folder follows the architecture of OSI for consistency. In the future the rules will be ported directly into the ``*.proto`` files of `OSI <https://github.com/OpenSimulationInterface/open-simulation-interface>`_.
 
 File structure
 ---------------
 
-Below you can see an example of the `osi_detectedlane.yml <https://github.com/OpenSimulationInterface/osi-validation/blob/master/requirements-osi-3/osi_detectedlane.yml>`_ rule file for `osi_detectedlane.proto <https://github.com/OpenSimulationInterface/open-simulation-interface/blob/master/osi_detectedlane.proto>`_:
+Below you can see an example of the `osi_detectedlane.yml <https://github.com/OpenSimulationInterface/osi-validation/blob/master/rules/osi_detectedlane.yml>`_ rule file for `osi_detectedlane.proto <https://github.com/OpenSimulationInterface/open-simulation-interface/blob/master/osi_detectedlane.proto>`_:
 
 .. code-block:: YAML
 
