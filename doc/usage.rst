@@ -34,7 +34,7 @@ After installation you can call the command ``osivalidator`` in your terminal wh
                             Set the buffer size to retrieve OSI messages from trace file. Set it to 0 if you do not want to use buffering at all.
 
 To run the validation first you need an OSI trace file which consists of multiple OSI messages. 
-In the directory ``data`` of the repository we already provide an example trace file which is called ``small_test.txt``.
+In the directory ``data`` of the repository we already provide an example trace file which is called ``20210818T150542Z_sv_312_50_one_moving_object.txt``.
 Use the `txt2osi.py <https://github.com/OpenSimulationInterface/open-simulation-interface/blob/master/format/txt2osi.py>`_ of the OSI repo in the format directory to convert from ``*.txt`` to ``*.osi`` files. See usage below:
 
 .. code-block:: bash
@@ -57,22 +57,22 @@ To validate the trace files you simply call ``osivalidator`` and provide the pat
 
 .. code-block:: bash
 
-    osivalidator --data data/small_test.osi
-    osivalidator --data data/small_test.txt
+    osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi
+    osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt
 
 You can also validate the traces in parallel to increase the speed of the validation by providing ``-p`` flag:
 
 .. code-block:: bash
 
-    osivalidator --data data/small_test.osi -p
-    osivalidator --data data/small_test.txt -p
+    osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi -p
+    osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt -p
 
 To validate trace files with rules defined in the comments of ``*.proto`` files in the open-simulation-interface repository first you need to generate them and then specify them:
 
 .. code-block:: bash
 
     python rules2yml.py # Generates the rule directory
-    osivalidator -r rules data/small_test.txt -p
+    osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt --rules rules/ -p
 
 
 After successfully running the validation the following output is generated:

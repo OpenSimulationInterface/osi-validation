@@ -16,11 +16,11 @@ class TestDataContainer(unittest.TestCase):
         self.osi_nobuffer = OSITrace(buffer_size=0)
 
         self.txt.from_file(
-            path="data/small_test.txt",
+            path="data/20210818T150542Z_sv_312_50_one_moving_object.txt",
             type_name="SensorView",
         )
-        self.osi.from_file(path="data/small_test.osi", type_name="SensorView")
-        self.osi_nobuffer.from_file(path="data/small_test.osi", type_name="SensorView")
+        self.osi.from_file(path="data/20210818T150542Z_sv_312_50_one_moving_object.osi", type_name="SensorView")
+        self.osi_nobuffer.from_file(path="data/20210818T150542Z_sv_312_50_one_moving_object.osi", type_name="SensorView")
 
     def tearDown(self):
         self.txt.trace_file.close()
