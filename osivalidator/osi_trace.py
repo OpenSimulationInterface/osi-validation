@@ -13,7 +13,10 @@ from tqdm import tqdm
 import warnings
 
 warnings.simplefilter("default")
-from osivalidator.linked_proto_field import LinkedProtoField
+import os, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "."))
+import linked_proto_field
 
 SEPARATOR = b"$$__$$"
 SEPARATOR_LENGTH = len(SEPARATOR)
@@ -262,7 +265,7 @@ class OSITrace:
             return message
 
         message = next(self.get_messages_in_index_range(index, index + 1))
-        return LinkedProtoField(message, name=self.type_name)
+        return linked_proto_field.LinkedProtoField(message, name=self.type_name)
 
     def get_messages_in_index_range(self, begin, end):
         """
@@ -301,7 +304,7 @@ class OSITrace:
                 message = MESSAGES_TYPE[self.type_name]()
                 serialized_message = serialized_messages_extract[rel_begin:rel_end]
                 message.ParseFromString(serialized_message)
-                yield LinkedProtoField(message, name=self.type_name)
+                yield linked_proto_field.LinkedProtoField(message, name=self.type_name)
 
         elif self.path.lower().endswith((".osi")):
             message_sequence_len = abs_last_offset - abs_first_offset
@@ -319,7 +322,7 @@ class OSITrace:
                     ]
                 )
                 i += message_length + self._int_length
-                yield LinkedProtoField(message, name=self.type_name)
+                yield linked_proto_field.LinkedProtoField(message, name=self.type_name)
 
         else:
             raise Exception(

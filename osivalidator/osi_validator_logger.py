@@ -4,9 +4,7 @@ Python logging module.
 """
 
 import logging
-import sys
 import time
-import os
 
 import itertools
 import textwrap
@@ -14,7 +12,10 @@ from tabulate import tabulate
 
 from functools import wraps
 
-from osivalidator.osi_rules import Severity
+import os, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "."))
+import osi_rules
 
 
 def log(func):
@@ -197,4 +198,8 @@ def print_synthesis(title, ranges_messages_table):
     return title_string + "\n" + table_string
 
 
-SEVERITY = {Severity.INFO: "info", Severity.ERROR: "error", Severity.WARN: "warning"}
+SEVERITY = {
+    osi_rules.Severity.INFO: "info",
+    osi_rules.Severity.ERROR: "error",
+    osi_rules.Severity.WARN: "warning",
+}

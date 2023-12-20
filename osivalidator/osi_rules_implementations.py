@@ -8,12 +8,10 @@ its attributes and methods.
 
 from functools import wraps
 from iso3166 import countries
-from osivalidator.osi_rules import (
-    MessageTypeRules,
-    FieldRules,
-    Severity,
-    Rule,
-)
+import os, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "."))
+import osi_rules
 
 
 def add_default_rules_to_subfields(message, type_rules):
@@ -22,17 +20,19 @@ def add_default_rules_to_subfields(message, type_rules):
         field_rules = (
             type_rules.get_field(descriptor.name)
             if descriptor.name in type_rules.fields
-            else type_rules.add_field(FieldRules(descriptor.name))
+            else type_rules.add_field(osi_rules.FieldRules(descriptor.name))
         )
 
         if descriptor.message_type:
-            field_rules.add_rule(Rule(verb="is_valid"))
+            field_rules.add_rule(osi_rules.Rule(verb="is_valid"))
 
         is_set_severity = (
-            Severity.WARN if field_rules.has_rule("is_optional") else Severity.ERROR
+            osi_rules.Severity.WARN
+            if field_rules.has_rule("is_optional")
+            else osi_rules.Severity.ERROR
         )
 
-        field_rules.add_rule(Rule(verb="is_set", severity=is_set_severity))
+        field_rules.add_rule(osi_rules.Rule(verb="is_set", severity=is_set_severity))
 
 
 # DECORATORS
@@ -61,7 +61,7 @@ def rule_implementation(func):
 
     @wraps(func)
     def wrapper(self, field, rule, **kwargs):
-        if isinstance(rule, FieldRules):
+        if isinstance(rule, osi_rules.FieldRules):
             rule = rule.rules[func.__name__]
 
         if isinstance(field, list) and not getattr(func, "repeated_selector", False):
@@ -69,7 +69,7 @@ def rule_implementation(func):
         else:
             result = func(self, field, rule, **kwargs)
 
-        if not result and isinstance(rule, Rule):
+        if not result and isinstance(rule, osi_rules.Rule):
             if isinstance(field, list):
                 path = field[0].path
             else:
@@ -117,7 +117,7 @@ def is_valid(self, field, rule):
     if type_structure and child in rule.root.get_type(type_structure).nested_types:
         subfield_rules = rule.root.get_type(type_structure).nested_types[child]
     # subfield_rules = rule.root.get_type(field.message_type)
-    elif isinstance(rule, MessageTypeRules):
+    elif isinstance(rule, osi_rules.MessageTypeRules):
         subfield_rules = rule
     else:
         subfield_rules = rule.root.get_type(field.message_type)
@@ -266,10 +266,10 @@ def first_element(self, field, rule):
 
     rules_checker_list = []
     for nested_fields_rule in nested_fields_rules_list:
-        statement_rule = Rule(
+        statement_rule = osi_rules.Rule(
             dictionary=nested_fields_rule,
             field_name=rule.field_name,
-            severity=Severity.ERROR,
+            severity=osi_rules.Severity.ERROR,
         )
         statement_rule.path = rule.path.child_path(statement_rule.verb)
         statement_true = self.check_rule(field[0], statement_rule) and statement_true
@@ -298,10 +298,10 @@ def last_element(self, field, rule):
 
     rules_checker_list = []
     for nested_fields_rule in nested_fields_rules_list:
-        statement_rule = Rule(
+        statement_rule = osi_rules.Rule(
             dictionary=nested_fields_rule,
             field_name=rule.field_name,
-            severity=Severity.ERROR,
+            severity=osi_rules.Severity.ERROR,
         )
         statement_rule.path = rule.path.child_path(statement_rule.verb)
         statement_true = self.check_rule(field[-1], statement_rule) and statement_true
@@ -365,8 +365,10 @@ def check_if(self, field, rule):
 
     # Check if all the statements are true
     for statement in statements:
-        statement_rule = Rule(
-            dictionary=statement, field_name=rule.field_name, severity=Severity.INFO
+        statement_rule = osi_rules.Rule(
+            dictionary=statement,
+            field_name=rule.field_name,
+            severity=osi_rules.Severity.INFO,
         )
         statement_rule.path = rule.path.child_path(statement_rule.verb)
         statement_true = self.check_rule(field, statement_rule) and statement_true
@@ -379,7 +381,7 @@ def check_if(self, field, rule):
         (
             self.check_rule(
                 field,
-                Rule(
+                osi_rules.Rule(
                     path=rule.path.child_path(next(iter(check.keys()))),
                     dictionary=check,
                     field_name=rule.field_name,

@@ -3,13 +3,17 @@ This module contains all the useful classes to describe the tree of the
 validation rules tree.
 """
 
-import os
-import sys
+import os, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "."))
+
 from copy import deepcopy
 from enum import Enum
 
 from ruamel.yaml import YAML
 from pathlib import Path
+
+import osi_rules_implementations
 
 
 class OSIRules:
@@ -317,9 +321,7 @@ class Rule(OSIRuleNode):
         if dictionary:
             self.from_dict(dictionary)
 
-        import osivalidator.osi_rules_implementations as rule_implementations
-
-        if not hasattr(rule_implementations, self.verb):
+        if not hasattr(osi_rules_implementations, self.verb):
             sys.stderr.write(self.verb + " rule does not exist\n")
 
     def from_dict(self, rule_dict: dict):

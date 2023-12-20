@@ -6,7 +6,10 @@ with parent message and bind message to some additional information.
 from google.protobuf.message import Message
 from google.protobuf.json_format import MessageToDict
 
-from osivalidator.osi_rules import ProtoMessagePath
+import os, sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "."))
+import osi_rules
 
 
 class LinkedProtoField:
@@ -46,7 +49,7 @@ class LinkedProtoField:
             while field_type_desc is not None:
                 message_type.insert(0, field_type_desc.name)
                 field_type_desc = field_type_desc.containing_type
-            self._message_type = ProtoMessagePath(message_type)
+            self._message_type = osi_rules.ProtoMessagePath(message_type)
         return self._message_type
 
     @property
