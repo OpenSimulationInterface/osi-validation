@@ -1,7 +1,7 @@
 # OSI Validator
-[![Travis Build Status](https://travis-ci.com/OpenSimulationInterface/osi-validation.svg?branch=master)](https://travis-ci.com/OpenSimulationInterface/osi-validation)
+[![CI](https://github.com/OpenSimulationInterface/osi-validation/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/OpenSimulationInterface/osi-validation/actions/workflows/ci.yml)
 
-OSI Validator checks the compliance of OSI messages with predefined [rules](https://opensimulationinterface.github.io/osi-documentation/osi-validation/doc/osivalidator.html#module-osivalidator.osi_rules_implementations). The full documentation on the validator and customization of the rules is available [here](https://opensimulationinterface.github.io/osi-documentation/osi-validation/README.html).
+OSI Validator checks the compliance of OSI messages with predefined [rules](https://github.com/OpenSimulationInterface/osi-validation/tree/master/rules). The full documentation on the validator and customization of the rules is available [here](https://github.com/OpenSimulationInterface/osi-validation/tree/master/doc).
 
 ## Usage
 
@@ -35,7 +35,9 @@ optional arguments:
 
 ## Installation
 
-OSI Validator has been developed with Python 3.6 within a virtual environment on Ubuntu 18.04.
+OSI Validator has been developed with Python 3.8 within a virtual environment on Ubuntu 20.04.
+Check for compatibility with your system the [github actions](https://github.com/OpenSimulationInterface/osi-validation/actions) CI workflow.
+Currently supported are Python 3.8, 3.9, 3.10, 3.11 and 3.12 with the latest Ubuntu version.
 
 #### Local (recommended)
 
