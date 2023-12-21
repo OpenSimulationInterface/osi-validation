@@ -54,7 +54,14 @@ $ source venv/bin/activate
 (venv) $ pip install .
 ```
 
-##### Compile (optional)
+## Example command
+
+```bash
+$ osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt --rules rules/
+
+```
+
+### Compile with pyinstaller (optional)
 
 ```bash
 (venv) $ pip install pyinstaller
