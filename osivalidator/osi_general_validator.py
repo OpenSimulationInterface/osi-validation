@@ -247,7 +247,7 @@ def get_message_count(data, data_type="SensorView", from_message=0, to_message=N
 
     if from_message != 0:
         print("Currently only validation from the first frame (0) is supported!")
-    
+
     if to_message is not None:
         timesteps = int(to_message)
 
