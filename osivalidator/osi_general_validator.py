@@ -244,6 +244,10 @@ def process_timestep(timestep, data_type):
 def get_message_count(data, data_type="SensorView", from_message=0, to_message=None):
     # Wrapper function for external use in combination with process_timestep
     timesteps = None
+
+    if from_message != 0:
+        print("Currently only validation from the first frame (0) is supported!")
+    
     if to_message is not None:
         timesteps = int(to_message)
 
