@@ -35,21 +35,34 @@ optional arguments:
 
 ## Installation
 
-OSI Validator has been developed with Python 3.8 within a virtual environment on Ubuntu 20.04.
+OSI Validator has been developed with Python 3.8 within a virtual environment on Ubuntu 20.04. See [this documentation](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/) for Python virtual environments.
 Check for compatibility with your system the [github actions](https://github.com/OpenSimulationInterface/osi-validation/actions) CI workflow.
 Currently supported are Python 3.8, 3.9, 3.10, 3.11 and 3.12 with the latest Ubuntu version.
 
-#### Local (recommended)
+### Local Linux (recommended)
 
 ```bash
 $ git clone https://github.com/OpenSimulationInterface/osi-validation.git
 $ cd osi-validation
 $ git submodule update --init
-$ sudo apt-get install virtualenv
-$ virtualenv -p /usr/bin/python3 venv
-$ source venv/bin/activate
-(venv) $ cd open-simulation-interface
-(venv) $ pip install .
+$ python3 -m venv .venv
+$ source .venv/bin/activate
+(.venv) $ cd open-simulation-interface
+(.venv) $ pip install .
+(.venv) $ cd ..
+(.venv) $ pip install .
+```
+
+### Local Windows (Git bash)
+
+```bash
+$ git clone https://github.com/OpenSimulationInterface/osi-validation.git
+$ cd osi-validation
+$ git submodule update --init
+$ python -m venv .venv
+$ source .venv/Scripts/activate
+(.venv) $ cd open-simulation-interface
+(.venv) $ pip install .
 (venv) $ cd ..
 (venv) $ pip install .
 ```
