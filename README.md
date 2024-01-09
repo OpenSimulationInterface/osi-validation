@@ -38,6 +38,7 @@ optional arguments:
 OSI Validator has been developed with Python 3.8 within a virtual environment on Ubuntu 20.04. See [this documentation](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/) for Python virtual environments.
 Check for compatibility with your system the [github actions](https://github.com/OpenSimulationInterface/osi-validation/actions) CI workflow.
 Currently supported are Python 3.8, 3.9, 3.10, 3.11 and 3.12 with the latest Ubuntu version.
+Check the installation prerequisites of the [Open Simulation Interface](https://github.com/OpenSimulationInterface/open-simulation-interface#installation)
 
 ### Local Linux (recommended)
 
@@ -71,7 +72,6 @@ $ source .venv/Scripts/activate
 
 ```bash
 $ osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt --rules rules/
-
 ```
 
 ### Compile with pyinstaller (optional)
