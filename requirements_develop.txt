@@ -1,2 +1,2 @@
-black==23.12.2
+black==23.12.1
 vulture==2.10
