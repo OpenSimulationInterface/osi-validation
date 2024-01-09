@@ -4,9 +4,6 @@ Main class and entry point of the OSI Validator.
 
 import argparse
 from multiprocessing import Pool
-import pip
-import pkg_resources
-from functools import partial
 from tqdm import tqdm
 import os, sys
 
