@@ -53,9 +53,9 @@ if __name__ == "__main__":
             "open-simulation-interface",
         ],
         # https://stackoverflow.com/a/54701434
-        #dependency_links=[
+        # dependency_links=[
         #    "git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@master#egg=open-simulation-interface",
-        #],
+        # ],
         entry_points={
             "console_scripts": ["osivalidator=osivalidator.osi_general_validator:main"],
         },
