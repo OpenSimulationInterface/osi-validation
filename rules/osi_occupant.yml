@@ -1,8 +1,0 @@
-Occupant:
-  id:
-    - is_globally_unique:
-  classification:
-  Classification:
-    is_driver:
-    seat:
-    steering_control:

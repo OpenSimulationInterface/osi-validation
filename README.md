@@ -48,9 +48,11 @@ $ cd osi-validation
 $ git submodule update --init
 $ python3 -m venv .venv
 $ source .venv/bin/activate
+(.venv) $ python3 -m pip install --upgrade pip
 (.venv) $ cd open-simulation-interface
 (.venv) $ pip install .
 (.venv) $ cd ..
+(.venv) $ python3 rules2yml.py -d rules
 (.venv) $ pip install .
 ```
 
@@ -62,10 +64,12 @@ $ cd osi-validation
 $ git submodule update --init
 $ python -m venv .venv
 $ source .venv/Scripts/activate
+(.venv) $ python -m pip install --upgrade pip
 (.venv) $ cd open-simulation-interface
 (.venv) $ pip install .
-(venv) $ cd ..
-(venv) $ pip install .
+(.venv) $ cd ..
+(.venv) $ python rules2yml.py -d rules
+(.venv) $ pip install .
 ```
 
 ## Example command
@@ -77,6 +81,6 @@ $ osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt --ru
 ### Compile with pyinstaller (optional)
 
 ```bash
-(venv) $ pip install pyinstaller
-(venv) $ pyinstaller osivalidator/osi_general_validator.py --onefile
+(.venv) $ pip install pyinstaller
+(.venv) $ pyinstaller osivalidator/osi_general_validator.py --onefile
 ```

@@ -55,22 +55,23 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
+    - name: Upgrade apt-get packages
+      run: sudo apt-get update -y && sudo apt-get upgrade -y
+
     - name: Install required protobuf version
       shell: bash
       run: |
-        sudo apt-get update -y
         sudo apt-get install protobuf-compiler
 
-    - name: Install osi validator
+    - name: Install Open Simulation Interface
       shell: bash
       run: |
         git submodule update --init
-        python -m pip install --upgrade pip
-        sudo apt-get update -y
         python -m venv .venv
         source .venv/bin/activate
+        python -m pip install --upgrade pip
+        pip install -r requirements_develop.txt
         cd open-simulation-interface && pip install . && cd .. 
-        pip install -r requirements.txt
 
     - name: Generate parsed rules
       run: |

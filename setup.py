@@ -6,7 +6,7 @@ import sys
 import os
 import setuptools
 
-AUTHOR = "Capgemini Engineering Germany / BMW"
+AUTHOR = "BMW AG"
 
 
 if __name__ == "__main__":
@@ -28,7 +28,7 @@ if __name__ == "__main__":
         url="https://github.com/OpenSimulationInterface/osi-validation",
         packages=setuptools.find_packages(),
         classifiers=[
-            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.8",
             "License :: OSI Approved",
             "Operating System :: OS Independent",
         ],
@@ -44,20 +44,18 @@ if __name__ == "__main__":
         ],
         include_package_data=True,
         install_requires=[
-            "iso3166",
-            "ruamel.yaml",
-            "asteval",
-            "sphinx_rtd_theme",
-            "recommonmark",
-            "open-simulation-interface",
-            "defusedxml",
-            "tabulate",
             "tqdm",
-            "protobuf>=3.15.0",
+            "tabulate",
+            "ruamel.yaml",
+            "defusedxml",
+            "iso3166",
+            "protobuf>=3.20.1",
+            "open-simulation-interface",
         ],
-        dependency_links=[
-            "git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@master#egg=open-simulation-interface",
-        ],
+        # https://stackoverflow.com/a/54701434
+        #dependency_links=[
+        #    "git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@master#egg=open-simulation-interface",
+        #],
         entry_points={
             "console_scripts": ["osivalidator=osivalidator.osi_general_validator:main"],
         },
