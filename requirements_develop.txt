@@ -2,3 +2,4 @@ setuptools>=69.0.3
 wheel>=0.42.0 
 vulture>=2.10
 black==23.12.1
+open-simulation-interface @ git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@v3.6.0

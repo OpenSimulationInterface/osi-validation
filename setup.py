@@ -19,7 +19,7 @@ if __name__ == "__main__":
     )
 
     setuptools.setup(
-        name="osivalidator",
+        name="OSI Validation",
         version="1.1.0",
         author=AUTHOR,
         description="Validator for OSI messages",
@@ -29,7 +29,7 @@ if __name__ == "__main__":
         packages=setuptools.find_packages(),
         classifiers=[
             "Programming Language :: Python :: 3.8",
-            "License :: OSI Approved",
+            "License :: MPL-2.0",
             "Operating System :: OS Independent",
         ],
         data_files=[
@@ -44,18 +44,14 @@ if __name__ == "__main__":
         ],
         include_package_data=True,
         install_requires=[
-            "tqdm",
-            "tabulate",
-            "ruamel.yaml",
-            "defusedxml",
-            "iso3166",
+            "tqdm>=4.66.1",
+            "tabulate>=0.9.0",
+            "ruamel.yaml>=0.18.5",
+            "defusedxml>=0.7.1",
+            "iso3166>=2.1.1",
             "protobuf==3.20.1",
             "open-simulation-interface",
         ],
-        # https://stackoverflow.com/a/54701434
-        # dependency_links=[
-        #    "git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@master#egg=open-simulation-interface",
-        # ],
         entry_points={
             "console_scripts": ["osivalidator=osivalidator.osi_general_validator:main"],
         },

@@ -77,10 +77,3 @@ $ source .venv/Scripts/activate
 ```bash
 $ osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt --rules rules/
 ```
-
-### Compile with pyinstaller (optional)
-
-```bash
-(.venv) $ pip install pyinstaller
-(.venv) $ pyinstaller osivalidator/osi_general_validator.py --onefile
-```
