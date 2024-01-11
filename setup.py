@@ -49,7 +49,7 @@ if __name__ == "__main__":
             "ruamel.yaml",
             "defusedxml",
             "iso3166",
-            "protobuf>=3.20.1",
+            "protobuf==3.20.1",
             "open-simulation-interface",
         ],
         # https://stackoverflow.com/a/54701434
