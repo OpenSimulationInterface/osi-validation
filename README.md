@@ -1,6 +1,8 @@
 # OSI Validator
 [![CI](https://github.com/OpenSimulationInterface/osi-validation/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/OpenSimulationInterface/osi-validation/actions/workflows/ci.yml)
 
+> **_NOTE:_**  This tool is not part of the official OSI standard. It has its own release schedule. The OSI CCB is not responsible for this software but MUST be notified about pull requests.
+
 OSI Validator checks the compliance of OSI messages with predefined [rules](https://github.com/OpenSimulationInterface/osi-validation/tree/master/rules). The full documentation on the validator and customization of the rules is available [here](https://github.com/OpenSimulationInterface/osi-validation/tree/master/doc).
 
 ## Usage

@@ -50,7 +50,7 @@ if __name__ == "__main__":
             "defusedxml>=0.7.1",
             "iso3166>=2.1.1",
             "protobuf==3.20.1",
-            "open-simulation-interface",
+            "open-simulation-interface @ git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@v3.6.0",
         ],
         entry_points={
             "console_scripts": ["osivalidator=osivalidator.osi_general_validator:main"],
