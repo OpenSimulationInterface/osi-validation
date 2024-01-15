@@ -176,7 +176,8 @@ class OSIValidatorLogger:
                     range_dict[message[2]].append(message[1])
 
             for message_key, timestamps in range_dict.items():
-                ts_ranges = ", ".join(map(format_ranges, ranges(timestamps)))
+                # Timestamps need to be sorted before the ranges can be determined
+                ts_ranges = ", ".join(map(format_ranges, ranges(sorted(timestamps))))
                 results.append(
                     [wrapper_ranges.fill(ts_ranges), wrapper.fill(message_key)]
                 )

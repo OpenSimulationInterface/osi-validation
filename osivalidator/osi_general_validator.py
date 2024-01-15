@@ -3,7 +3,7 @@ Main class and entry point of the OSI Validator.
 """
 
 import argparse
-from multiprocessing import Pool
+from multiprocessing import Pool, Manager
 from tqdm import tqdm
 import os, sys
 
@@ -117,8 +117,9 @@ def command_line_arguments():
     return parser.parse_args()
 
 
-LOGS = []
-TIMESTAMP_ANALYZED = []
+MANAGER = Manager()
+LOGS = MANAGER.list()
+TIMESTAMP_ANALYZED = MANAGER.list()
 LOGGER = osi_validator_logger.OSIValidatorLogger()
 VALIDATION_RULES = osi_rules.OSIRules()
 ID_TO_TS = {}
@@ -165,7 +166,7 @@ def main():
 
     while max_timestep_blast < max_timestep:
         # Clear log queue
-        LOGS[:] = []
+        LOGS = MANAGER.list()
 
         # Increment the max-timestep to analyze
         max_timestep_blast += args.blast
@@ -181,7 +182,7 @@ def main():
             # Recreate the pool
             try:
                 argument_list = [
-                    (i, args.type) for i in range(first_of_blast, last_of_blast)
+                    (i, args.type) for i in tqdm(range(first_of_blast, last_of_blast))
                 ]
                 with Pool() as pool:
                     pool.starmap(process_timestep, argument_list)
@@ -225,10 +226,10 @@ def process_timestep(timestep, data_type):
     LOGGER.debug_messages[timestep] = []
     LOGGER.info(None, f"Analyze message of timestamp {timestamp}", False)
 
-    # Check if timestamp already exists
-    if timestamp in TIMESTAMP_ANALYZED:
-        LOGGER.error(timestep, f"Timestamp already exists")
-    TIMESTAMP_ANALYZED.append(timestamp)
+    with MANAGER.Lock():
+        if timestamp in TIMESTAMP_ANALYZED:
+            LOGGER.error(timestep, f"Timestamp already exists")
+        TIMESTAMP_ANALYZED.append(timestamp)
 
     # Check common rules
     getattr(rule_checker, "is_valid")(
