@@ -1,0 +1,4 @@
+setuptools>=69.0.3
+wheel>=0.42.0 
+vulture>=2.10
+black==23.12.1

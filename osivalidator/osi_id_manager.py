@@ -7,8 +7,7 @@ from collections import Counter
 
 
 class OSIIDManager:
-    """Manage the ID of OSI Messages for verification of unicity and references
-    """
+    """Manage the ID of OSI Messages for verification of unicity and references"""
 
     def __init__(self, logger):
         # id => [object1, object2...]

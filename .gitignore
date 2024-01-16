@@ -87,6 +87,7 @@ celerybeat-schedule
 .venv
 env/
 venv/
+.venv/
 ENV/
 env.bak/
 venv.bak/
@@ -118,3 +119,6 @@ tests/overtake_right_straight_SensorView.txt
 
 # OSI Data Messages
 osi_message_data/
+
+# OSI Rules
+rules/

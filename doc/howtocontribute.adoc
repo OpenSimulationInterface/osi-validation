@@ -1,0 +1,49 @@
+= Contributors' Guidelines
+
+== Introduction
+
+The purpose of this document is to help contributors get started with
+the OSI Validation codebase.
+
+== Reporting issues
+
+The simplest way to contribute to OSI Validation is to report issues
+that you may find with the project on
+https://github.com/OpenSimulationInterface/osi-validation[github].
+Everyone can create issues. Always make sure to search the existing
+issues before reporting a new one. Issues may be created to discuss:
+
+* https://github.com/OpenSimulationInterface/osi-validation/issues/new?assignees=&labels=feature+request&template=feature_request.md&title=[Feature
+requests or Ideas]
+* https://github.com/OpenSimulationInterface/osi-validation/issues/new?assignees=&labels=bug&template=bug_report.md&title=[Bugs]
+* https://github.com/OpenSimulationInterface/osi-validation/issues/new?assignees=&labels=question&template=question.md&title=[Questions]
+* https://github.com/OpenSimulationInterface/osi-validation/issues/new[Other]
+
+If practicable issues should be closed by a referenced pull request or
+commit
+(https://help.github.com/en/articles/closing-issues-using-keywords[here]
+you can find keywords to close issues automatically). To help developers
+and maintainers we provide a
+https://github.com/OpenSimulationInterface/osi-validation/blob/master/.github/pull_request_template.md[pull
+request template] which will be generated each time you create a new
+pull request.
+
+See
+https://opensimulationinterface.github.io/osi-documentation/osi/howtocontribute.html#our-git-workflow[here]
+for more on our git workflow.
+
+== Documentation
+
+* Documentation changes can be performed by anyone.
+* Consider adding stuff to the
+https://github.com/OpenSimulationInterface/osi-documentation[osi-documentation]
+or directly to the
+https://github.com/OpenSimulationInterface/osi-validation/tree/master/doc[doc]
+folder in the repository.
+* When new changes are made directly to the
+https://github.com/OpenSimulationInterface/osi-documentation[osi-documentation]
+repo the documentation will be rebuild and the new changes can be seen.
+When making documentation changes in the
+https://github.com/OpenSimulationInterface/osi-validation/tree/master/doc[doc]
+folder of the repository the changes will be visible when the daily
+chron job of osi-documentation is executed.

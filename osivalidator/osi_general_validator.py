@@ -3,15 +3,23 @@ Main class and entry point of the OSI Validator.
 """
 
 import argparse
-import os
 from multiprocessing import Pool, Manager
+from tqdm import tqdm
+import os, sys
 
-from progress.bar import Bar
+sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 
-from osivalidator.osi_rules import OSIRules
-from osivalidator.osi_validator_logger import OSIValidatorLogger
-from osivalidator.osi_trace import OSITrace
-from osivalidator.osi_rules_checker import OSIRulesChecker
+# Import local files
+try:
+    import osi_rules
+    import osi_validator_logger
+    import osi_rules_checker
+    import osi_trace
+except Exception as e:
+    print(
+        "Make sure you have installed the requirements with 'pip install -r requirements.txt'!"
+    )
+    print(e)
 
 
 def check_positive_int(value):
@@ -22,7 +30,7 @@ def check_positive_int(value):
 
 
 def command_line_arguments():
-    """ Define and handle command line interface """
+    """Define and handle command line interface"""
 
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -30,13 +38,16 @@ def command_line_arguments():
         description="Validate data defined at the input", prog="osivalidator"
     )
     parser.add_argument(
-        "data", help="Path to the file with OSI-serialized data.", type=str
+        "--data",
+        default="",
+        help="Path to the file with OSI-serialized data.",
+        type=str,
     )
     parser.add_argument(
         "--rules",
         "-r",
         help="Directory with text files containig rules. ",
-        default=os.path.join(dir_path, "requirements-osi-3"),
+        default=os.path.join(dir_path, "rules"),
         type=str,
     )
     parser.add_argument(
@@ -108,14 +119,12 @@ def command_line_arguments():
 
 MANAGER = Manager()
 LOGS = MANAGER.list()
-MESSAGE_TYPE = MANAGER.Value("s", "")
 TIMESTAMP_ANALYZED = MANAGER.list()
-LOGGER = OSIValidatorLogger()
-VALIDATION_RULES = OSIRules()
-ID_TO_TS = MANAGER.dict()
+LOGGER = osi_validator_logger.OSIValidatorLogger()
+VALIDATION_RULES = osi_rules.OSIRules()
+ID_TO_TS = {}
 BAR_SUFFIX = "%(index)d/%(max)d [%(elapsed_td)s]"
-BAR = Bar("", suffix=BAR_SUFFIX)
-MESSAGE_CACHE = MANAGER.dict()
+MESSAGE_CACHE = {}
 
 
 def main():
@@ -123,9 +132,6 @@ def main():
 
     # Handling of command line arguments
     args = command_line_arguments()
-
-    # Set message type
-    MESSAGE_TYPE.value = args.type
 
     # Instantiate Logger
     print("Instantiate logger ...")
@@ -137,12 +143,14 @@ def main():
 
     # Read data
     print("Reading data ...")
-    DATA = OSITrace(buffer_size=args.buffer)
+    DATA = osi_trace.OSITrace(buffer_size=args.buffer)
     DATA.from_file(path=args.data, type_name=args.type, max_index=args.timesteps)
+
+    if DATA.timestep_count < args.timesteps:
+        args.timesteps = -1
 
     # Collect Validation Rules
     print("Collect validation rules ...")
-    # VALIDATION_RULES.from_xml_doxygen()
     VALIDATION_RULES.from_yaml_directory(args.rules)
 
     # Pass all timesteps or the number specified
@@ -156,11 +164,9 @@ def main():
     # Dividing in several blast to not overload the memory
     max_timestep_blast = 0
 
-    BAR.max = max_timestep
-
     while max_timestep_blast < max_timestep:
         # Clear log queue
-        LOGS[:] = []
+        LOGS = MANAGER.list()
 
         # Increment the max-timestep to analyze
         max_timestep_blast += args.blast
@@ -175,8 +181,11 @@ def main():
             # Launch parallel computation
             # Recreate the pool
             try:
-                pool = Pool()
-                pool.map(process_timestep, range(first_of_blast, last_of_blast))
+                argument_list = [
+                    (i, args.type) for i in tqdm(range(first_of_blast, last_of_blast))
+                ]
+                with Pool() as pool:
+                    pool.starmap(process_timestep, argument_list)
 
             except Exception as e:
                 print(str(e))
@@ -187,20 +196,16 @@ def main():
         else:
             # Launch sequential computation
             try:
-                for i in range(first_of_blast, last_of_blast):
-                    process_timestep(i)
+                for i in tqdm(range(first_of_blast, last_of_blast)):
+                    process_timestep(i, args.type)
 
             except Exception as e:
                 print(str(e))
 
-        LOGGER.flush(LOGS)
         MESSAGE_CACHE.clear()
 
-    BAR.finish()
     DATA.trace_file.close()
-
-    # Synthetize
-    LOGGER.synthetize_results_from_sqlite()
+    display_results()
 
 
 def close_pool(pool):
@@ -210,10 +215,10 @@ def close_pool(pool):
     pool.join()
 
 
-def process_timestep(timestep):
+def process_timestep(timestep, data_type):
     """Process one timestep"""
     message = MESSAGE_CACHE[timestep]
-    rule_checker = OSIRulesChecker(LOGGER)
+    rule_checker = osi_rules_checker.OSIRulesChecker(LOGGER)
     timestamp = rule_checker.set_timestamp(message.value.timestamp, timestep)
     ID_TO_TS[timestep] = timestamp
 
@@ -221,19 +226,76 @@ def process_timestep(timestep):
     LOGGER.debug_messages[timestep] = []
     LOGGER.info(None, f"Analyze message of timestamp {timestamp}", False)
 
-    # Check if timestamp already exists
-    if timestamp in TIMESTAMP_ANALYZED:
-        LOGGER.error(timestep, f"Timestamp already exists")
-    TIMESTAMP_ANALYZED.append(timestamp)
-
-    BAR.goto(len(TIMESTAMP_ANALYZED))
+    with MANAGER.Lock():
+        if timestamp in TIMESTAMP_ANALYZED:
+            LOGGER.error(timestep, f"Timestamp already exists")
+        TIMESTAMP_ANALYZED.append(timestamp)
 
     # Check common rules
     getattr(rule_checker, "is_valid")(
-        message, VALIDATION_RULES.get_rules().get_type(MESSAGE_TYPE.value)
+        message, VALIDATION_RULES.get_rules().get_type(data_type)
     )
 
     LOGS.extend(LOGGER.log_messages[timestep])
+
+
+def get_message_count(data, data_type="SensorView", from_message=0, to_message=None):
+    # Wrapper function for external use in combination with process_timestep
+    timesteps = None
+
+    if from_message != 0:
+        print("Currently only validation from the first frame (0) is supported!")
+
+    if to_message is not None:
+        timesteps = int(to_message)
+
+    # Read data
+    print("Reading data ...")
+    DATA = osi_trace.OSITrace(buffer_size=1000000)
+    DATA.from_file(path=data, type_name=data_type, max_index=timesteps)
+
+    if DATA.timestep_count < timesteps:
+        timesteps = -1
+
+    # Collect Validation Rules
+    print("Collect validation rules ...")
+    try:
+        VALIDATION_RULES.from_yaml_directory("osi-validation/rules/")
+    except Exception as e:
+        print("Error collecting validation rules:", e)
+
+    # Pass all timesteps or the number specified
+    if timesteps != -1:
+        max_timestep = timesteps
+        LOGGER.info(None, f"Pass the {max_timestep} first timesteps")
+    else:
+        LOGGER.info(None, "Pass all timesteps")
+        max_timestep = DATA.timestep_count
+
+    # Dividing in several blast to not overload the memory
+    max_timestep_blast = 0
+
+    while max_timestep_blast < max_timestep:
+        # Clear log queue
+        LOGS[:] = []
+
+        # Increment the max-timestep to analyze
+        max_timestep_blast += 500
+        first_of_blast = max_timestep_blast - 500
+        last_of_blast = min(max_timestep_blast, max_timestep)
+
+        # Cache messages
+        DATA.cache_messages_in_index_range(first_of_blast, last_of_blast)
+        MESSAGE_CACHE.update(DATA.message_cache)
+
+    DATA.trace_file.close()
+
+    return len(MESSAGE_CACHE)
+
+
+# Synthetize Logs
+def display_results():
+    return LOGGER.synthetize_results(LOGS)
 
 
 if __name__ == "__main__":

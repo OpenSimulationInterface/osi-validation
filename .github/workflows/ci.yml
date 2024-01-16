@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - master
+
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.8"
+
+    - name: Upgrade pip
+      run: python -m pip install --upgrade pip
+      
+    - name: Install dependencies
+      run: pip install -r requirements_develop.txt
+
+    - name: Check black format 
+      run:  black --check --diff --exclude "(open-simulation-interface|proto2cpp|.venv)" .
+
+    - name: Check dead code with vulture
+      run: vulture *.py tests/ osivalidator/ --min-confidence 100
+
+  build-validator:
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ubuntu-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+
+    name: "🐍 ${{ matrix.python-version  }} • ${{ matrix.runs-on }}"
+    runs-on: ${{ matrix.runs-on }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache Dependencies
+      id: cache-depends
+      uses: actions/cache@v3
+      with:
+        path: protobuf-3.20.1
+        key: ${{ runner.os }}-v2-depends
+
+    - name: Download ProtoBuf
+      if: steps.cache-depends.outputs.cache-hit != 'true'
+      run: curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.20.1/protobuf-all-3.20.1.tar.gz && tar xzvf protobuf-all-3.20.1.tar.gz
+
+    - name: Build ProtoBuf
+      if: steps.cache-depends.outputs.cache-hit != 'true'
+      working-directory: protobuf-3.20.1
+      run: ./configure DIST_LANG=cpp --prefix=/usr && make
+
+    - name: Install ProtoBuf
+      working-directory: protobuf-3.20.1
+      run: sudo make install && sudo ldconfig
+
+    - name: Install Open Simulation Interface
+      shell: bash
+      run: |
+        git submodule update --init
+        python -m venv .venv
+        source .venv/bin/activate
+        python -m pip install --upgrade pip
+        pip install -r requirements_develop.txt
+        cd open-simulation-interface && pip install . && cd .. 
+
+    - name: Generate parsed rules
+      run: |
+        source .venv/bin/activate
+        pip install -r requirements.txt
+        python rules2yml.py -d rules
+
+    - name: Check rule correctness with unittests
+      run: |
+        source .venv/bin/activate
+        python -m unittest discover tests
+    
+    - name: Run osi-validator
+      run: |
+        source .venv/bin/activate
+        pip install .
+        osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt -r rules
+        osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt -r rules --parallel
+        osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi -r rules
+        osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi -r rules --parallel

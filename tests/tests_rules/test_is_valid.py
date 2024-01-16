@@ -4,8 +4,8 @@ import unittest
 
 from osi3.osi_common_pb2 import Orientation3d
 
-from osivalidator.linked_proto_field import LinkedProtoField
-from osivalidator.osi_rules import (
+from linked_proto_field import LinkedProtoField
+from osi_rules import (
     Rule,
     TypeRulesContainer,
     ProtoMessagePath,
@@ -13,7 +13,7 @@ from osivalidator.osi_rules import (
     FieldRules,
 )
 
-from osivalidator.osi_rules_checker import OSIRulesChecker
+from osi_rules_checker import OSIRulesChecker
 
 
 class TestIsValid(unittest.TestCase):

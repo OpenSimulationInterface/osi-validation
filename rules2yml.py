@@ -3,11 +3,11 @@ import argparse
 import re
 from glob import *
 import os
-import yaml
+from ruamel.yaml import YAML
 
 
 def command_line_arguments():
-    """ Define and handle command line interface """
+    """Define and handle command line interface"""
 
     dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -28,9 +28,9 @@ def command_line_arguments():
 
 
 def gen_yml_rules(dir_name="rules"):
-
     with open(r"open-simulation-interface/rules.yml") as file:
-        rules_dict = yaml.load(file, Loader=yaml.FullLoader)
+        yaml = YAML(typ="safe")
+        rules_dict = yaml.load(file)
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
@@ -51,7 +51,6 @@ def gen_yml_rules(dir_name="rules"):
 
                 for line in fin:
                     if file.find(".proto") != -1:
-
                         # Search for comment ("//").
                         matchComment = re.search("//", line)
                         if matchComment is not None:
@@ -165,7 +164,6 @@ def gen_yml_rules(dir_name="rules"):
 
                                         if shiftCounter:
                                             for rule in rules:
-
                                                 rule_list = rule.split()
                                                 # Check if syntax
                                                 if "check_if" in rule_list:

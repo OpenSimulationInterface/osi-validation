@@ -4,11 +4,14 @@ from an OSI trace can comply.
 """
 
 from types import MethodType
+import os, sys
 
-from osivalidator.osi_rules import Severity
-from osivalidator.osi_validator_logger import SEVERITY, OSIValidatorLogger
-from osivalidator.osi_id_manager import OSIIDManager
-import osivalidator.osi_rules_implementations as rule_implementations
+sys.path.append(os.path.join(os.path.dirname(__file__), "."))
+
+import osi_rules
+import osi_validator_logger
+import osi_id_manager
+import osi_rules_implementations
 
 
 class OSIRulesChecker:
@@ -19,12 +22,12 @@ class OSIRulesChecker:
     """
 
     def __init__(self, logger=None):
-        self.logger = logger or OSIValidatorLogger()
-        self.id_manager = OSIIDManager(logger)
+        self.logger = logger or osi_validator_logger.OSIValidatorLogger()
+        self.id_manager = osi_id_manager.OSIIDManager(logger)
         self.timestamp = self.timestamp_ns = -1
 
-        for module_name in dir(rule_implementations):
-            method = getattr(rule_implementations, module_name)
+        for module_name in dir(osi_rules_implementations):
+            method = getattr(osi_rules_implementations, module_name)
             if getattr(method, "is_rule", False):
                 setattr(self, module_name, MethodType(method, self))
 
@@ -33,8 +36,8 @@ class OSIRulesChecker:
         """
         Wrapper for the logger of the Validation Software
         """
-        if isinstance(severity, Severity):
-            severity_method = SEVERITY[severity]
+        if isinstance(severity, osi_rules.Severity):
+            severity_method = osi_validator_logger.SEVERITY[severity]
         elif isinstance(severity, str):
             severity_method = severity
         else:

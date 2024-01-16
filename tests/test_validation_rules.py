@@ -17,7 +17,7 @@ class TestValidationRules(unittest.TestCase):
     def test_from_directory(self):
         """Test import from directory"""
         ovr = OSIRules()
-        ovr.from_yaml_directory("requirements-osi-3")
+        ovr.from_yaml_directory("rules")
         test_path = ProtoMessagePath(["LaneBoundary", "BoundaryPoint"])
         ovr_container = ovr.rules.get_type(test_path)
         self.assertIsInstance(ovr_container.path, ProtoMessagePath)
@@ -38,7 +38,7 @@ class TestValidationRules(unittest.TestCase):
         self.assertEqual(path.path, typecontainer.path.path)
 
     def test_parse_yaml(self):
-        """ Test the YAML parsing"""
+        """Test the YAML parsing"""
         raw = """
         HostVehicleData:
             location:
