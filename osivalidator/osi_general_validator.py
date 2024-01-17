@@ -14,7 +14,7 @@ try:
     import osi_rules
     import osi_validator_logger
     import osi_rules_checker
-    import osi_trace
+    from format.OSITrace import OSITrace as osi_trace
 except Exception as e:
     print(
         "Make sure you have installed the requirements with 'pip install -r requirements.txt'!"
