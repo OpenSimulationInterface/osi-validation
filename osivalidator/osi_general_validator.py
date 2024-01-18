@@ -17,7 +17,7 @@ try:
     from format.OSITrace import OSITrace
 except Exception as e:
     print(
-        "Make sure you have installed the requirements with 'pip install -r requirements.txt'!"
+        "Make sure you have installed the requirements with 'python3 -m pip install -r requirements.txt'!"
     )
     print(e)
 
