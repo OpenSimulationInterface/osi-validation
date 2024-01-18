@@ -23,6 +23,16 @@ except Exception as e:
     )
     print(e)
 
+# Global variables
+manager_ = Manager()
+logs_ = manager_.list()
+timestamp_analyzed_ = manager_.list()
+logger_ = osi_validator_logger.OSIValidatorLogger()
+validation_rules_ = osi_rules.OSIRules()
+id_to_ts_ = {}
+bar_suffix_ = "%(index)d/%(max)d [%(elapsed_td)s]"
+message_cache_ = {}
+
 
 def check_positive_int(value):
     ivalue = int(value)
@@ -110,23 +120,14 @@ def command_line_arguments():
     parser.add_argument(
         "--buffer",
         "-bu",
-        help="Set the buffer size to retrieve OSI messages from trace file. Set it to 0 if you do not want to use buffering at all.",
+        help="Set the buffer size to retrieve OSI messages from trace file."
+        "Set it to 0 if you do not want to use buffering at all.",
         default=1000000,
         type=check_positive_int,
         required=False,
     )
 
     return parser.parse_args()
-
-
-MANAGER = Manager()
-LOGS = MANAGER.list()
-TIMESTAMP_ANALYZED = MANAGER.list()
-LOGGER = osi_validator_logger.OSIValidatorLogger()
-VALIDATION_RULES = osi_rules.OSIRules()
-ID_TO_TS = {}
-BAR_SUFFIX = "%(index)d/%(max)d [%(elapsed_td)s]"
-MESSAGE_CACHE = {}
 
 
 def main():
@@ -141,34 +142,34 @@ def main():
     if not os.path.exists(directory):
         os.makedirs(directory)
 
-    LOGGER.init(args.debug, args.verbose, directory)
+    logger_.init(args.debug, args.verbose, directory)
 
     # Read data
     print("Reading data ...")
-    DATA = OSITrace(buffer_size=args.buffer)
-    DATA.from_file(path=args.data, type_name=args.type, max_index=args.timesteps)
+    trace_data = OSITrace(buffer_size=args.buffer)
+    trace_data.from_file(path=args.data, type_name=args.type, max_index=args.timesteps)
 
-    if DATA.timestep_count < args.timesteps:
+    if trace_data.timestep_count < args.timesteps:
         args.timesteps = -1
 
     # Collect Validation Rules
     print("Collect validation rules ...")
-    VALIDATION_RULES.from_yaml_directory(args.rules)
+    validation_rules_.from_yaml_directory(args.rules)
 
     # Pass all timesteps or the number specified
     if args.timesteps != -1:
         max_timestep = args.timesteps
-        LOGGER.info(None, f"Pass the {max_timestep} first timesteps")
+        logger_.info(None, f"Pass the {max_timestep} first timesteps")
     else:
-        LOGGER.info(None, "Pass all timesteps")
-        max_timestep = DATA.timestep_count
+        logger_.info(None, "Pass all timesteps")
+        max_timestep = trace_data.timestep_count
 
     # Dividing in several blast to not overload the memory
     max_timestep_blast = 0
 
     while max_timestep_blast < max_timestep:
         # Clear log queue
-        LOGS = MANAGER.list()
+        logs_ = manager_.list()
 
         # Increment the max-timestep to analyze
         max_timestep_blast += args.blast
@@ -176,8 +177,8 @@ def main():
         last_of_blast = min(max_timestep_blast, max_timestep)
 
         # Cache messages
-        DATA.cache_messages_in_index_range(first_of_blast, last_of_blast)
-        MESSAGE_CACHE.update(DATA.message_cache)
+        trace_data.cache_messages_in_index_range(first_of_blast, last_of_blast)
+        message_cache_.update(trace_data.message_cache)
 
         if args.parallel:
             # Launch parallel computation
@@ -204,9 +205,9 @@ def main():
             except Exception as e:
                 print(str(e))
 
-        MESSAGE_CACHE.clear()
+        message_cache_.clear()
 
-    DATA.trace_file.close()
+    trace_data.trace_file.close()
     display_results()
 
 
@@ -219,68 +220,69 @@ def close_pool(pool):
 
 def process_timestep(timestep, data_type):
     """Process one timestep"""
-    message = linked_proto_field.LinkedProtoField(MESSAGE_CACHE[timestep], name=data_type)
-    #message = MESSAGE_CACHE[timestep]
-    rule_checker = osi_rules_checker.OSIRulesChecker(LOGGER)
+    message = linked_proto_field.LinkedProtoField(
+        message_cache_[timestep], name=data_type
+    )
+    rule_checker = osi_rules_checker.OSIRulesChecker(logger_)
     timestamp = rule_checker.set_timestamp(message.value.timestamp, timestep)
-    ID_TO_TS[timestep] = timestamp
+    id_to_ts_[timestep] = timestamp
 
-    LOGGER.log_messages[timestep] = []
-    LOGGER.debug_messages[timestep] = []
-    LOGGER.info(None, f"Analyze message of timestamp {timestamp}", False)
+    logger_.log_messages[timestep] = []
+    logger_.debug_messages[timestep] = []
+    logger_.info(None, f"Analyze message of timestamp {timestamp}", False)
 
-    with MANAGER.Lock():
-        if timestamp in TIMESTAMP_ANALYZED:
-            LOGGER.error(timestep, f"Timestamp already exists")
-        TIMESTAMP_ANALYZED.append(timestamp)
+    with manager_.Lock():
+        if timestamp in timestamp_analyzed_:
+            logger_.error(timestep, f"Timestamp already exists")
+        timestamp_analyzed_.append(timestamp)
 
     # Check common rules
     getattr(rule_checker, "is_valid")(
-        message, VALIDATION_RULES.get_rules().get_type(data_type)
+        message, validation_rules_.get_rules().get_type(data_type)
     )
 
-    LOGS.extend(LOGGER.log_messages[timestep])
+    logs_.extend(logger_.log_messages[timestep])
 
 
 def get_message_count(data, data_type="SensorView", from_message=0, to_message=None):
     # Wrapper function for external use in combination with process_timestep
-    timesteps = None
+    time_steps = None
 
     if from_message != 0:
         print("Currently only validation from the first frame (0) is supported!")
 
     if to_message is not None:
-        timesteps = int(to_message)
+        time_steps = int(to_message)
 
     # Read data
     print("Reading data ...")
-    DATA = OSITrace(buffer_size=1000000)
-    DATA.from_file(path=data, type_name=data_type, max_index=timesteps)
+    trace_data = OSITrace(buffer_size=1000000)
+    trace_data.from_file(path=data, type_name=data_type, max_index=time_steps)
 
-    if DATA.timestep_count < timesteps:
-        timesteps = -1
+    if trace_data.timestep_count < time_steps:
+        time_steps = -1
 
     # Collect Validation Rules
     print("Collect validation rules ...")
     try:
-        VALIDATION_RULES.from_yaml_directory("osi-validation/rules/")
+        validation_rules_.from_yaml_directory("osi-validation/rules/")
     except Exception as e:
         print("Error collecting validation rules:", e)
 
-    # Pass all timesteps or the number specified
-    if timesteps != -1:
-        max_timestep = timesteps
-        LOGGER.info(None, f"Pass the {max_timestep} first timesteps")
+    # Pass all time_steps or the number specified
+    if time_steps != -1:
+        max_timestep = time_steps
+        logger_.info(None, f"Pass the {max_timestep} first time_steps")
     else:
-        LOGGER.info(None, "Pass all timesteps")
-        max_timestep = DATA.timestep_count
+        logger_.info(None, "Pass all time_steps")
+        max_timestep = trace_data.timestep_count
 
     # Dividing in several blast to not overload the memory
     max_timestep_blast = 0
 
     while max_timestep_blast < max_timestep:
         # Clear log queue
-        LOGS[:] = []
+        logs_[:] = []
 
         # Increment the max-timestep to analyze
         max_timestep_blast += 500
@@ -288,17 +290,17 @@ def get_message_count(data, data_type="SensorView", from_message=0, to_message=N
         last_of_blast = min(max_timestep_blast, max_timestep)
 
         # Cache messages
-        DATA.cache_messages_in_index_range(first_of_blast, last_of_blast)
-        MESSAGE_CACHE.update(DATA.message_cache)
+        trace_data.cache_messages_in_index_range(first_of_blast, last_of_blast)
+        message_cache_.update(trace_data.message_cache)
 
-    DATA.trace_file.close()
+    trace_data.trace_file.close()
 
-    return len(MESSAGE_CACHE)
+    return len(message_cache_)
 
 
-# Synthetize Logs
+# Synthesize Logs
 def display_results():
-    return LOGGER.synthetize_results(LOGS)
+    return logger_.synthetize_results(logs_)
 
 
 if __name__ == "__main__":
