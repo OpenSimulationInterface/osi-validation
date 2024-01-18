@@ -1,7 +1,7 @@
 """Module for test class of OSIValidationRules class"""
 
 import unittest
-from osivalidator.osi_trace import OSITrace
+from format.OSITrace import OSITrace
 import subprocess
 
 
