@@ -14,7 +14,7 @@ try:
     import osi_rules
     import osi_validator_logger
     import osi_rules_checker
-    from format.OSITrace import OSITrace as osi_trace
+    from format.OSITrace import OSITrace
 except Exception as e:
     print(
         "Make sure you have installed the requirements with 'pip install -r requirements.txt'!"
@@ -143,7 +143,7 @@ def main():
 
     # Read data
     print("Reading data ...")
-    DATA = osi_trace.OSITrace(buffer_size=args.buffer)
+    DATA = OSITrace(buffer_size=args.buffer)
     DATA.from_file(path=args.data, type_name=args.type, max_index=args.timesteps)
 
     if DATA.timestep_count < args.timesteps:
