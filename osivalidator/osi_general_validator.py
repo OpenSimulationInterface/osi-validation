@@ -5,7 +5,8 @@ Main class and entry point of the OSI Validator.
 import argparse
 from multiprocessing import Pool, Manager
 from tqdm import tqdm
-import os, sys
+import os
+import sys
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 
@@ -14,6 +15,7 @@ try:
     import osi_rules
     import osi_validator_logger
     import osi_rules_checker
+    import linked_proto_field
     from format.OSITrace import OSITrace
 except Exception as e:
     print(
@@ -217,7 +219,8 @@ def close_pool(pool):
 
 def process_timestep(timestep, data_type):
     """Process one timestep"""
-    message = MESSAGE_CACHE[timestep]
+    message = linked_proto_field.LinkedProtoField(MESSAGE_CACHE[timestep], name=data_type)
+    #message = MESSAGE_CACHE[timestep]
     rule_checker = osi_rules_checker.OSIRulesChecker(LOGGER)
     timestamp = rule_checker.set_timestamp(message.value.timestamp, timestep)
     ID_TO_TS[timestep] = timestamp
@@ -251,7 +254,7 @@ def get_message_count(data, data_type="SensorView", from_message=0, to_message=N
 
     # Read data
     print("Reading data ...")
-    DATA = osi_trace.OSITrace(buffer_size=1000000)
+    DATA = OSITrace(buffer_size=1000000)
     DATA.from_file(path=data, type_name=data_type, max_index=timesteps)
 
     if DATA.timestep_count < timesteps:
