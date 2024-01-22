@@ -51,7 +51,7 @@ jobs:
             protobuf-version: '25.2'
             protobuf-use-autotools: false
 
-    name: "🐍 ${{ matrix.python-version  }} • ${{ matrix.runs-on }}"
+    name: "Python: ${{ matrix.python-version }} - Protobuf: ${{ matrix.protobuf-version }} - ${{ matrix.runs-on }}"
     runs-on: ${{ matrix.runs-on }}
 
     steps:
