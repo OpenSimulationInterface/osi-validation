@@ -23,11 +23,18 @@ def command_line_arguments():
         required=False,
         type=str,
     )
+    parser.add_argument(
+        "--full-osi",
+        "-f",
+        help="Add is_set rule to all fields that do not contain it already.",
+        action='store_true',
+        required=False
+    )
 
     return parser.parse_args()
 
 
-def gen_yml_rules(dir_name="rules"):
+def gen_yml_rules(dir_name="rules", full_osi=False):
     with open(r"open-simulation-interface/rules.yml") as file:
         yaml = YAML(typ="safe")
         rules_dict = yaml.load(file)
@@ -161,6 +168,13 @@ def gen_yml_rules(dir_name="rules"):
                                         yml_file.write(
                                             (2 * numMessage) * " " + f"{field}:\n"
                                         )
+                                        # If option --full-osi is enabled:
+                                        # Check if is_set is already a rule for the current field, if not, add it.
+                                        if full_osi and not any('is_set' in rule for rule in rules):
+                                            yml_file.write(
+                                                (2 * numMessage + 2) * " "
+                                                + f"- is_set:\n"
+                                            )
 
                                         if shiftCounter:
                                             for rule in rules:
@@ -217,11 +231,13 @@ def gen_yml_rules(dir_name="rules"):
                                                         (2 * numMessage + 8) * " "
                                                         + f"- {rule_list[2]}: {rule_list[3]}\n"
                                                     )
-                                                elif "is_globally_unique" in rule_list:
+                                                # Standalone rules
+                                                elif any(list_item in ["is_globally_unique", "is_set", "is_iso_country_code"] for list_item in rule_list):
                                                     yml_file.write(
                                                         (2 * numMessage + 2) * " "
                                                         + f"-{rule}:\n"
                                                     )
+                                                # Values or parameters of rules
                                                 else:
                                                     yml_file.write(
                                                         (2 * numMessage + 2) * " "
@@ -235,7 +251,7 @@ def gen_yml_rules(dir_name="rules"):
 def main():
     # Handling of command line arguments
     args = command_line_arguments()
-    gen_yml_rules(args.dir)
+    gen_yml_rules(args.dir, args.full_osi)
 
 
 if __name__ == "__main__":
