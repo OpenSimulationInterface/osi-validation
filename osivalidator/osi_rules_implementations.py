@@ -126,7 +126,7 @@ def is_valid(self, field, rule):
     if not field.parent:
         self.id_manager.resolve_unicity(self.timestamp)
         self.id_manager.resolve_references(self.timestamp)
-    return True  # TODO: workaround. Better: Change is_valid to check_sub_fields without return value
+    return True  # TODO: workaround. Better: Do not iterate through subfields within a rule. Put this functionality in the general valiator.
 
 
 @rule_implementation
