@@ -100,8 +100,8 @@ check_if: [{is_equal: 2, is_greater_than: 3, target: this.y}, {do_check: {is_equ
 
 == Severity
 
-When an attribute does not comply with a rule, a Warning is throw. An
-Error will be thrown if an exclamation mark is written at the end of the
+When an attribute does not comply with a rule, a warning is thrown. An
+error will be thrown if an exclamation mark is written at the end of the
 verb of a rule.
 
 === Example
