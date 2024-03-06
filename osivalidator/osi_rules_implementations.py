@@ -24,7 +24,7 @@ def add_default_rules_to_subfields(message, type_rules):
         )
 
         if descriptor.message_type:
-            field_rules.add_rule(osi_rules.Rule(verb="is_valid"))
+            field_rules.add_rule(osi_rules.Rule(verb="check_children"))
 
 
 # DECORATORS
@@ -92,7 +92,7 @@ type_match = {
 
 
 @rule_implementation
-def is_valid(self, field, rule):
+def check_children(self, field, rule):
     """Check if a field message is valid, that is all the inner rules of the
     message in the field are complying.
 
@@ -126,7 +126,7 @@ def is_valid(self, field, rule):
     if not field.parent:
         self.id_manager.resolve_unicity(self.timestamp)
         self.id_manager.resolve_references(self.timestamp)
-    return True  # TODO: workaround. Better: Do not iterate through subfields within a rule. Put this functionality in the general valiator.
+    return True
 
 
 @rule_implementation
