@@ -14,19 +14,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "."))
 import osi_rules
 
 
-def add_default_rules_to_subfields(message, type_rules):
-    """Add default rules to fields of message fields (subfields)"""
-    for descriptor in message.all_field_descriptors:
-        field_rules = (
-            type_rules.get_field(descriptor.name)
-            if descriptor.name in type_rules.fields
-            else type_rules.add_field(osi_rules.FieldRules(descriptor.name))
-        )
-
-        if descriptor.message_type:
-            field_rules.add_rule(osi_rules.Rule(verb="is_valid"))
-
-
 # DECORATORS
 # These functions are no rule implementation, but decorators to characterize
 # rules. These decorators can also be used to make grouped checks like
@@ -83,51 +70,6 @@ def rule_implementation(func):
 
 # RULES
 # TODO Refactor this code into a seperate class so it can be easy parsed by sphinx
-
-# Special type matching for paths
-type_match = {
-    "moving_object.base": "BaseMoving",
-    "stationary_object.base": "BaseStationary",
-}
-
-
-@rule_implementation
-def is_valid(self, field, rule):
-    """Check if a field message is valid, that is all the inner rules of the
-    message in the field are complying.
-
-    :param params: none
-    """
-    path_list = field.path.split(".")
-    type_structure = None
-    if len(path_list) > 2:
-        grandparent = path_list[-3]
-        parent = path_list[-2]
-        child = path_list[-1]
-        type_structure = type_match.get(grandparent + "." + parent)
-
-    if type_structure and child in rule.root.get_type(type_structure).nested_types:
-        subfield_rules = rule.root.get_type(type_structure).nested_types[child]
-    # subfield_rules = rule.root.get_type(field.message_type)
-    elif isinstance(rule, osi_rules.MessageTypeRules):
-        subfield_rules = rule
-    else:
-        subfield_rules = rule.root.get_type(field.message_type)
-
-    # Add default rules for each subfield that can be validated (default)
-    add_default_rules_to_subfields(field, subfield_rules)
-
-    # loop over the fields in the rules
-    for subfield_rules in subfield_rules.fields.values():
-        for subfield_rule in subfield_rules.rules.values():
-            self.check_rule(field, subfield_rule)
-
-        # Resolve ID and references
-    if not field.parent:
-        self.id_manager.resolve_unicity(self.timestamp)
-        self.id_manager.resolve_references(self.timestamp)
-    return True  # TODO: workaround. Better: Do not iterate through subfields within a rule. Put this functionality in the general valiator.
-
 
 @rule_implementation
 def is_less_than_or_equal_to(self, field, rule):

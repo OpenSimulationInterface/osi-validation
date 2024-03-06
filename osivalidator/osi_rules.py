@@ -321,7 +321,7 @@ class Rule(OSIRuleNode):
         if dictionary:
             self.from_dict(dictionary)
 
-        if not hasattr(osi_rules_implementations, self.verb):
+        if not hasattr(osi_rules_implementations, self.verb) and not self.verb == "check_children":
             sys.stderr.write(self.verb + " rule does not exist\n")
 
     def from_dict(self, rule_dict: dict):

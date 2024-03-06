@@ -232,9 +232,10 @@ def process_timestep(timestep, data_type):
         TIMESTAMP_ANALYZED.append(timestamp)
 
     # Check common rules
-    getattr(rule_checker, "is_valid")(
-        message, VALIDATION_RULES.get_rules().get_type(data_type)
-    )
+    #test = getattr(rule_checker, "is_valid")
+    test2 = VALIDATION_RULES.get_rules().get_type(data_type)
+    rule_checker.check_children(message, test2)
+
 
     LOGS.extend(LOGGER.log_messages[timestep])
 
