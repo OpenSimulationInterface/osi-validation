@@ -100,7 +100,5 @@ jobs:
       run: |
         source .venv/bin/activate
         pip install .
-        osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt -r rules
-        osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt -r rules --parallel
-        osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi -r rules
-        osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi -r rules --parallel
+        osivalidator --data data/20240221T141700Z_sv_312_10_one_moving_object.osi -r rules
+        osivalidator --data data/20240221T141700Z_sv_312_10_one_moving_object.osi -r rules --parallel
