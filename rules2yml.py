@@ -27,8 +27,8 @@ def command_line_arguments():
         "--full-osi",
         "-f",
         help="Add is_set rule to all fields that do not contain it already.",
-        action='store_true',
-        required=False
+        action="store_true",
+        required=False,
     )
 
     return parser.parse_args()
@@ -170,7 +170,9 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
                                         )
                                         # If option --full-osi is enabled:
                                         # Check if is_set is already a rule for the current field, if not, add it.
-                                        if full_osi and not any('is_set' in rule for rule in rules):
+                                        if full_osi and not any(
+                                            "is_set" in rule for rule in rules
+                                        ):
                                             yml_file.write(
                                                 (2 * numMessage + 2) * " "
                                                 + f"- is_set:\n"
@@ -232,7 +234,15 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
                                                         + f"- {rule_list[2]}: {rule_list[3]}\n"
                                                     )
                                                 # Standalone rules
-                                                elif any(list_item in ["is_globally_unique", "is_set", "is_iso_country_code"] for list_item in rule_list):
+                                                elif any(
+                                                    list_item
+                                                    in [
+                                                        "is_globally_unique",
+                                                        "is_set",
+                                                        "is_iso_country_code",
+                                                    ]
+                                                    for list_item in rule_list
+                                                ):
                                                     yml_file.write(
                                                         (2 * numMessage + 2) * " "
                                                         + f"-{rule}:\n"
