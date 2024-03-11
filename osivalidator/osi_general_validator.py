@@ -232,7 +232,7 @@ def process_timestep(timestep, data_type):
         TIMESTAMP_ANALYZED.append(timestamp)
 
     # Check common rules
-    getattr(rule_checker, "is_valid")(
+    getattr(rule_checker, "check_children")(
         message, VALIDATION_RULES.get_rules().get_type(data_type)
     )
 

@@ -2,19 +2,37 @@
 
 == Folder structure
 
-Currently the rules are contained in `+*.yml+` files in the folder
-https://github.com/OpenSimulationInterface/osi-validation/tree/master/rules[rules].
-The organization of the files in this folder follows the architecture of
-OSI for consistency. In the future the rules will be ported directly
-into the `+*.proto+` files of
+Official rules for individual OSI fields are defined in the `+*.proto+` files of
 https://github.com/OpenSimulationInterface/open-simulation-interface[OSI].
+The first step to using and editing rules is to extract them from the proto files with `+rules2yml.py+`.
+It has the following options:
+[source,bash]
+----
+usage: python3 rules2yml.py [-h] [--dir DIR] [--full-osi]
+
+Export the rules of *.proto files into the *.yml format so it can be used by
+the validator.
+
+options:
+  -h, --help         show this help message and exit
+  --dir DIR, -d DIR  Name of the directory where the yml rules will be stored.
+  --full-osi, -f     Add is_set rule to all fields that do not contain it already.
+----
+
+The following example command will generate the yml rule files in a folder `rules` and add the `is_set` rule to every OSI field that does not have this rule anyways.
+This will result in a rule base to check for a full interface.
+
+[source,bash]
+----
+python3 rules2yml.py --dir rules --full-osi
+----
+
+The resulting yml rule files can be freely edited and are explained in the following in more detail.
 
 == File structure
 
-Below you can see an example of the
-https://github.com/OpenSimulationInterface/osi-validation/blob/master/rules/osi_detectedlane.yml[osi_detectedlane.yml]
-rule file for
-https://github.com/OpenSimulationInterface/open-simulation-interface/blob/master/osi_detectedlane.proto[osi_detectedlane.proto]:
+Below you can see an example of the osi_detectedlane.yml  rule file for
+https://github.com/OpenSimulationInterface/open-simulation-interface/blob/master/osi_detectedlane.proto[osi_detectedlane.proto] without the `--full-osi` option.
 
 [source,YAML]
 ----
@@ -46,10 +64,11 @@ apply to that specific field. For example the probability of the message
 
 The rules can either be with or without any parameters.
 
-....
+[source,YAML]
+----
 is_greater_than_or_equal_to: 0.0
 is_equal: 1
-....
+----
 
 In the case a rule has a parameter, it is written as a
 [.title-ref]#mapping# ( a [.title-ref]#scalar# followed by a colon ":").
@@ -62,15 +81,16 @@ https://github.com/OpenSimulationInterface/osi-validation/blob/master/osivalidat
 See also examples for available rules which can be defined in `+*.yml+`
 files below:
 
-[source,python]
+[source,YAML]
 ----
+is_set:
 is_greater_than: 1
 is_greater_than_or_equal_to: 1
 is_less_than_or_equal_to: 10
 is_less_than: 2
 is_equal: 1
 is_different: 2
-is_globally_unique
+is_globally_unique:
 refers_to: Lane
 is_iso_country_code:
 first_element: {is_equal: 0.13, is_greater_than: 0.13}
@@ -80,12 +100,13 @@ check_if: [{is_equal: 2, is_greater_than: 3, target: this.y}, {do_check: {is_equ
 
 == Severity
 
-When an attribute does not comply with a rule, a Warning is throw. An
-Error will be throw if an exclamation mark is written at the end of the
+When an attribute does not comply with a rule, a warning is thrown. An
+error will be thrown if an exclamation mark is written at the end of the
 verb of a rule.
 
 === Example
 
-....
+[source,YAML]
+----
 is_greater_than!: 0
-....
+----
