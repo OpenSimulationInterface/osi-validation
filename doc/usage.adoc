@@ -87,6 +87,11 @@ python rules2yml.py # Generates the rule directory
 osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt --rules rules/ -p
 ----
 
+The rules2yml.py generates yml files for all OSI proto files containing the rules specified in OSI.
+It also generated respective yml schema files to validate the rule yml files.
+The schema files are located in <rules_folder>/schema.
+When executing osivalidator, all rule files are validated against their respective schema.
+
 After successfully running the validation the following output is
 generated:
 
