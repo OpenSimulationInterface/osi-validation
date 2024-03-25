@@ -12,6 +12,7 @@ from enum import Enum
 
 from ruamel.yaml import YAML
 from pathlib import Path
+import yamale
 
 import osi_rules_implementations
 
@@ -31,6 +32,25 @@ class OSIRules:
             "orientation_acceleration",
         }
 
+    def validate_rules_yml(self, file=None):
+        """Validate rule yml files against schema."""
+
+        # Read schema file
+        directory = os.path.dirname(file)
+        filename, file_extension = os.path.splitext(os.path.basename(file))
+        schema_file = directory + os.sep + "schema" + os.sep + filename + "_schema.yml"
+        if os.path.exists(schema_file):
+            schema = yamale.make_schema(schema_file)
+        else:
+            print(f"WARNING: No schema file found for {file}.\n")
+            return
+
+        # Create a Data object
+        data = yamale.make_data(file)
+
+        # Validate data against the schema. Throws a ValueError if data is invalid.
+        yamale.validate(schema, data)
+
     def from_yaml_directory(self, path=None):
         """Collect validation rules found in the directory."""
 
@@ -42,6 +62,7 @@ class OSIRules:
         try:
             for filename in os.listdir(path):
                 if filename.startswith("osi_") and filename.endswith(exts):
+                    self.validate_rules_yml(os.path.join(path, filename))
                     self.from_yaml_file(os.path.join(path, filename))
 
         except FileNotFoundError:
