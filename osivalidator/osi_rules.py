@@ -49,7 +49,13 @@ class OSIRules:
         data = yamale.make_data(file)
 
         # Validate data against the schema. Throws a ValueError if data is invalid.
-        yamale.validate(schema, data)
+        try:
+            yamale.validate(schema, data)
+        except yamale.yamale_error.YamaleError as exc:
+            print(exc.message)
+            return False
+
+        return True
 
     def from_yaml_directory(self, path=None):
         """Collect validation rules found in the directory."""
@@ -59,14 +65,18 @@ class OSIRules:
             path = os.path.join(dir_path, "rules")
 
         exts = (".yml", ".yaml")
-        try:
-            for filename in os.listdir(path):
-                if filename.startswith("osi_") and filename.endswith(exts):
-                    self.validate_rules_yml(os.path.join(path, filename))
+        rule_file_errors = dict()
+        for filename in os.listdir(path):
+            if filename.startswith("osi_") and filename.endswith(exts):
+                if self.validate_rules_yml(os.path.join(path, filename)):
                     self.from_yaml_file(os.path.join(path, filename))
+                else:
+                    print(f"WARNING: Invalid rule file: {filename}.\n")
+                    rule_file_errors[filename] = rule_file_errors.get(filename, 0) + 1
 
-        except FileNotFoundError:
-            print("Error while reading files OSI-rules. Exiting!")
+        if rule_file_errors:
+            print(f"Errors per file: {rule_file_errors}")
+            raise Exception("Errors were found in the OSI rule files.")
 
     def from_yaml_file(self, path):
         """Import from a file"""

@@ -151,7 +151,12 @@ def main():
 
     # Collect Validation Rules
     print("Collect validation rules ...")
-    VALIDATION_RULES.from_yaml_directory(args.rules)
+    try:
+        VALIDATION_RULES.from_yaml_directory(args.rules)
+    except Exception as e:
+        DATA.trace_file.close()
+        print("Error collecting validation rules:", e)
+        exit(1)
 
     # Pass all timesteps or the number specified
     if args.timesteps != -1:
@@ -262,6 +267,7 @@ def get_message_count(data, data_type="SensorView", from_message=0, to_message=N
     try:
         VALIDATION_RULES.from_yaml_directory("osi-validation/rules/")
     except Exception as e:
+        DATA.trace_file.close()
         print("Error collecting validation rules:", e)
 
     # Pass all timesteps or the number specified
