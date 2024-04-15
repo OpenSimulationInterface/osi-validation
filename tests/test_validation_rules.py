@@ -101,7 +101,9 @@ LidarSpecificObjectData:
             rule_file.write(raw_sensorspecific)
 
         validation_rules = OSIRules()
-        validation_output = validation_rules.validate_rules_yml("unit_test_rules/osi_sensorspecific.yml")
+        validation_output = validation_rules.validate_rules_yml(
+            "unit_test_rules/osi_sensorspecific.yml"
+        )
         self.assertEqual(validation_output, False)
 
         # clean up
