@@ -152,12 +152,11 @@ def main():
         LOGGER.info(None, "Pass all timesteps")
         max_timestep = None
 
-    index = 0
     total_length = os.path.getsize(args.data)
     current_pos = 0
 
     with tqdm(total=total_length, unit="B", unit_scale=True, unit_divisor=1024) as pbar:
-        for message in trace:
+        for index, message in enumerate(trace):
             if index % args.blast == 0:
                 LOGS = []
             if max_timestep and index >= max_timestep:
@@ -170,7 +169,6 @@ def main():
             new_pos = trace.file.tell()
             pbar.update(new_pos - current_pos)
             current_pos = new_pos
-            index += 1
 
     trace.close()
     display_results()
