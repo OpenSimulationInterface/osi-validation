@@ -11,7 +11,7 @@ The full documentation on the validator and customization of the rules is availa
 ## Usage
 
 ```bash
-usage: osivalidator [-h] [--data DATA] [--rules RULES] [--type {SensorView,GroundTruth,SensorData}] [--output OUTPUT] [--timesteps TIMESTEPS] [--debug] [--verbose] [--parallel] [--format {separated,None}]
+usage: osivalidator [-h] --data DATA [--rules RULES] [--type {SensorView,GroundTruth,SensorData}] [--output OUTPUT] [--timesteps TIMESTEPS] [--debug] [--verbose] [--parallel] [--format {None}]
                     [--blast BLAST] [--buffer BUFFER]
 
 Validate data defined at the input
@@ -29,13 +29,13 @@ optional arguments:
                         Number of timesteps to analyze. If -1, all.
   --debug               Set the debug mode to ON.
   --verbose, -v         Set the verbose mode to ON.
-  --parallel, -p        Set parallel mode to ON.
-  --format {separated,None}, -f {separated,None}
-                        Set the format type of the trace.
+  --parallel, -p        (Ignored) Set parallel mode to ON.
+  --format {None}, -f {None}
+                        (Ignored) Set the format type of the trace.
   --blast BLAST, -bl BLAST
-                        Set the in-memory storage count of OSI messages during validation.
+                        Set the maximum in-memory storage count of OSI messages during validation.
   --buffer BUFFER, -bu BUFFER
-                        Set the buffer size to retrieve OSI messages from trace file. Set it to 0 if you do not want to use buffering at all.
+                        (Ignored) Set the buffer size to retrieve OSI messages from trace file. Set it to 0 if you do not want to use buffering at all.
 ```
 
 ## Installation
@@ -80,5 +80,5 @@ $ source .venv/Scripts/activate
 ## Example command
 
 ```bash
-$ osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.txt --rules rules/
+$ osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi --rules rules/
 ```
