@@ -48,6 +48,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
+        submodules: recursive
         lfs: true
 
     - name: Set up Python ${{ matrix.python-version }}
@@ -55,35 +56,12 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Cache Dependencies
-      id: cache-depends
-      uses: actions/cache@v3
-      with:
-        path: protobuf-3.20.1
-        key: ${{ runner.os }}-v2-depends
-
-    - name: Download ProtoBuf
-      if: steps.cache-depends.outputs.cache-hit != 'true'
-      run: curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.20.1/protobuf-all-3.20.1.tar.gz && tar xzvf protobuf-all-3.20.1.tar.gz
-
-    - name: Build ProtoBuf
-      if: steps.cache-depends.outputs.cache-hit != 'true'
-      working-directory: protobuf-3.20.1
-      run: ./configure DIST_LANG=cpp --prefix=/usr && make
-
-    - name: Install ProtoBuf
-      working-directory: protobuf-3.20.1
-      run: sudo make install && sudo ldconfig
-
-    - name: Install Open Simulation Interface
-      shell: bash
+    - name: Set up Virtual Environment
       run: |
-        git submodule update --init
         python -m venv .venv
         source .venv/bin/activate
         python -m pip install --upgrade pip
         pip install -r requirements_develop.txt
-        cd open-simulation-interface && pip install . && cd .. 
 
     - name: Generate parsed rules
       run: |
