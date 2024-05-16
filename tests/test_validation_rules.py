@@ -66,7 +66,7 @@ class TestValidationRules(unittest.TestCase):
     def test_yaml_generation(self):
         gen_yml_rules("unit_test_rules/")
 
-        num_proto_files = len(glob("open-simulation-interface/*.proto"))
+        num_proto_files = len(glob("open-simulation-interface/*.proto*"))
         num_rule_files = len(glob("unit_test_rules/*.yml"))
         num_rule_schema_files = len(glob("unit_test_rules/schema/*.yml"))
         self.assertEqual(num_proto_files, num_rule_files)
