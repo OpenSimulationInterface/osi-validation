@@ -54,7 +54,7 @@ the validation by providing `+-p+` flag:
 
 [source,bash]
 ----
-osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi -p
+osivalidator --data data/20240221T141700Z_sv_312_10_one_moving_object.osi -p
 ----
 
 To validate trace files with rules defined in the comments of
@@ -64,7 +64,7 @@ need to generate them and then specify them:
 [source,bash]
 ----
 python rules2yml.py # Generates the rule directory
-osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi --rules rules -p
+osivalidator --data data/20240221T141700Z_sv_312_10_one_moving_object.osi --rules rules -p
 ----
 
 After successfully running the validation the following output is
