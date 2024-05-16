@@ -24,15 +24,7 @@ def add_default_rules_to_subfields(message, type_rules):
         )
 
         if descriptor.message_type:
-            field_rules.add_rule(osi_rules.Rule(verb="is_valid"))
-
-        is_set_severity = (
-            osi_rules.Severity.WARN
-            if field_rules.has_rule("is_optional")
-            else osi_rules.Severity.ERROR
-        )
-
-        field_rules.add_rule(osi_rules.Rule(verb="is_set", severity=is_set_severity))
+            field_rules.add_rule(osi_rules.Rule(verb="check_children"))
 
 
 # DECORATORS
@@ -100,7 +92,7 @@ type_match = {
 
 
 @rule_implementation
-def is_valid(self, field, rule):
+def check_children(self, field, rule):
     """Check if a field message is valid, that is all the inner rules of the
     message in the field are complying.
 
@@ -122,20 +114,19 @@ def is_valid(self, field, rule):
     else:
         subfield_rules = rule.root.get_type(field.message_type)
 
-    result = True
     # Add default rules for each subfield that can be validated (default)
     add_default_rules_to_subfields(field, subfield_rules)
 
     # loop over the fields in the rules
     for subfield_rules in subfield_rules.fields.values():
         for subfield_rule in subfield_rules.rules.values():
-            result = self.check_rule(field, subfield_rule) and result
+            self.check_rule(field, subfield_rule)
 
         # Resolve ID and references
     if not field.parent:
         self.id_manager.resolve_unicity(self.timestamp)
         self.id_manager.resolve_references(self.timestamp)
-    return result
+    return True
 
 
 @rule_implementation

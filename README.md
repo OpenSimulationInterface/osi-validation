@@ -80,5 +80,5 @@ $ source .venv/Scripts/activate
 ## Example command
 
 ```bash
-$ osivalidator --data data/20210818T150542Z_sv_312_50_one_moving_object.osi --rules rules/
+$ osivalidator --data data/20240221T141700Z_sv_300_2112_10_one_moving_object.osi --rules rules/
 ```

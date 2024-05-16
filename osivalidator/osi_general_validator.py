@@ -184,7 +184,7 @@ def process_message(message, timestep, data_type):
     LOGGER.info(None, f"Analyze message of timestamp {timestamp}", False)
 
     # Check common rules
-    getattr(rule_checker, "is_valid")(
+    getattr(rule_checker, "check_children")(
         linked_proto_field.LinkedProtoField(message, name=data_type),
         VALIDATION_RULES.get_rules().get_type(data_type),
     )
