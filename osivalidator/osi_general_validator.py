@@ -185,7 +185,7 @@ def process_message(message, timestep, data_type):
 
     # Check common rules
     getattr(rule_checker, "check_children")(
-        message, VALIDATION_RULES.get_rules().get_type(data_type)
+        linked_proto_field.LinkedProtoField(message, name=data_type), VALIDATION_RULES.get_rules().get_type(data_type)
     )
 
     LOGS.extend(LOGGER.log_messages[timestep])
