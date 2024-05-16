@@ -68,6 +68,10 @@ jobs:
         source .venv/bin/activate
         pip install -r requirements.txt
         python rules2yml.py -d rules
+        cd rules
+        ls -l
+        cd schema
+        ls -l
 
     - name: Check rule correctness with unittests
       run: |
