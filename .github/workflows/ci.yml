@@ -62,12 +62,11 @@ jobs:
         source .venv/bin/activate
         python -m pip install --upgrade pip
         pip install -r requirements_develop.txt
-        pip install -r requirements.txt
-        pip install .
 
     - name: Generate parsed rules
       run: |
         source .venv/bin/activate
+        pip install -r requirements.txt
         python rules2yml.py -d rules
         cd rules
         ls -l
@@ -82,5 +81,6 @@ jobs:
     - name: Run osi-validator
       run: |
         source .venv/bin/activate
+        pip install .
         osivalidator --data data/20240221T141700Z_sv_300_2112_10_one_moving_object.osi -r rules
         osivalidator --data data/20240221T141700Z_sv_300_2112_10_one_moving_object.osi -r rules --parallel
