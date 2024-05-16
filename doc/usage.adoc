@@ -49,14 +49,6 @@ the path to the trace:
 osivalidator --data data/20240221T141700Z_sv_300_2112_10_one_moving_object.osi
 ----
 
-You can also validate the trace in parallel to increase the speed of
-the validation by providing `+-p+` flag:
-
-[source,bash]
-----
-osivalidator --data data/20240221T141700Z_sv_300_2112_10_one_moving_object.osi -p
-----
-
 To validate trace files with rules defined in the comments of
 `+*.proto+` files in the open-simulation-interface repository first you
 need to generate them and then specify them:
