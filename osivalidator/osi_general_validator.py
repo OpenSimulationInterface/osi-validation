@@ -46,7 +46,7 @@ def command_line_arguments():
     parser.add_argument(
         "--rules",
         "-r",
-        help="Directory with text files containig rules. ",
+        help="Directory with yml files containing rules. ",
         default=os.path.join(dir_path, "rules"),
         type=str,
     )
