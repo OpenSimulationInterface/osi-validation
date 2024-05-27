@@ -46,7 +46,7 @@ def command_line_arguments():
     parser.add_argument(
         "--rules",
         "-r",
-        help="Directory with text files containig rules. ",
+        help="Directory with yml files containing rules. ",
         default=os.path.join(dir_path, "rules"),
         type=str,
     )
@@ -142,7 +142,12 @@ def main():
 
     # Collect Validation Rules
     print("Collect validation rules ...")
-    VALIDATION_RULES.from_yaml_directory(args.rules)
+    try:
+        VALIDATION_RULES.from_yaml_directory(args.rules)
+    except Exception as e:
+        trace.close()
+        print("Error collecting validation rules:", e)
+        exit(1)
 
     # Pass all timesteps or the number specified
     if args.timesteps != -1:

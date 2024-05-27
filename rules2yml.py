@@ -41,6 +41,115 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
+    if not os.path.exists(dir_name + "/schema"):
+        os.makedirs(dir_name + "/schema")
+
+    for file in glob("open-simulation-interface/*.proto*"):
+        filename = file.split("open-simulation-interface/")[1].split(".proto")[0]
+
+        if os.path.exists(f"{dir_name}/{filename}.yml"):
+            continue
+
+        with open(f"{dir_name}/schema/{filename}_schema.yml", "a") as schema_file:
+            with open(file, "rt") as fin:
+                isEnum = False
+                numMessage = 0
+                saveStatement = ""
+                prevMainField = False  # boolean, that the previous field has children
+
+                for line in fin:
+                    if file.find(".proto") != -1:
+                        # Search for comment ("//").
+                        matchComment = re.search("//", line)
+                        if matchComment is not None:
+                            statement = line[: matchComment.start()]
+                        else:
+                            statement = line
+
+                        # Add part of the statement from last line.
+                        statement = saveStatement + " " + statement
+
+                        # New line is not necessary. Remove for a better output.
+                        statement = statement.replace("\n", "")
+
+                        # Is statement complete
+                        matchSep = re.search(r"[{};]", statement)
+                        if matchSep is None:
+                            saveStatement = statement
+                            statement = ""
+                        else:
+                            saveStatement = statement[matchSep.end() :]
+                            statement = statement[: matchSep.end()]
+
+                        # Search for "enum".
+                        matchEnum = re.search(r"\benum\b", statement)
+                        if matchEnum is not None:
+                            isEnum = True
+
+                        # Search for a closing brace.
+                        matchClosingBrace = re.search("}", statement)
+                        if isEnum is True and matchClosingBrace is not None:
+                            isEnum = False
+                            continue
+
+                        # Check if not inside an enum.
+                        if isEnum is False:
+                            # Search for "message".
+                            matchMessage = re.search(r"\bmessage\b", statement)
+                            if matchMessage is not None:
+                                # a new message or a new nested message
+                                numMessage += 1
+                                endOfLine = statement[matchMessage.end() :]
+                                matchName = re.search(r"\b\w[\S]*\b", endOfLine)
+                                if matchName is not None and prevMainField is False:
+                                    # Check previous main field to exclude empty fields from sensor specific file
+                                    matchNameConv = re.search(
+                                        r"\b[A-Z][a-zA-Z0-9]*\b",
+                                        endOfLine[matchName.start() : matchName.end()],
+                                    )
+                                    schema_file.write(
+                                        2 * (numMessage - 1) * " "
+                                        + f"{matchNameConv.group(0)}:\n"
+                                    )
+                                    prevMainField = True
+
+                            elif re.search(r"\bextend\b", statement) is not None:
+                                # treat extend as message
+                                numMessage += 1
+
+                            # Search for a closing brace.
+                            matchClosingBrace = re.search("}", statement)
+                            if numMessage > 0 and matchClosingBrace is not None:
+                                numMessage -= 1
+
+                            if matchComment is None and len(saveStatement) == 0:
+                                if numMessage > 0 or isEnum == True:
+                                    if statement.find(";") != -1:
+                                        field = statement.strip().split()[2]
+                                        schema_file.write(
+                                            (2 * numMessage) * " "
+                                            + f"{field}: any(list(include('rules', required=False)), null(), required=False)\n"
+                                        )
+                                        prevMainField = False
+                schema_file.write(
+                    "---\n"
+                    "rules:\n"
+                    "  is_greater_than: num(required=False)\n"
+                    "  is_greater_than_or_equal_to: num(required=False)\n"
+                    "  is_less_than_or_equal_to: num(required=False)\n"
+                    "  is_less_than: num(required=False)\n"
+                    "  is_equal_to: any(num(), bool(), required=False)\n"
+                    "  is_different_to: num(required=False)\n"
+                    "  is_globally_unique: str(required=False)\n"
+                    "  refers_to: str(required=False)\n"
+                    "  is_iso_country_code: str(required=False)\n"
+                    "  is_set: str(required=False)\n"
+                    "  check_if: list(include('rules', required=False),required=False)\n"
+                    "  do_check: any(required=False)\n"
+                    "  target: any(required=False)\n"
+                    "  first_element: any(required=False)\n"
+                    "  last_element: any(required=False)"
+                )
 
     for file in glob("open-simulation-interface/*.proto*"):
         filename = file.split("open-simulation-interface/")[1].split(".proto")[0]
@@ -54,6 +163,7 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
                 numMessage = 0
                 shiftCounter = False
                 saveStatement = ""
+                prevMainField = False  # boolean, that the previous field has children
                 rules = []
 
                 for line in fin:
@@ -120,7 +230,7 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
                                 numMessage += 1
                                 endOfLine = statement[matchMessage.end() :]
                                 matchName = re.search(r"\b\w[\S]*\b", endOfLine)
-                                if matchName is not None:
+                                if matchName is not None and prevMainField is False:
                                     # Test case 10: Check name - no special char -
                                     # start with a capital letter
                                     matchNameConv = re.search(
@@ -132,6 +242,7 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
                                         2 * (numMessage - 1) * " "
                                         + f"{matchNameConv.group(0)}:\n"
                                     )
+                                    prevMainField = True
 
                             elif re.search(r"\bextend\b", statement) is not None:
                                 # treat extend as message
@@ -168,6 +279,8 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
                                         yml_file.write(
                                             (2 * numMessage) * " " + f"{field}:\n"
                                         )
+                                        prevMainField = False
+
                                         # If option --full-osi is enabled:
                                         # Check if is_set is already a rule for the current field, if not, add it.
                                         if full_osi and not any(
@@ -233,6 +346,7 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
                                                         (2 * numMessage + 8) * " "
                                                         + f"- {rule_list[2]}: {rule_list[3]}\n"
                                                     )
+
                                                 # Standalone rules
                                                 elif any(
                                                     list_item
