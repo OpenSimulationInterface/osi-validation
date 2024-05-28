@@ -54,7 +54,14 @@ def command_line_arguments():
         "--type",
         "-t",
         help="Name of the type used to serialize data. Default is SensorView.",
-        choices=["SensorView", "GroundTruth", "SensorData", "TrafficUpdate", "TrafficCommandUpdate", "TrafficCommand"],
+        choices=[
+            "SensorView",
+            "GroundTruth",
+            "SensorData",
+            "TrafficUpdate",
+            "TrafficCommandUpdate",
+            "TrafficCommand",
+        ],
         type=str,
         required=False,
     )
