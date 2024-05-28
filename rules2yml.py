@@ -44,7 +44,7 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
     if not os.path.exists(dir_name + "/schema"):
         os.makedirs(dir_name + "/schema")
 
-    for file in glob("open-simulation-interface/*.proto"):
+    for file in glob("open-simulation-interface/*.proto*"):
         filename = file.split("open-simulation-interface/")[1].split(".proto")[0]
 
         if os.path.exists(f"{dir_name}/{filename}.yml"):
