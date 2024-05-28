@@ -54,7 +54,7 @@ def command_line_arguments():
         "--type",
         "-t",
         help="Name of the type used to serialize data. Default is SensorView.",
-        choices=["SensorView", "GroundTruth", "SensorData"],
+        choices=["SensorView", "GroundTruth", "SensorData", "TrafficUpdate", "TrafficCommandUpdate", "TrafficCommand"],
         type=str,
         required=False,
     )
@@ -138,6 +138,12 @@ def detect_message_type(path: str):
         return "SensorView"
     if filename.find("_gt_") != -1:
         return "GroundTruth"
+    if filename.find("_tu_") != -1:
+        return "TrafficUpdate"
+    if filename.find("_tcu_") != -1:
+        return "TrafficCommandUpdate"
+    if filename.find("_tc_") != -1:
+        return "TrafficCommand"
     return "SensorView"
 
 
