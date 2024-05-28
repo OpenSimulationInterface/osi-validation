@@ -53,9 +53,8 @@ def command_line_arguments():
     parser.add_argument(
         "--type",
         "-t",
-        help="Name of the type used to serialize data.",
+        help="Name of the type used to serialize data. Default is SensorView.",
         choices=["SensorView", "GroundTruth", "SensorData"],
-        default="SensorView",
         type=str,
         required=False,
     )
@@ -122,11 +121,34 @@ LOGGER = osi_validator_logger.OSIValidatorLogger()
 VALIDATION_RULES = osi_rules.OSIRules()
 
 
+def detect_message_type(path: str):
+    """Automatically detect the message type from the file name.
+    If it cannot be detected, the function return SensorView as default.
+
+    Args:
+        path (str): Path incl. filename of the trace file
+
+    Returns:
+        Str: Message type as string, e.g. SensorData, SensorView etc.
+    """
+    filename = os.path.basename(path)
+    if filename.find("_sd_") != -1:
+        return "SensorData"
+    if filename.find("_sv_") != -1:
+        return "SensorView"
+    if filename.find("_gt_") != -1:
+        return "GroundTruth"
+    return "SensorView"
+
+
 def main():
     """Main method"""
 
     # Handling of command line arguments
     args = command_line_arguments()
+
+    if not args.type:
+        args.type = detect_message_type(args.data)
 
     # Instantiate Logger
     print("Instantiate logger ...")
