@@ -199,6 +199,8 @@ def main():
 
     trace.close()
     display_results()
+    if get_num_logs() > 0:
+        exit(1)
 
 
 def process_message(message, timestep, data_type):
@@ -222,6 +224,10 @@ def process_message(message, timestep, data_type):
 # Synthetize Logs
 def display_results():
     return LOGGER.synthetize_results(LOGS)
+
+
+def get_num_logs():
+    return len(LOGS)
 
 
 if __name__ == "__main__":
