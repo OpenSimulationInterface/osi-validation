@@ -118,6 +118,9 @@ Ranges of timestamps    Message
 [START_TIMESTAMP, END_TIMESTAMP]    PATH_TO_RULE(VALUE) does not comply in PATH_TO_OSI_FIELD
 ----
 
+The osivalidator will end the execution with the exit code 1, if warnings or errors are generated.
+If the trace file is valid and no warning or errors occurred, the execution is ended with exit code 0.
+
 == Understanding Validation Output
 
 To better understand the validation output let us use the example

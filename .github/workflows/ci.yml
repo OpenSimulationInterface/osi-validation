@@ -78,5 +78,5 @@ jobs:
       run: |
         source .venv/bin/activate
         pip install .
-        osivalidator --data data/20240221T141700Z_sv_300_2112_10_one_moving_object.osi -r rules
-        osivalidator --data data/20240221T141700Z_sv_300_2112_10_one_moving_object.osi -r rules --parallel
+        osivalidator --data data/20240604T065310Z_sv_370_244_20_generic_valid_sensor_view.osi -r rules
+        osivalidator --data data/20240604T065310Z_sv_370_244_20_generic_valid_sensor_view.osi -r rules --parallel
