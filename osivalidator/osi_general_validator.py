@@ -64,7 +64,7 @@ def command_line_arguments():
             "TrafficCommandUpdate",
             "TrafficCommand",
             "MotionRequest",
-            "StreamingUpdate"
+            "StreamingUpdate",
         ],
         type=str,
         required=False,

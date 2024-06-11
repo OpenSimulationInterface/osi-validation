@@ -3,7 +3,6 @@ from osivalidator.osi_general_validator import detect_message_type
 
 
 class TestDetectMessageType(unittest.TestCase):
-
     def test_detect_message_type_sensor_data(self):
         path = "path/to/file_sd_123.osi"
         message_type = detect_message_type(path)
@@ -65,5 +64,5 @@ class TestDetectMessageType(unittest.TestCase):
         self.assertEqual(message_type, "SensorView")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
