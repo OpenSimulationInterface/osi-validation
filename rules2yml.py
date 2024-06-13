@@ -47,7 +47,7 @@ def gen_yml_rules(dir_name="rules", full_osi=False):
     for file in glob("open-simulation-interface/*.proto*"):
         filename = file.split("open-simulation-interface/")[1].split(".proto")[0]
 
-        if os.path.exists(f"{dir_name}/{filename}.yml"):
+        if os.path.exists(f"{dir_name}/schema/{filename}_schema.yml"):
             continue
 
         with open(f"{dir_name}/schema/{filename}_schema.yml", "a") as schema_file:
