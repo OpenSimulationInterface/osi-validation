@@ -147,8 +147,6 @@ class OSIValidatorLogger:
     @log
     def info(self, timestamp, msg, *args, **kwargs):
         """Wrapper for python info logger"""
-        if timestamp:
-            self.log_messages[timestamp].append((20, timestamp, msg))
         if kwargs.get("pass_to_logger"):
             return self.logger.info(msg, *args, **kwargs)
         return 0
