@@ -50,12 +50,10 @@ Check the installation prerequisites of the [Open Simulation Interface](https://
 ```bash
 $ git clone https://github.com/OpenSimulationInterface/osi-validation.git
 $ cd osi-validation
-$ git submodule update --init
 $ python3 -m venv .venv
 $ source .venv/bin/activate
 (.venv) $ python3 -m pip install --upgrade pip
 (.venv) $ python3 -m pip install -r requirements_develop.txt
-(.venv) $ cd open-simulation-interface && python3 -m pip install . && cd ..
 (.venv) $ python3 -m pip install -r requirements.txt
 (.venv) $ python3 rules2yml.py -d rules
 (.venv) $ python3 -m pip install .
@@ -66,12 +64,10 @@ $ source .venv/bin/activate
 ```bash
 $ git clone https://github.com/OpenSimulationInterface/osi-validation.git
 $ cd osi-validation
-$ git submodule update --init
 $ python -m venv .venv
 $ source .venv/Scripts/activate
 (.venv) $ python -m pip install --upgrade pip
 (.venv) $ python -m pip install -r requirements_develop.txt
-(.venv) $ cd open-simulation-interface && python -m pip install . && cd ..
 (.venv) $ python -m pip install -r requirements.txt
 (.venv) $ python rules2yml.py -d rules
 (.venv) $ python -m pip install .
