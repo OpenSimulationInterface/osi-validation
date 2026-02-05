@@ -49,7 +49,7 @@ if __name__ == "__main__":
             "ruamel.yaml>=0.18.5",
             "defusedxml>=0.7.1",
             "iso3166>=2.1.1",
-            "protobuf==4.24.4",
+            "protobuf==5.29.6",
             "open-simulation-interface @ git+https://github.com/OpenSimulationInterface/open-simulation-interface.git@v3.7.0-rc1",
         ],
         entry_points={
